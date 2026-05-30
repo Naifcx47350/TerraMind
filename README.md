@@ -1,4 +1,8 @@
-# TerraMind
+<div align="center">
+  <img src="TM_Logo.png" width="20%" height="20%">
+</div>
+
+# TerraMind 
 
 MVP agriculture knowledge assistant with Retrieval-Augmented Generation (RAG).
 
