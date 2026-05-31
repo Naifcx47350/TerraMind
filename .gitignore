@@ -10,3 +10,6 @@ __pycache__/
 .vscode/
 check_openai_key.py
 Test.py
+node_modules/
+dist/
+.vite/
