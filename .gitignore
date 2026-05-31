@@ -8,3 +8,5 @@ __pycache__/
 .venv/
 *.egg-info/
 .vscode/
+check_openai_key.py
+Test.py
