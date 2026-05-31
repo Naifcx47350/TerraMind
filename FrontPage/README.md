@@ -43,6 +43,8 @@ agromind-final/
 
 ## Quick Start
 
+**Local setup on Windows (nvm + conda, two terminals):** see [RUN_LOCALLY.md](./RUN_LOCALLY.md).
+
 ### 1. Setup
 
 ```bash

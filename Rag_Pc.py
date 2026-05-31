@@ -214,7 +214,8 @@ def answer_with_rag(db: Chroma, question: str, k: int = RETRIEVAL_K) -> dict:
     retrieved = retrieve_products(db, question, k=k)
     context = format_context(retrieved)
 
-    prompt_value = RAG_PROMPT.invoke({"context": context, "question": question})
+    prompt_value = RAG_PROMPT.invoke(
+        {"context": context, "question": question})
     messages = prompt_value.to_messages()
     prompt_text = _format_messages_for_print(messages)
 
