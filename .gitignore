@@ -1,15 +1,27 @@
+# === Data, Outputs, and Results ===
 data/
+vectorstore/
+
+# === Environment Variables ===
 .env
 .cursorignore
-vectorstore/
+
+# === Python Cache and Artifacts ===
 __pycache__/
 *.pyc
 .pytest_cache/
-.venv/
 *.egg-info/
+.venv/
+
+# === VSCode & Editor Files ===
 .vscode/
-check_openai_key.py
-Test.py
+
+# === Node & JavaScript Build Artifacts ===
 node_modules/
 dist/
 .vite/
+
+# === Miscellaneous ===
+check_openai_key.py
+Test.py
+catgrouse
