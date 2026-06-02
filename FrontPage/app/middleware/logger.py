@@ -3,7 +3,7 @@ import logging
 from fastapi import FastAPI, Request
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(message)s")
-logger = logging.getLogger("agromind")
+logger = logging.getLogger("terramind")
 
 
 def add_logger(app: FastAPI):

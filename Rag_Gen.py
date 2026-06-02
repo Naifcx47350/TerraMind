@@ -2,6 +2,7 @@
 # TerraMind — learning RAG script (load → chunk → store → retrieve → generate)
 # =============================================================================
 
+import argparse
 from pathlib import Path
 import shutil
 
@@ -23,7 +24,7 @@ DATA_PATH = PROJECT_ROOT / "data/raw/text/Pest_Management_FAO.md"
 CHROMA_PATH = PROJECT_ROOT / "vectorstore" / "chroma"
 
 EMBEDDING_MODEL = "text-embedding-3-small"  # do not rely on ada-002 default
-CHAT_MODEL = "gpt-3.5-turbo"
+CHAT_MODEL = "gpt-4o-mini"
 RETRIEVAL_K = 4
 
 RAG_PROMPT = ChatPromptTemplate.from_template(
@@ -78,6 +79,7 @@ def chunk_document(doc: Document) -> list[Document]:
         chunk_overlap=500,
         length_function=len,
         add_start_index=True,
+
     )
     return splitter.split_documents([doc])
 
@@ -144,6 +146,39 @@ def answer_with_rag(db: Chroma, question: str, k: int = RETRIEVAL_K) -> dict:
     }
 
 
+_db: Chroma | None = None
+
+
+def init_general_rag(reset: bool = False) -> Chroma:
+    """Load or build the agriculture document Chroma index."""
+    global _db
+    doc = load_document(DATA_PATH)
+    chunks = chunk_document(doc)
+    _db = build_chroma_db(chunks, reset=reset)
+    return _db
+
+
+def get_general_db() -> Chroma:
+    global _db
+    if _db is None:
+        _db = init_general_rag(reset=False)
+    return _db
+
+
+def sources_from_retrieved(retrieved: list[Document]) -> list[dict]:
+    seen: set[str] = set()
+    sources: list[dict] = []
+    for doc in retrieved:
+        title = doc.metadata.get("title") or doc.metadata.get(
+            "filename", "Document")
+        source = doc.metadata.get("source", "agriculture_knowledge")
+        if source in seen:
+            continue
+        seen.add(source)
+        sources.append({"title": title, "source": source, "section": None})
+    return sources
+
+
 # -----------------------------------------------------------------------------
 # 6. Optional metric — embedding distance between adjacent chunks
 # -----------------------------------------------------------------------------
@@ -174,17 +209,25 @@ def evaluate_chunk_similarity(chunk_docs: list[Document], max_pairs: int = 5) ->
 # Main — run the pipeline
 # -----------------------------------------------------------------------------
 if __name__ == "__main__":
-    query = (
+    parser = argparse.ArgumentParser(
+        description="TerraMind general agriculture RAG")
+    parser.add_argument(
+        "--reset",
+        action="store_true",
+        help="Delete and rebuild the Chroma index",
+    )
+    parser.add_argument("question", nargs="?", default=None,
+                        help="Optional test question")
+    args = parser.parse_args()
+
+    query = args.question or (
         "A potato farmer has repeated late blight outbreaks and wants to reduce pesticide use. "
         "Based on the provided document, what integrated disease management steps should they take "
         "before relying on fungicides, and when should fungicide application be planned?"
     )
 
-    doc = load_document(DATA_PATH)
-    chunks = chunk_document(doc)
-    print(f"Split 1 document into {len(chunks)} chunks")
-
-    db = build_chroma_db(chunks)
+    db = init_general_rag(reset=args.reset)
+    print(f"General RAG ready ({db._collection.count()} vectors in index)")
 
     print("\n--- Retrieved chunks ---")
     retrieved = retrieve_chunks(db, query)

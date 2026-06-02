@@ -1,6 +1,17 @@
+import logging
 import time
 import httpx
-from app.schemas.ask import AskRequest, AskResponse, SourceDoc
+
+logger = logging.getLogger(__name__)
+import asyncio
+
+from app.schemas.ask import (
+    AskCompareResponse,
+    AskRequest,
+    AskResponse,
+    ModelCompareResult,
+    SourceDoc,
+)
 from app.config import settings
 
 PROVIDERS = {
@@ -242,6 +253,16 @@ async def _answer_with_llm(question: str, lang: str, context: str = "", history:
 
 
 async def _analyze_image(image_base64: str, mime: str, question: str, lang: str) -> str:
+    if settings.vision_api_key:
+        try:
+            from models.vision import analyze_image
+
+            return await asyncio.to_thread(
+                analyze_image, image_base64, mime, question, lang
+            )
+        except Exception as e:
+            logger.warning("LangChain vision failed, trying HTTP fallback: %s", e)
+
     if not settings.vision_provider or not settings.vision_api_key:
         return None
 
@@ -315,6 +336,7 @@ async def call_rag(request: AskRequest) -> AskResponse:
         try:
             rag_payload = {
                 "question": request.question,
+                "model": request.model or "product_rag",
                 "language": lang,
                 "history": [{"role": m.role, "content": m.content} for m in (request.history or [])[-10:]],
             }
@@ -324,6 +346,9 @@ async def call_rag(request: AskRequest) -> AskResponse:
 
             if image_analysis:
                 rag_payload["image_analysis"] = image_analysis
+            if request.image_base64 and request.image_mime:
+                rag_payload["image_base64"] = request.image_base64
+                rag_payload["image_mime"] = request.image_mime
 
             async with httpx.AsyncClient(timeout=settings.request_timeout) as client:
                 resp = await client.post(settings.rag_service_url, json=rag_payload)
@@ -356,11 +381,32 @@ async def call_rag(request: AskRequest) -> AskResponse:
                 retrieved_chunks=rag_data.get("retrieved_chunks", rag_data.get("num_sources", len(parsed_sources))),
                 latency_ms=int((time.time() - start) * 1000),
                 system=rag_data.get("system", "rag"),
+                model=rag_data.get("model", request.model or "product_rag"),
                 detected_language=lang,
                 image_analysis=image_analysis,
             )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.error(
+                "RAG service call failed (%s): %s",
+                settings.rag_service_url,
+                e,
+            )
+            if not settings.use_mock:
+                return AskResponse(
+                    answer=(
+                        "The product knowledge service is not reachable.\n\n"
+                        "Start it from the TerraMind repo root:\n"
+                        "  uvicorn rag_api:app --reload --port 8001\n\n"
+                        f"Details: {e}"
+                    ),
+                    sources=[],
+                    confidence="low",
+                    retrieved_chunks=0,
+                    latency_ms=int((time.time() - start) * 1000),
+                    system="error:rag_unreachable",
+                    detected_language=lang,
+                    image_analysis=image_analysis,
+                )
 
     if settings.llm_provider and settings.llm_api_key:
         try:
@@ -383,4 +429,211 @@ async def call_rag(request: AskRequest) -> AskResponse:
         except Exception:
             pass
 
-    return _mock_response(request, int((time.time() - start) * 1000), image_analysis)
+    if settings.use_mock:
+        return _mock_response(request, int((time.time() - start) * 1000), image_analysis)
+
+    logger.warning("No backend available — enable mock or configure RAG/LLM.")
+    return AskResponse(
+        answer=(
+            "No AI backend is configured. Add FrontPage/.env with:\n"
+            "  USE_MOCK=false\n"
+            "  RAG_SERVICE_URL=http://localhost:8001/query\n"
+            "and run: uvicorn rag_api:app --reload --port 8001"
+        ),
+        sources=[],
+        confidence="low",
+        retrieved_chunks=0,
+        latency_ms=int((time.time() - start) * 1000),
+        system="error:no_backend",
+        detected_language=lang,
+        image_analysis=image_analysis,
+    )
+
+
+def _compare_url() -> str | None:
+    url = (settings.rag_service_url or "").strip()
+    if not url:
+        return None
+    if url.endswith("/query"):
+        return url[: -len("/query")] + "/query/compare"
+    return f"{url.rstrip('/')}/compare"
+
+
+def _parse_sources(sources: list) -> list[SourceDoc]:
+    parsed = []
+    for s in sources:
+        if isinstance(s, str):
+            parsed.append(SourceDoc(title=s, source=s))
+        elif isinstance(s, dict):
+            parsed.append(SourceDoc(
+                title=s.get("title", s.get("name", "Unknown")),
+                source=s.get("source", s.get("url", s.get("path", ""))),
+                section=s.get("section", s.get("page", None)),
+            ))
+    return parsed
+
+
+async def call_rag_compare(request: AskRequest) -> AskCompareResponse:
+    start = time.time()
+    lang = _detect_language(request.question)
+
+    image_analysis = None
+    if request.image_base64 and request.image_mime:
+        try:
+            image_analysis = await _analyze_image(
+                request.image_base64, request.image_mime, request.question, lang
+            )
+        except Exception:
+            image_analysis = None
+
+    history_payload = [
+        {"role": m.role, "content": m.content}
+        for m in (request.history or [])[-10:]
+    ]
+
+    if settings.use_mock:
+        await asyncio.sleep(0.5)
+        mock_results = []
+        labels = {
+            "product_rag": "Product Catalog RAG",
+            "general_rag": "Agriculture Knowledge RAG",
+            "base_llm": "Base LLM",
+        }
+        for mid, name in labels.items():
+            single = _mock_response(
+                AskRequest(question=request.question, model=mid, history=request.history),
+                400,
+                image_analysis,
+            )
+            mock_results.append(ModelCompareResult(
+                model=mid,
+                model_name=name,
+                answer=single.answer,
+                sources=single.sources,
+                confidence=single.confidence,
+                retrieved_chunks=single.retrieved_chunks,
+                latency_ms=400,
+            ))
+        return AskCompareResponse(
+            question=request.question,
+            results=mock_results,
+            latency_ms=int((time.time() - start) * 1000),
+            detected_language=lang,
+            image_analysis=image_analysis,
+        )
+
+    compare_url = _compare_url()
+    if compare_url:
+        try:
+            payload = {
+                "question": request.question,
+                "history": history_payload,
+            }
+            if request.crop_type and request.crop_type != "all":
+                payload["crop_type"] = request.crop_type
+            if image_analysis:
+                payload["image_analysis"] = image_analysis
+            if request.image_base64 and request.image_mime:
+                payload["image_base64"] = request.image_base64
+                payload["image_mime"] = request.image_mime
+
+            async with httpx.AsyncClient(timeout=settings.request_timeout * 3) as client:
+                resp = await client.post(compare_url, json=payload)
+                resp.raise_for_status()
+                data = resp.json()
+
+            results = []
+            for row in data.get("results", []):
+                answer = row.get("answer", "")
+                if image_analysis and not any(
+                    k in (answer or "") for k in ["Image Analysis", "تحليل الصورة"]
+                ):
+                    prefix = (
+                        "**تحليل الصورة:**\n" if lang == "ar" else "**Image Analysis:**\n"
+                    ) + image_analysis + "\n\n"
+                    answer = prefix + answer
+
+                results.append(ModelCompareResult(
+                    model=row.get("model", ""),
+                    model_name=row.get("model_name", row.get("model", "")),
+                    answer=answer,
+                    sources=_parse_sources(row.get("sources", [])),
+                    confidence=row.get("confidence", "medium"),
+                    retrieved_chunks=row.get("retrieved_chunks", 0),
+                    latency_ms=row.get("latency_ms", 0),
+                    error=row.get("error"),
+                ))
+
+            return AskCompareResponse(
+                question=data.get("question", request.question),
+                results=results,
+                latency_ms=data.get("latency_ms", int((time.time() - start) * 1000)),
+                detected_language=lang,
+                image_analysis=image_analysis,
+            )
+        except Exception as e:
+            logger.error("Compare RAG call failed (%s): %s", compare_url, e)
+            if not settings.use_mock:
+                error_results = [
+                    ModelCompareResult(
+                        model=mid,
+                        model_name=mid,
+                        answer="",
+                        error=str(e),
+                    )
+                    for mid in ("product_rag", "general_rag", "base_llm")
+                ]
+                return AskCompareResponse(
+                    question=request.question,
+                    results=error_results,
+                    latency_ms=int((time.time() - start) * 1000),
+                    detected_language=lang,
+                    image_analysis=image_analysis,
+                )
+
+    # Fallback: parallel single-model calls
+    model_ids = ["product_rag", "general_rag", "base_llm"]
+    names = {
+        "product_rag": "Product Catalog RAG",
+        "general_rag": "Agriculture Knowledge RAG",
+        "base_llm": "Base LLM",
+    }
+
+    async def fetch_one(mid: str) -> ModelCompareResult:
+        t0 = time.time()
+        try:
+            sub = AskRequest(
+                question=request.question,
+                model=mid,
+                history=request.history,
+                crop_type=request.crop_type,
+                image_base64=request.image_base64,
+                image_mime=request.image_mime,
+            )
+            res = await call_rag(sub)
+            return ModelCompareResult(
+                model=mid,
+                model_name=names[mid],
+                answer=res.answer,
+                sources=res.sources,
+                confidence=res.confidence,
+                retrieved_chunks=res.retrieved_chunks,
+                latency_ms=int((time.time() - t0) * 1000),
+            )
+        except Exception as ex:
+            return ModelCompareResult(
+                model=mid,
+                model_name=names[mid],
+                answer="",
+                error=str(ex),
+                latency_ms=int((time.time() - t0) * 1000),
+            )
+
+    results = await asyncio.gather(*[fetch_one(mid) for mid in model_ids])
+    return AskCompareResponse(
+        question=request.question,
+        results=list(results),
+        latency_ms=int((time.time() - start) * 1000),
+        detected_language=lang,
+        image_analysis=image_analysis,
+    )

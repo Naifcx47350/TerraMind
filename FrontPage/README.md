@@ -1,259 +1,159 @@
-# AgroMind — Agriculture RAG System
+# TerraMind — Web Application (FrontPage)
 
-An agricultural intelligence assistant powered by RAG (Retrieval-Augmented Generation).
-Ask about crop diseases, pesticide guidance, and agronomy in any language.
+Agricultural chat UI and API gateway for the TerraMind **three-model** stack (product RAG, general RAG, base LLM).
+
+**Full technical documentation:** [../docs/PROJECT_OVERVIEW.md](../docs/PROJECT_OVERVIEW.md)  
+**Architecture summary:** [ARCHITECTURE.md](./ARCHITECTURE.md)  
+**Local run guide:** [RUN_LOCALLY.md](./RUN_LOCALLY.md)
 
 ---
 
-## Project Structure
+## What users see
 
-```
-agromind-final/
+- Chat interface with sidebar conversations (saved in the browser)
+- **Model dropdown** (top right): Product Catalog RAG, Agriculture Knowledge RAG, Base LLM
+- **Compare** button: same question → three answers in parallel columns
+- Image upload for crop/plant diagnosis (vision via **gpt-4o-mini**)
+- Optional source chips, dark/light mode, Arabic RTL
+
+---
+
+## Project structure
+
+```text
+FrontPage/
 ├── app/
-│   ├── main.py                  # FastAPI entry point
-│   ├── config.py                # Environment settings
+│   ├── main.py                  # FastAPI :8000
+│   ├── config.py                # .env, RAG URL, vision defaults
 │   ├── routers/
-│   │   ├── ask.py               # POST /api/ask
+│   │   ├── ask.py               # POST /api/ask, /api/ask/compare
+│   │   ├── models.py            # GET /api/models
 │   │   ├── health.py            # GET /api/health
-│   │   └── history.py           # GET/DELETE /api/history
-│   ├── schemas/
-│   │   └── ask.py               # Request/Response models
-│   ├── services/
-│   │   └── rag_service.py       # LLM + RAG logic
-│   └── middleware/
-│       ├── error_handler.py     # Global error handling
-│       └── logger.py            # Request logging
+│   │   └── history.py           # GET/DELETE /api/history (global log)
+│   ├── schemas/ask.py
+│   └── services/rag_service.py  # Proxy to :8001, vision, mock
 ├── frontend-react/
-│   ├── src/
-│   │   ├── App.jsx              # Main React component
-│   │   └── main.jsx             # React entry point
-│   ├── index.html
-│   ├── vite.config.js
-│   └── package.json
-├── tests/
-│   └── test_api.py
-├── .env.example
-├── .gitignore
-├── requirements.txt
-├── Dockerfile
-└── README.md
+│   ├── src/App.jsx              # UI (sessions, compare, logo)
+│   └── public/TM_Logo.png       # Logo served at /TM_Logo.png
+├── ARCHITECTURE.md
+├── RUN_LOCALLY.md
+└── requirements.txt
 ```
+
+Repo root (not inside `FrontPage/`):
+
+- `rag_api.py` — model API on **port 8001**
+- `models/` — `product_rag`, `general_rag`, `base_llm`
+- `Rag_Pc.py`, `Rag_Gen.py` — Chroma indexes
 
 ---
 
-## Quick Start
+## Quick start
 
-**Local setup on Windows (nvm + conda, two terminals):** see [RUN_LOCALLY.md](./RUN_LOCALLY.md).
+See **[RUN_LOCALLY.md](./RUN_LOCALLY.md)** for all three terminals.
 
-### 1. Setup
+```powershell
+# 1) Model API (from repo root)
+uvicorn rag_api:app --reload --port 8001
 
-```bash
-cd agromind-final
-cp .env.example .env
-pip install -r requirements.txt
-```
-
-### 2. Start the API
-
-```bash
+# 2) This API (from FrontPage/)
 uvicorn app.main:app --reload --port 8000
+
+# 3) UI
+cd frontend-react && npm run dev
 ```
 
-API running at http://localhost:8000
-Docs at http://localhost:8000/docs
-
-### 3. Start the frontend (new terminal)
-
-```bash
-cd frontend-react
-npm install
-npm run dev
-```
-
-Frontend running at http://localhost:3000
+Open http://localhost:3000
 
 ---
 
-## Supported LLM Providers
+## Environment
 
-The system works with any LLM provider. Set in `.env`:
-
-| Provider   | LLM_PROVIDER | Example Model                          |
-|------------|--------------|----------------------------------------|
-| OpenAI     | openai       | gpt-4o                                 |
-| Groq       | groq         | llama-3.3-70b-versatile                |
-| Anthropic  | anthropic    | claude-sonnet-4-20250514                    |
-| Together   | together     | meta-llama/Llama-3-70b-chat-hf        |
-| OpenRouter | openrouter   | meta-llama/llama-3.3-70b-instruct     |
-| Ollama     | local        | llama3                                 |
-
-### Example: Using Groq
+Create `FrontPage/.env` (or use defaults + root `OPENAI_API_KEY`):
 
 ```env
 USE_MOCK=false
-LLM_PROVIDER=groq
-LLM_API_KEY=gsk_your_key
-LLM_MODEL=llama-3.3-70b-versatile
+RAG_SERVICE_URL=http://localhost:8001/query
+REQUEST_TIMEOUT=90
 ```
 
-### Example: Using OpenAI
+Vision uses **gpt-4o-mini** automatically when `OPENAI_API_KEY` is set (no extra vars required).
 
-```env
-USE_MOCK=false
-LLM_PROVIDER=openai
-LLM_API_KEY=sk-your_key
-LLM_MODEL=gpt-4o
-```
-
-### Example: Using Ollama (local, no key needed)
-
-```env
-USE_MOCK=false
-LLM_PROVIDER=local
-LLM_MODEL=llama3
-LLM_BASE_URL=http://localhost:11434/api/chat
-```
-
----
-
-## Image Analysis
-
-For plant photo analysis, set a vision-capable provider:
+Optional overrides:
 
 ```env
 VISION_PROVIDER=openai
-VISION_API_KEY=sk-your_key
-VISION_MODEL=gpt-4o
-```
-
-Or with Anthropic:
-
-```env
-VISION_PROVIDER=anthropic
-VISION_API_KEY=sk-ant-your_key
-VISION_MODEL=claude-sonnet-4-20250514
+VISION_API_KEY=sk-...
+VISION_MODEL=gpt-4o-mini
 ```
 
 ---
 
-## Connecting RAG Service
+## API endpoints
 
-This system is designed for a dynamic RAG pipeline, not static chunk retrieval.
-When your team's RAG service is ready, set the full endpoint URL:
+| Method | URL | Description |
+|--------|-----|-------------|
+| POST | `/api/ask` | Single model (`model` in body) |
+| POST | `/api/ask/compare` | All three models in parallel |
+| GET | `/api/models` | Model list for UI dropdown |
+| GET | `/api/health` | Backend status |
+| GET | `/api/history` | In-memory global Q&A log |
+| DELETE | `/api/history` | Clear global log |
 
-```env
-RAG_SERVICE_URL=http://localhost:8001/query
-```
-
-The API sends this to your RAG service:
+### POST /api/ask (example)
 
 ```json
 {
-  "question": "What causes brown spots on tomato?",
-  "language": "en",
+  "question": "How do I use 10% Glufosinate-Ammonium?",
+  "model": "product_rag",
   "history": [
-    { "role": "user", "content": "previous question" },
-    { "role": "assistant", "content": "previous answer" }
-  ],
-  "crop_type": "tomato",
-  "image_analysis": "optional image analysis text"
-}
-```
-
-Your RAG service can return any of these formats:
-
-```json
-{
-  "answer": "The brown spots indicate...",
-  "sources": [{ "title": "...", "source": "..." }],
-  "confidence": "high"
-}
-```
-
-Or simply:
-
-```json
-{
-  "response": "The brown spots indicate...",
-  "references": ["Tomato Guide", "FAO 2022"]
-}
-```
-
-Or even:
-
-```json
-{
-  "text": "The brown spots indicate..."
-}
-```
-
-The system auto-detects the field names (answer/response/text, sources/references).
-Sources can be strings or objects. No code changes needed.
-
-**Priority order:**
-1. RAG service (if RAG_SERVICE_URL is set)
-2. LLM only (if LLM_PROVIDER is set, no RAG)
-3. Mock data (if USE_MOCK=true)
-
----
-
-## API Endpoints
-
-| Method | URL            | Description     |
-|--------|----------------|-----------------|
-| POST   | /api/ask       | Send a question |
-| GET    | /api/health    | Status check    |
-| GET    | /api/history   | Question log    |
-| DELETE | /api/history   | Clear log       |
-
-### POST /api/ask
-
-Request:
-```json
-{
-  "question": "What causes brown spots on tomato?",
-  "crop_type": "all",
-  "history": [
-    { "role": "user", "content": "previous question" },
-    { "role": "assistant", "content": "previous answer" }
+    { "role": "user", "content": "Earlier question" },
+    { "role": "assistant", "content": "Earlier answer" }
   ],
   "image_base64": "optional",
-  "image_mime": "optional"
+  "image_mime": "image/jpeg"
 }
 ```
 
-Response:
-```json
-{
-  "answer": "Brown spots indicate Early Blight...",
-  "sources": [{ "title": "...", "source": "..." }],
-  "confidence": "high",
-  "retrieved_chunks": 4,
-  "latency_ms": 1240,
-  "system": "groq:llama-3.3-70b-versatile",
-  "detected_language": "en"
-}
-```
+### POST /api/ask/compare
+
+Same body (no `model` required). Returns `results[]` with one entry per mode.
+
+---
+
+## How requests flow
+
+1. React sends question + **history** (last 20 messages) + optional image.
+2. FrontPage may run **vision** once → `image_analysis` text.
+3. FrontPage calls `http://localhost:8001/query` or `/query/compare`.
+4. Model API runs `Rag_Pc` / `Rag_Gen` / `base_llm` via `models/`.
+5. Answer + sources return to the UI; session saved to **localStorage**.
 
 ---
 
 ## Features
 
-- Works with any LLM provider (OpenAI, Groq, Anthropic, Together, OpenRouter, Ollama)
-- Multi-language support (Arabic/English auto-detection)
-- Conversation history (context-aware follow-ups)
-- Image upload for plant disease analysis
-- Dark/Light mode
-- Conversation management (create, switch, delete)
-- RTL support for Arabic
-- Mock mode for development without API keys
-- Ready for RAG integration
+| Feature | Implementation |
+|---------|----------------|
+| Three models | `model` id → `rag_api` → `models/` |
+| Compare | `/api/ask/compare` → 3-column UI |
+| Images | `models/vision.py` + prompt injection for all modes |
+| Session memory | `history` in API body; RAG uses `models/conversation.py` |
+| Persist chats | `localStorage` key `terramind_sessions_v1` |
+| Mock mode | `USE_MOCK=true` — no port 8001 needed |
 
 ---
 
-## Running Tests
+## Optional LLM providers
+
+If `RAG_SERVICE_URL` is unset, FrontPage can call external LLMs directly (Groq, Anthropic, etc.) via `LLM_PROVIDER` in `.env`. **Recommended path for TerraMind MVP** is RAG on port **8001**.
+
+---
+
+## Tests
 
 ```bash
+cd FrontPage
 pytest tests/ -v
 ```
 
@@ -262,6 +162,8 @@ pytest tests/ -v
 ## Docker
 
 ```bash
-docker build -t agromind .
-docker run -p 8000:8000 --env-file .env agromind
+docker build -t terramind .
+docker run -p 8000:8000 --env-file .env terramind
 ```
+
+Note: Docker here runs the FrontPage API only; you still need `rag_api` and built vector indexes for full RAG.

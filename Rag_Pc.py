@@ -27,16 +27,19 @@ CATEGORY_PATH = PROJECT_ROOT / "data/raw/text/Product_catagorys(En).xlsx"
 CHROMA_PATH = PROJECT_ROOT / "vectorstore" / "chroma_products"
 
 EMBEDDING_MODEL = "text-embedding-3-small"
-CHAT_MODEL = "gpt-3.5-turbo"
+CHAT_MODEL = "gpt-4o-mini"
 RETRIEVAL_K = 4
 
-# Fields turned into the readable product text (label -> exact Excel column name).
-# Order matters: structured fields first, then the long free-text User Manual.
-# Only "Product ID" and "Data source" are excluded from the text (ID lives in
-# metadata; Data source is provenance, not useful for answering questions).
+# Excel columns
+COL_PRODUCT_ID = "Product ID"
+# original Chinese-derived label; not used in RAG text
+COL_LEGACY_NAME = "Product Name"
+COL_PRODUCT_NAME = "English name"  # canonical English product name for users
+
+# Fields turned into readable product text (display label -> Excel column).
+# We omit COL_LEGACY_NAME — it duplicates COL_PRODUCT_NAME in practice.
 PRODUCT_FIELDS = {
-    "Product Name": "Product Name",
-    "English Name": "English name",
+    "Product Name": COL_PRODUCT_NAME,
     "Product Type": "Product Type",
     "Corresponding Crops/Plants": "Corresponding crops/plants",
     "Main Ingredients": "Main ingredients",
@@ -57,7 +60,7 @@ Question:
 {question}
 
 Answer structure:
-1. Identify the product (name, English name, product ID if available in context).
+1. Identify the product (product name and product ID if available in context).
 2. Explain instructions in detail using these fields when present:
    - User Manual (primary source for full guidance)
    - Instructions for Use (dilute with water)
@@ -85,17 +88,25 @@ def _clean(value) -> str:
     return str(value).strip()
 
 
+def _display_product_name(row: pd.Series) -> str:
+    """Canonical name for RAG: English name, else legacy Product Name column."""
+    name = _clean(row.get(COL_PRODUCT_NAME))
+    if name:
+        return name
+    return _clean(row.get(COL_LEGACY_NAME))
+
+
 def load_catalog() -> pd.DataFrame:
     """Load the product catalog and best-effort attach category columns."""
     catalog = pd.read_excel(CATALOG_PATH)
 
     if CATEGORY_PATH.exists():
         categories = pd.read_excel(CATEGORY_PATH)
-        # Map product name -> categories (best effort; missing names just stay blank)
+        # Category file uses English-style names; join on English name, not legacy column
         catalog = catalog.merge(
             categories,
             how="left",
-            left_on="Product Name",
+            left_on=COL_PRODUCT_NAME,
             right_on="Product Name",
         )
 
@@ -108,7 +119,10 @@ def load_catalog() -> pd.DataFrame:
 def _row_to_text(row: pd.Series) -> str:
     parts = []
     for label, column in PRODUCT_FIELDS.items():
-        value = _clean(row.get(column))
+        if label == "Product Name":
+            value = _display_product_name(row)
+        else:
+            value = _clean(row.get(column))
         if value:
             parts.append(f"{label}: {value}")
     return "\n".join(parts)
@@ -123,9 +137,8 @@ def build_product_documents(catalog: pd.DataFrame) -> list[Document]:
             continue
 
         metadata = {
-            "product_id": _clean(row.get("Product ID")),
-            "product_name": _clean(row.get("Product Name")),
-            "english_name": _clean(row.get("English name")),
+            "product_id": _clean(row.get(COL_PRODUCT_ID)),
+            "product_name": _display_product_name(row),
             "product_type": _clean(row.get("Product Type")),
             "crops": _clean(row.get("Corresponding crops/plants")),
             "primary_category": _clean(row.get("Primary Category")),
@@ -210,6 +223,48 @@ def _format_messages_for_print(messages) -> str:
     return "\n\n".join(lines)
 
 
+_db: Chroma | None = None
+
+
+def init_product_rag(reset: bool = False) -> Chroma:
+    """Load or build the product Chroma index (used by CLI and rag_api.py)."""
+    global _db
+    catalog = load_catalog()
+    documents = build_product_documents(catalog)
+    chunks = chunk_documents(documents)
+    _db = build_chroma_db(chunks, reset=reset)
+    return _db
+
+
+def get_product_db() -> Chroma:
+    """Return a cached DB handle; builds the index on first call if needed."""
+    global _db
+    if _db is None:
+        _db = init_product_rag(reset=False)
+    return _db
+
+
+def sources_from_retrieved(retrieved: list[Document]) -> list[dict]:
+    """Format retrieval hits for FrontPage /api/ask (SourceDoc-compatible dicts)."""
+    seen: set[tuple[str, str]] = set()
+    sources: list[dict] = []
+    for doc in retrieved:
+        name = doc.metadata.get("product_name", "Unknown product")
+        pid = doc.metadata.get("product_id", "")
+        key = (name, pid)
+        if key in seen:
+            continue
+        seen.add(key)
+        sources.append(
+            {
+                "title": name,
+                "source": doc.metadata.get("source", "ProductCatalog(En).xlsx"),
+                "section": pid or None,
+            }
+        )
+    return sources
+
+
 def answer_with_rag(db: Chroma, question: str, k: int = RETRIEVAL_K) -> dict:
     retrieved = retrieve_products(db, question, k=k)
     context = format_context(retrieved)
@@ -235,10 +290,7 @@ def answer_with_rag(db: Chroma, question: str, k: int = RETRIEVAL_K) -> dict:
 # Main — run the pipeline
 # -----------------------------------------------------------------------------
 DEFAULT_QUESTION = (
-    "Give detailed usage instructions for the product 'Citrus Bacteria Clear' (AF0001). "
-    "Include how to dilute it with water, when and how to apply it, which crops it applies to, "
-    "main ingredients, dosage from the usage table if available, precautions, and any other "
-    "steps from the User Manual."
+    "what catgorys of usage dose the 10% Glufosinate-Ammonium belong too, and how can i use it?"
 )
 
 
@@ -248,7 +300,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--reset",
         action="store_true",
-        help="Delete and rebuild the Chroma index (use after changing PRODUCT_FIELDS or Excel data)",
+        help="Delete and rebuild the Chroma index (required after changing PRODUCT_FIELDS or name logic)",
     )
     parser.add_argument(
         "question",
@@ -258,16 +310,8 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    catalog = load_catalog()
-    print(f"Loaded catalog with {len(catalog)} rows")
-
-    documents = build_product_documents(catalog)
-    print(f"Built {len(documents)} product documents")
-
-    chunks = chunk_documents(documents)
-    print(f"Split into {len(chunks)} chunks")
-
-    db = build_chroma_db(chunks, reset=args.reset)
+    db = init_product_rag(reset=args.reset)
+    print(f"Product RAG ready ({db._collection.count()} vectors in index)")
 
     print("\n--- Retrieved products ---")
     for i, hit in enumerate(retrieve_products(db, args.question), start=1):

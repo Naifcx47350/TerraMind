@@ -1,5 +1,5 @@
 Project Overview
-AgroMind is an agricultural intelligence assistant. Users ask questions about crop diseases, pesticides, and agronomy. The system connects to a dynamic RAG-based AI backend and returns grounded answers with sources. Supports English, Arabic (RTL), image upload for plant diagnosis, and conversation history.
+TerraMind is an agricultural intelligence assistant. Users ask questions about crop diseases, pesticides, and agronomy. The system connects to a dynamic RAG-based AI backend and returns grounded answers with sources. Supports English, Arabic (RTL), image upload for plant diagnosis, and conversation history.
 
 Architecture
 User (React Frontend)
@@ -253,7 +253,7 @@ input: 14px line-height 1.6
 hint: 11px faint centered
 Sidebar:
 
-Header: leaf icon (17px accent) + "AgroMind" (15px bold) + "+" button (32x32)
+Header: leaf icon (17px accent) + "TerraMind" (15px bold) + "+" button (32x32)
 "CONVERSATIONS" label (11px uppercase faint)
 List: chat icon + name + time. Active = accent icon + bold + active bg
 Delete: trash icon on hover, turns red on hover
@@ -264,7 +264,7 @@ Theme toggle: sun/moon icon + label
 Topbar:
 
 50px height, 1px bottom border
-Sidebar toggle icon (rectangle with vertical line), leaf icon, "AgroMind"
+Sidebar toggle icon (rectangle with vertical line), leaf icon, "TerraMind"
 
 Empty State:
 
@@ -282,7 +282,7 @@ Image thumbnail above text if attached (max 220x160 rounded 12px)
 Bot Message:
 
 Avatar: 28px circle, accent-dim bg, leaf icon 14px
-Name: "AgroMind" 13px bold
+Name: "TerraMind" 13px bold
 Time: "09:14 · 1240ms" 11px faint, pushed to end
 Body: padding-left 36px, 14px, line-height 1.8, pre-line
 Sources (when toggled): label + inline tags with green dot + title
