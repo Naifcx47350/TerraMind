@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import logoSrc from "@assets/logo/TM_Logo.png";
 
 const API = "/api";
 
@@ -69,13 +70,10 @@ const DEFAULT_MODELS = [
   },
 ];
 
-// Bump when you replace public/TM_Logo.png (cache-busts browser/Vite static cache)
-const LOGO_SRC = "/TM_Logo.png?v=4";
-
 function TerraLogo({ size = 1000, style = {} }) {
   return (
     <img
-      src={LOGO_SRC}
+      src={logoSrc}
       alt="TerraMind"
       width={size}
       height={size}
