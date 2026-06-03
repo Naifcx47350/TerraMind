@@ -12,7 +12,10 @@ Agriculture support assistant with **three comparable AI modes**: product-catalo
 
 | Document | Description |
 |----------|-------------|
-| **[docs/PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md)** | **Main technical guide** — architecture, models, storage, compare, images, APIs |
+| **[PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md)** | **Main technical guide** — architecture, models, storage, compare, images, APIs |
+| **[docs/FILE_MAP_AND_PIPELINE.md](docs/FILE_MAP_AND_PIPELINE.md)** | **File-by-file map** — what runs, what calls what, legacy vs active |
+| **[terramind/README.md](terramind/README.md)** | Backend package layout |
+| **[docs/RAG_MIGRATION_PLAN.md](docs/RAG_MIGRATION_PLAN.md)** | **Next steps** — split RAG into `terramind/rag/` modules |
 | [FrontPage/RUN_LOCALLY.md](FrontPage/RUN_LOCALLY.md) | Run all three services (ports 8001, 8000, 3000) |
 | [FrontPage/ARCHITECTURE.md](FrontPage/ARCHITECTURE.md) | Short architecture diagram |
 | [FrontPage/README.md](FrontPage/README.md) | FrontPage API quick start |
@@ -43,7 +46,7 @@ python Rag_Gen.py --reset
 
 ```powershell
 # Terminal 1 — repo root
-uvicorn rag_api:app --reload --port 8001
+uvicorn terramind.api.app:app --reload --port 8001
 
 # Terminal 2 — FrontPage
 cd FrontPage
@@ -76,10 +79,14 @@ Default LLM: **`gpt-4o-mini`** for chat and vision.
 ```text
 TerraMind/
 ├── docs/PROJECT_OVERVIEW.md   # Technical introduction
-├── models/                    # One adapter per mode
-├── Rag_Pc.py                  # Product RAG pipeline
-├── Rag_Gen.py                 # General document RAG
-├── rag_api.py                 # Unified model HTTP API (:8001)
+├── terramind/                 # Backend package (API + models + RAG layout)
+│   ├── api/app.py             # Model HTTP API (:8001)
+│   ├── models/                # Three modes + vision + conversation
+│   └── rag/product|general/   # RAG module templates (logic still in Rag_*.py)
+├── Rag_Pc.py                  # Product RAG implementation (migrate → terramind/rag/product/)
+├── Rag_Gen.py                 # General RAG implementation (migrate → terramind/rag/general/)
+├── rag_api.py                 # Shim → terramind.api.app
+├── models/                    # Shim → terramind.models (backward compat)
 ├── vectorstore/               # Chroma indexes (local)
 ├── data/raw/text/             # Source files
 ├── FrontPage/                 # Web API (:8000) + React UI (:3000)
