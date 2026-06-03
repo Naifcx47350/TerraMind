@@ -67,7 +67,7 @@ Build indexes once (or after data changes):
 
 ```powershell
 python Rag_Pc.py --reset    # product catalog Excel
-python Rag_Gen.py --reset   # general agriculture docs (optional)
+python -m terramind.rag.general.cli --reset   # general agriculture docs (optional)
 ```
 
 Start the unified model API (routes by `model` id):
@@ -80,7 +80,7 @@ uvicorn terramind.api.app:app --reload --port 8001
 | Model id      | Backend                                | Data                       |
 | ------------- | -------------------------------------- | -------------------------- |
 | `product_rag` | `terramind/models/product_rag.py` → `terramind/rag/product/` → `Rag_Pc.py` | Client product Excel |
-| `general_rag` | `terramind/models/general_rag.py` → `terramind/rag/general/` → `Rag_Gen.py` | FAO / IPM documents |
+| `general_rag` | `terramind/models/general_rag.py` → `terramind/rag/general/` | FAO / IPM documents |
 | `base_llm`    | `models/base_llm.py`                   | OpenAI only (no retrieval) |
 
 Check:

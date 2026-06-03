@@ -1,8 +1,14 @@
-"""
-General RAG — split documents into retrieval chunks.
+"""General RAG — split documents into retrieval chunks."""
 
-TODO: Move from Rag_Gen.py:
-  - chunk_document(doc) -> list[Document] using RecursiveCharacterTextSplitter
-  - Keep chunk size/overlap same as today so the index does not change unexpectedly
-See docs/RAG_MIGRATION_PLAN.md step 3 (general).
-"""
+from langchain_core.documents import Document
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+
+def chunk_document(doc: Document) -> list[Document]:
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=1000,
+        chunk_overlap=500,
+        length_function=len,
+        add_start_index=True,
+    )
+    return splitter.split_documents([doc])

@@ -26,7 +26,7 @@ terramind/
     │   ├── generate.py
     │   ├── pipeline.py
     │   └── cli.py
-    └── general/            # Document RAG (templates + re-export from Rag_Gen.py)
+    └── general/            # Document RAG (load → chunk → store → retrieve → generate)
         └── (same module names)
 ```
 
@@ -54,5 +54,5 @@ Build indexes (unchanged until CLI moves):
 ```powershell
 cd <repo-root>
 python Rag_Pc.py --reset
-python Rag_Gen.py --reset
+python -m terramind.rag.general.cli --reset
 ```

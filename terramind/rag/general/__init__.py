@@ -1,8 +1,8 @@
 """
 General agriculture document RAG — markdown/docs → Chroma → retrieve → answer.
 
-Planned modules (templates in this folder):
-  config.py    paths, models
+Modules:
+  config.py    paths, models, prompt
   load.py      read files → Documents + metadata
   chunk.py     RecursiveCharacterTextSplitter
   store.py     Chroma build / load
@@ -10,13 +10,10 @@ Planned modules (templates in this folder):
   generate.py  prompt + LLM
   pipeline.py  init_general_rag, get_general_db, answer_with_rag
   cli.py       python -m terramind.rag.general.cli
-
-Today: implementation re-exported from Rag_Gen.py at repo root.
-
-Next: docs/RAG_MIGRATION_PLAN.md — move code into sibling .py files, then import from pipeline.py here.
+  evaluate.py  optional chunk similarity (dev)
 """
 
-from Rag_Gen import (
+from terramind.rag.general.pipeline import (
     answer_with_rag,
     get_general_db,
     init_general_rag,
