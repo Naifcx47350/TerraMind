@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="TM_Logo.png" width="20%" height="20%">
+  <img src="assets/logo/TM_Logo.png" width="20%" height="20%">
 </div>
 
 # TerraMind
