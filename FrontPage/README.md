@@ -50,17 +50,20 @@ Repo root (not inside `FrontPage/`):
 
 ## Quick start
 
-See **[RUN_LOCALLY.md](./RUN_LOCALLY.md)** for all three terminals.
+See **[RUN_LOCALLY.md](./RUN_LOCALLY.md)** for all three terminals. Use **`<repo-root>`** for your clone path (see path convention there).
 
 ```powershell
-# 1) Model API (from repo root)
-uvicorn rag_api:app --reload --port 8001
+# 1) Model API — <repo-root>
+cd <repo-root>
+uvicorn terramind.api.app:app --reload --port 8001
 
-# 2) This API (from FrontPage/)
+# 2) FrontPage API — <repo-root>/FrontPage
+cd <repo-root>/FrontPage
 uvicorn app.main:app --reload --port 8000
 
-# 3) UI
-cd frontend-react && npm run dev
+# 3) UI — <repo-root>/FrontPage/frontend-react
+cd <repo-root>/FrontPage/frontend-react
+npm run dev
 ```
 
 Open http://localhost:3000

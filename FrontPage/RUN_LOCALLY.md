@@ -1,5 +1,20 @@
 # Run FrontPage locally (TerraMind)
 
+## Path convention
+
+Replace **`<repo-root>`** with wherever you cloned TerraMind (the folder that contains `Rag_Pc.py`, `terramind/`, and `FrontPage/`).
+
+Examples (not literal — use your own path):
+
+| OS | Example |
+|----|---------|
+| Windows | `cd C:\projects\TerraMind` |
+| macOS / Linux | `cd ~/projects/TerraMind` |
+
+After the first `cd <repo-root>`, other steps use **relative** folders (`FrontPage/`, `FrontPage/frontend-react/`).
+
+---
+
 You need **three terminals** when using real product RAG:
 
 | Terminal | Service                                        | Port     |
@@ -25,10 +40,10 @@ Pipeline overview: [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 ## 1. TerraMind Model API — terminal 1 (`models/` + RAG scripts)
 
-From the **TerraMind repo root** (not `FrontPage/`):
+From **`<repo-root>`** (not `FrontPage/`):
 
 ```powershell
-cd C:\Users\Nc47\Desktop\TerraMind
+cd <repo-root>
 conda activate terramind
 ```
 
@@ -72,11 +87,11 @@ Leave this terminal running.
 
 ## 2. FrontPage backend (FastAPI) — terminal 2
 
-**Important:** run `uvicorn` from **`FrontPage/`**, not from the TerraMind repo root.  
-From the root you get `Could not import module "app.main"` and the UI shows proxy `ECONNREFUSED`.
+**Important:** run `uvicorn` from **`<repo-root>/FrontPage`**, not from `<repo-root>` alone.  
+From the wrong folder you get `Could not import module "app.main"` and the UI shows proxy `ECONNREFUSED`.
 
 ```powershell
-cd C:\Users\Nc47\Desktop\TerraMind\FrontPage
+cd <repo-root>/FrontPage
 ```
 
 Activate your Python env and install deps (once):
@@ -111,7 +126,7 @@ RAG_SERVICE_URL=http://localhost:8001/query
 REQUEST_TIMEOUT=90
 ```
 
-OpenAI key: repo root `.env` or `FrontPage/.env` with `OPENAI_API_KEY=...` (read by `Rag_Pc.py` / `rag_api`).
+OpenAI key: `<repo-root>/.env` or `<repo-root>/FrontPage/.env` with `OPENAI_API_KEY=...` (read by `Rag_Pc.py` / `rag_api`).
 
 **Restart FrontPage uvicorn after any `.env` or config change.**
 
@@ -152,7 +167,7 @@ Leave this terminal running.
 If you run `npm install` from `FrontPage` only, you get `ENOENT ... package.json`.
 
 ```powershell
-cd C:\Users\Nc47\Desktop\TerraMind\FrontPage\frontend-react
+cd <repo-root>/FrontPage/frontend-react
 nvm use 24.15.0
 npm install
 npm run dev
@@ -202,8 +217,8 @@ If answers look like mock tomato/wheat text, check `USE_MOCK` is `false` and `RA
 | Problem                                                   | What to do                                                                                     |
 | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
 | Cannot connect to API / Vite `ECONNREFUSED` on `/api/ask` | Start `uvicorn` **inside `FrontPage/`** on port 8000; confirm http://localhost:8000/api/health |
-| `Could not import module "app.main"`                      | You are in the wrong folder — `cd FrontPage` before `uvicorn`                                  |
-| Frontend won’t start                                      | `cd frontend-react`, `nvm use 24.15.0`, `node -v`, then `npm install` and `npm run dev`        |
+| `Could not import module "app.main"`                      | Wrong folder — `cd <repo-root>/FrontPage` before `uvicorn`                                       |
+| Frontend won’t start                                      | `cd <repo-root>/FrontPage/frontend-react`, then `nvm use`, `npm install`, `npm run dev`          |
 | Wrong Node version                                        | New terminal → `nvm use 24.15.0` → verify with `node -v`                                       |
 | Port already in use                                       | Stop the other process on 3000 or 8000, or change Vite/API port in config                      |
 
@@ -226,8 +241,8 @@ Until then, use `USE_MOCK=true` or `LLM_PROVIDER` + `LLM_API_KEY` as in `README.
 
 | Task                        | Command                                  |
 | --------------------------- | ---------------------------------------- |
-| API tests                   | `cd FrontPage` then `pytest tests/ -v`   |
-| Production build (frontend) | `cd frontend-react` then `npm run build` |
+| API tests                   | `cd <repo-root>/FrontPage` then `pytest tests/ -v`   |
+| Production build (frontend) | `cd <repo-root>/FrontPage/frontend-react` then `npm run build` |
 | Preview production build    | `npm run preview`                        |
 
 ---
@@ -247,7 +262,7 @@ Until then, use `USE_MOCK=true` or `LLM_PROVIDER` + `LLM_API_KEY` as in `README.
 **Terminal 1 — RAG**
 
 ```powershell
-cd C:\Users\Nc47\Desktop\TerraMind
+cd <repo-root>
 conda activate terramind
 uvicorn terramind.api.app:app --reload --port 8001
 # legacy: uvicorn rag_api:app --reload --port 8001
@@ -256,7 +271,7 @@ uvicorn terramind.api.app:app --reload --port 8001
 **Terminal 2 — API**
 
 ```powershell
-cd C:\Users\Nc47\Desktop\TerraMind\FrontPage
+cd <repo-root>/FrontPage
 conda activate terramind
 uvicorn app.main:app --reload --port 8000
 ```
@@ -264,7 +279,7 @@ uvicorn app.main:app --reload --port 8000
 **Terminal 3 — UI** (must be `frontend-react`, not `FrontPage`)
 
 ```powershell
-cd C:\Users\Nc47\Desktop\TerraMind\FrontPage\frontend-react
+cd <repo-root>/FrontPage/frontend-react
 nvm use 24.15.0
 npm install
 npm run dev

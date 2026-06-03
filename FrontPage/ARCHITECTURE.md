@@ -74,4 +74,4 @@ All generation uses **OpenAI `gpt-4o-mini`** unless you change `CHAT_MODEL` in t
 
 ## Run order
 
-See [RUN_LOCALLY.md](./RUN_LOCALLY.md): terminal 1 → `rag_api` :8001, terminal 2 → FrontPage :8000, terminal 3 → Vite :3000.
+See [RUN_LOCALLY.md](./RUN_LOCALLY.md): terminal 1 → model API :8001, terminal 2 → FrontPage :8000, terminal 3 → Vite :3000 (paths use `<repo-root>`).

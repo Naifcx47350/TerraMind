@@ -16,7 +16,7 @@ Agriculture support assistant with **three comparable AI modes**: product-catalo
 | **[docs/FILE_MAP_AND_PIPELINE.md](docs/FILE_MAP_AND_PIPELINE.md)** | **File-by-file map** — what runs, what calls what, legacy vs active |
 | **[terramind/README.md](terramind/README.md)** | Backend package layout |
 | **[docs/RAG_MIGRATION_PLAN.md](docs/RAG_MIGRATION_PLAN.md)** | **Next steps** — split RAG into `terramind/rag/` modules |
-| [FrontPage/RUN_LOCALLY.md](FrontPage/RUN_LOCALLY.md) | Run all three services (ports 8001, 8000, 3000) |
+| [FrontPage/RUN_LOCALLY.md](FrontPage/RUN_LOCALLY.md) | Run all three services — uses **`<repo-root>`** (your clone path) |
 | [FrontPage/ARCHITECTURE.md](FrontPage/ARCHITECTURE.md) | Short architecture diagram |
 | [FrontPage/README.md](FrontPage/README.md) | FrontPage API quick start |
 
@@ -24,20 +24,24 @@ Agriculture support assistant with **three comparable AI modes**: product-catalo
 
 ## Quick start (web MVP)
 
+**Paths:** `<repo-root>` = your TerraMind clone (folder with `Rag_Pc.py` and `FrontPage/`). See [FrontPage/RUN_LOCALLY.md](FrontPage/RUN_LOCALLY.md) for full steps.
+
 ### 1. Environment
 
 ```powershell
+cd <repo-root>
 conda create -n terramind python=3.11 -y
 conda activate terramind
 pip install -r requirements.txt
 pip install -r FrontPage/requirements.txt
 ```
 
-Set `OPENAI_API_KEY` in `.env` at repo root (or `FrontPage/.env`).
+Set `OPENAI_API_KEY` in `<repo-root>/.env` or `FrontPage/.env`.
 
 ### 2. Build vector indexes (once)
 
 ```powershell
+cd <repo-root>
 python Rag_Pc.py --reset
 python Rag_Gen.py --reset
 ```
@@ -45,15 +49,16 @@ python Rag_Gen.py --reset
 ### 3. Run three terminals
 
 ```powershell
-# Terminal 1 — repo root
+# Terminal 1 — <repo-root>
+cd <repo-root>
 uvicorn terramind.api.app:app --reload --port 8001
 
-# Terminal 2 — FrontPage
-cd FrontPage
+# Terminal 2 — <repo-root>/FrontPage
+cd <repo-root>/FrontPage
 uvicorn app.main:app --reload --port 8000
 
-# Terminal 3 — UI
-cd FrontPage/frontend-react
+# Terminal 3 — <repo-root>/FrontPage/frontend-react
+cd <repo-root>/FrontPage/frontend-react
 npm install
 npm run dev
 ```
