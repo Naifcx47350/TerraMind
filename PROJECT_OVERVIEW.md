@@ -2,7 +2,7 @@
 
 This document describes how the TerraMind agriculture assistant works end-to-end: what the user sees in the web app, which tools and models power it, how knowledge is stored, and how features such as **compare mode**, **image upload**, and **conversation history** fit together.
 
-For local setup, see [FrontPage/RUN_LOCALLY.md](../FrontPage/RUN_LOCALLY.md).
+For local setup, see [FrontPage/RUN_LOCALLY.md](FrontPage/RUN_LOCALLY.md). Commands use **`<repo-root>`** for your clone path (not a fixed machine path).
 
 ---
 
@@ -219,7 +219,7 @@ Chat width expands (~1280px) so columns remain readable.
 
 ### Configuration
 
-If `OPENAI_API_KEY` is set (repo root or `FrontPage/.env`), vision defaults to **OpenAI + gpt-4o-mini** without extra env vars. Optional overrides: `VISION_PROVIDER`, `VISION_API_KEY`, `VISION_MODEL`.
+If `OPENAI_API_KEY` is set (`<repo-root>/.env` or `<repo-root>/FrontPage/.env`), vision defaults to **OpenAI + gpt-4o-mini** without extra env vars. Optional overrides: `VISION_PROVIDER`, `VISION_API_KEY`, `VISION_MODEL`.
 
 ### Logo asset (separate from chat vision)
 
@@ -229,7 +229,7 @@ The header logo is a static file:
 FrontPage/frontend-react/public/TM_Logo.png
 ```
 
-Referenced in `App.jsx` as `/TM_Logo.png?v=2` (version query busts browser cache). Replacing the logo requires updating **this** `public/` file, not only `TM_Logo.png` at repo root.
+Referenced in `App.jsx` as `/TM_Logo.png?v=2` (version query busts browser cache). Replacing the logo requires updating **this** `public/` file, not only `TM_Logo.png` at `<repo-root>`.
 
 ---
 

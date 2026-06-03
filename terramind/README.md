@@ -32,9 +32,10 @@ terramind/
 
 ## Run
 
-From repo root:
+From **`<repo-root>`** (your TerraMind clone):
 
 ```powershell
+cd <repo-root>
 uvicorn terramind.api.app:app --reload --port 8001
 ```
 
@@ -51,6 +52,7 @@ uvicorn terramind.api.app:app --reload --port 8001
 Build indexes (unchanged until CLI moves):
 
 ```powershell
+cd <repo-root>
 python Rag_Pc.py --reset
 python Rag_Gen.py --reset
 ```

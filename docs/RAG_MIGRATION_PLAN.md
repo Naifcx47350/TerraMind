@@ -2,6 +2,8 @@
 
 Reference for splitting the two root RAG scripts into organized packages without breaking the web app.
 
+**Paths:** run commands from **`<repo-root>`** (your clone directory). Data and indexes stay at `<repo-root>/data/` and `<repo-root>/vectorstore/`.
+
 **Current state:** Full logic lives in `Rag_Pc.py` and `Rag_Gen.py`.  
 `terramind/rag/product/` and `terramind/rag/general/` re-export those files so ports **8001 / 8000 / 3000** keep working.
 
@@ -76,13 +78,15 @@ CHAT_MODEL = "gpt-4o-mini"
 RETRIEVAL_K = 4
 ```
 
-Use **repo root** for `data/` and `vectorstore/`, not `terramind/` folder, so existing indexes keep working.
+Use **`<repo-root>`** for `data/` and `vectorstore/`, not the `terramind/` package folder, so existing indexes keep working.
 
 ---
 
 ## Testing per step
 
 ```powershell
+cd <repo-root>
+
 # Product
 python -m terramind.rag.product.cli --reset
 python -m terramind.rag.product.cli "How do I use product X?"
@@ -93,7 +97,7 @@ python -m terramind.rag.general.cli "What is IPM for late blight?"
 
 # API
 uvicorn terramind.api.app:app --reload --port 8001
-# FrontPage + UI smoke test
+# FrontPage + UI smoke test — see FrontPage/RUN_LOCALLY.md
 ```
 
 ---

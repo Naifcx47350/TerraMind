@@ -2,7 +2,9 @@
 
 This guide walks through **every important file**, which of the **three servers** use it, **what calls what**, and what is **legacy / safe to remove** vs **required for the live web app**.
 
-For product features and architecture narrative, see [PROJECT_OVERVIEW.md](../PROJECT_OVERVIEW.md) (repo root) or [FrontPage/ARCHITECTURE.md](../FrontPage/ARCHITECTURE.md).
+**Paths:** **`<repo-root>`** = your TerraMind git clone. All folder names below are relative to it (`FrontPage/`, `terramind/`, `data/`, `vectorstore/`).
+
+For product features and architecture narrative, see [PROJECT_OVERVIEW.md](../PROJECT_OVERVIEW.md) or [FrontPage/ARCHITECTURE.md](../FrontPage/ARCHITECTURE.md).
 
 ---
 
