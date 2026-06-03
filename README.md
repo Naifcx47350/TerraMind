@@ -33,7 +33,7 @@ cd <repo-root>
 conda create -n terramind python=3.11 -y
 conda activate terramind
 pip install -r requirements.txt
-pip install -r FrontPage/requirements.txt
+# optional: pip install -r requirements-dev.txt
 ```
 
 Set `OPENAI_API_KEY` in `<repo-root>/.env` or `FrontPage/.env`.
