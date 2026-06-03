@@ -15,7 +15,23 @@ After the first `cd <repo-root>`, other steps use **relative** folders (`FrontPa
 
 ---
 
-You need **three terminals** when using real product RAG:
+## One command (dev launcher)
+
+From **`<repo-root>`** with `terramind` env active:
+
+```powershell
+cd <repo-root>
+conda activate terramind
+python run_dev.py
+```
+
+Starts all three services in one terminal. Open **http://localhost:3000**. Press **Ctrl+C** to stop everything.
+
+Requires `npm install` once in `<repo-root>/FrontPage/frontend-react`.
+
+---
+
+## Three terminals (manual)
 
 | Terminal | Service                                        | Port     |
 | -------- | ---------------------------------------------- | -------- |

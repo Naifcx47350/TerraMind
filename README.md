@@ -46,22 +46,17 @@ python Rag_Pc.py --reset
 python Rag_Gen.py --reset
 ```
 
-### 3. Run three terminals
+### 3. Run the app
+
+**One command:**
 
 ```powershell
-# Terminal 1 — <repo-root>
 cd <repo-root>
-uvicorn terramind.api.app:app --reload --port 8001
-
-# Terminal 2 — <repo-root>/FrontPage
-cd <repo-root>/FrontPage
-uvicorn app.main:app --reload --port 8000
-
-# Terminal 3 — <repo-root>/FrontPage/frontend-react
-cd <repo-root>/FrontPage/frontend-react
-npm install
-npm run dev
+conda activate terramind
+python run_dev.py
 ```
+
+**Or three terminals** — see [FrontPage/RUN_LOCALLY.md](FrontPage/RUN_LOCALLY.md).
 
 Open **http://localhost:3000**.
 
