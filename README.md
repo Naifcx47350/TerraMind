@@ -43,7 +43,7 @@ Set `OPENAI_API_KEY` in `<repo-root>/.env` or `FrontPage/.env`.
 ```powershell
 cd <repo-root>
 python Rag_Pc.py --reset
-python -m terramind.rag.general.cli --reset
+python -m terramind.rag.general.cli --reset   # required after chunking/loader changes
 ```
 
 ### 3. Run the app

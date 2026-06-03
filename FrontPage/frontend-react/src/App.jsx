@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import logoSrc from "@assets/logo/TM_Logo.png";
+import { MarkdownMessage } from "./MarkdownMessage";
 
 const API = "/api";
 
@@ -162,7 +163,6 @@ function ComparePanels({ msg, models, t, showSrc, isAr }) {
                   fontSize: 13,
                   color: panel.error ? t.err.color : t.text2,
                   lineHeight: 1.7,
-                  whiteSpace: "pre-line",
                   wordBreak: "break-word",
                   direction: ar ? "rtl" : "ltr",
                   textAlign: ar ? "right" : "left",
@@ -187,8 +187,14 @@ function ComparePanels({ msg, models, t, showSrc, isAr }) {
                   </div>
                 ) : panel.error ? (
                   panel.error
+                ) : panel.answer ? (
+                  <MarkdownMessage
+                    content={panel.answer}
+                    theme={t}
+                    dir={ar ? "rtl" : "ltr"}
+                  />
                 ) : (
-                  panel.answer || "—"
+                  "—"
                 )}
               </div>
               {showSrc && panel.sources?.length > 0 && !panel.loading && (
@@ -1398,18 +1404,12 @@ export default function App() {
                         paddingRight: ar ? 36 : 0,
                       }}
                     >
-                      <div
-                        style={{
-                          fontSize: 14,
-                          color: t.text2,
-                          lineHeight: 1.8,
-                          whiteSpace: "pre-line",
-                          wordBreak: "break-word",
-                          direction: ar ? "rtl" : "ltr",
-                          textAlign: ar ? "right" : "left",
-                        }}
-                      >
-                        {msg.answer}
+                      <div style={{ fontSize: 14 }}>
+                        <MarkdownMessage
+                          content={msg.answer}
+                          theme={t}
+                          dir={ar ? "rtl" : "ltr"}
+                        />
                       </div>
                       {showSrc && msg.sources?.length > 0 && (
                         <div

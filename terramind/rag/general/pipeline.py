@@ -3,22 +3,27 @@
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
 
-from terramind.rag.general.chunk import chunk_document
-from terramind.rag.general.config import DATA_PATH, RETRIEVAL_K
+from terramind.rag.general.chunk import chunk_documents
+from terramind.rag.general.config import RETRIEVAL_K
 from terramind.rag.general.generate import generate_answer
-from terramind.rag.general.load import load_document
+from terramind.rag.general.load import load_documents
 from terramind.rag.general.retrieve import format_context, retrieve_chunks
-from terramind.rag.general.store import build_chroma_db
+from terramind.rag.general.store import _chroma_exists, build_chroma_db
+from terramind.rag.source_display import dedupe_key, source_entry_from_chunk
 
 _db: Chroma | None = None
 
 
 def init_general_rag(reset: bool = False) -> Chroma:
-    """Load or build the agriculture document Chroma index."""
+    """Load corpus from data dir, chunk, and build or open the Chroma index."""
     global _db
-    doc = load_document(DATA_PATH)
-    chunks = chunk_document(doc)
-    _db = build_chroma_db(chunks, reset=reset)
+    if reset or not _chroma_exists():
+        docs = load_documents()
+        chunks = chunk_documents(docs)
+        print(f"Indexed {len(docs)} document(s) -> {len(chunks)} chunks")
+        _db = build_chroma_db(chunks, reset=reset)
+    else:
+        _db = build_chroma_db([], reset=False)
     return _db
 
 
@@ -29,10 +34,21 @@ def get_general_db() -> Chroma:
     return _db
 
 
-def answer_with_rag(db: Chroma, question: str, k: int = RETRIEVAL_K) -> dict:
-    retrieved = retrieve_chunks(db, question, k=k)
+def answer_with_rag(
+    db: Chroma,
+    retrieval_query: str,
+    *,
+    generation_prompt: str | None = None,
+    k: int = RETRIEVAL_K,
+) -> dict:
+    """
+    Search with a short retrieval_query (current question + optional brief image text).
+    Generate with generation_prompt (may include conversation history).
+    """
+    gen_prompt = generation_prompt or retrieval_query
+    retrieved = retrieve_chunks(db, retrieval_query, k=k)
     context = format_context(retrieved)
-    answer = generate_answer(context, question)
+    answer = generate_answer(context, gen_prompt)
     return {
         "answer": answer,
         "retrieved": retrieved,
@@ -41,15 +57,20 @@ def answer_with_rag(db: Chroma, question: str, k: int = RETRIEVAL_K) -> dict:
 
 
 def sources_from_retrieved(retrieved: list[Document]) -> list[dict]:
+    """UI source chips — one per document, friendly title (see source_display.py)."""
     seen: set[str] = set()
     sources: list[dict] = []
     for doc in retrieved:
-        title = doc.metadata.get("title") or doc.metadata.get(
-            "filename", "Document"
-        )
-        source = doc.metadata.get("source", "agriculture_knowledge")
-        if source in seen:
+        key = dedupe_key("general", doc.metadata)
+        if key in seen:
             continue
-        seen.add(source)
-        sources.append({"title": title, "source": source, "section": None})
+        seen.add(key)
+        section = (
+            doc.metadata.get("h3")
+            or doc.metadata.get("h2")
+            or doc.metadata.get("h1")
+        )
+        sources.append(
+            source_entry_from_chunk("general", doc.metadata, section=section)
+        )
     return sources

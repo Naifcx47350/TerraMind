@@ -20,6 +20,21 @@ def format_conversation_history(history: list | None, max_turns: int = 5) -> str
     return "\n".join(lines)
 
 
+def build_retrieval_query(
+    question: str,
+    image_analysis: str | None = None,
+    max_image_chars: int = 400,
+) -> str:
+    """Short query for vector search — no chat history (avoids diluted embeddings)."""
+    q = question.strip()
+    if not image_analysis:
+        return q
+    vision = image_analysis.strip()
+    if len(vision) > max_image_chars:
+        vision = vision[:max_image_chars].rstrip() + "…"
+    return f"{q}\n\nImage context: {vision}"
+
+
 def build_prompt_question(
     question: str,
     history: list | None = None,

@@ -2,10 +2,13 @@
 
 
 def question_with_image_context(question: str, image_analysis: str | None) -> str:
+    """Attach vision notes for the answering model — not as a separate user-facing block."""
     if not (image_analysis or "").strip():
         return question
+    notes = image_analysis.strip()
     return (
-        "The user uploaded a crop/plant image. Vision analysis:\n"
-        f"{image_analysis.strip()}\n\n"
-        f"User question: {question}"
+        f"{question.strip()}\n\n"
+        "[Photo notes for you only — if relevant, blend briefly into your answer; "
+        "do not repeat as a titled section or numbered vision report:]\n"
+        f"{notes}"
     )

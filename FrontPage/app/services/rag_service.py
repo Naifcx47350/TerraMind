@@ -137,10 +137,6 @@ def _mock_response(request: AskRequest, latency_ms: int, image_analysis: str = N
     data = MOCK_DB.get(key, MOCK_DB["default"])
     answer = data.get("answer_" + lang, data["answer_en"])
 
-    if image_analysis:
-        prefix = ("**تحليل الصورة:**\n" if lang == "ar" else "**Image Analysis:**\n") + image_analysis + "\n\n"
-        answer = prefix + answer
-
     return AskResponse(
         answer=answer,
         sources=data["sources"],
@@ -370,10 +366,6 @@ async def call_rag(request: AskRequest) -> AskResponse:
                         section=s.get("section", s.get("page", None)),
                     ))
 
-            if image_analysis and not any(k in (answer or "") for k in ["Image Analysis", "تحليل الصورة"]):
-                prefix = ("**تحليل الصورة:**\n" if lang == "ar" else "**Image Analysis:**\n") + image_analysis + "\n\n"
-                answer = prefix + answer
-
             return AskResponse(
                 answer=answer,
                 sources=parsed_sources,
@@ -411,10 +403,6 @@ async def call_rag(request: AskRequest) -> AskResponse:
     if settings.llm_provider and settings.llm_api_key:
         try:
             answer = await _answer_with_llm(request.question, lang, "", request.history or [])
-
-            if image_analysis:
-                prefix = ("**تحليل الصورة:**\n" if lang == "ar" else "**Image Analysis:**\n") + image_analysis + "\n\n"
-                answer = prefix + answer
 
             return AskResponse(
                 answer=answer,
@@ -545,13 +533,6 @@ async def call_rag_compare(request: AskRequest) -> AskCompareResponse:
             results = []
             for row in data.get("results", []):
                 answer = row.get("answer", "")
-                if image_analysis and not any(
-                    k in (answer or "") for k in ["Image Analysis", "تحليل الصورة"]
-                ):
-                    prefix = (
-                        "**تحليل الصورة:**\n" if lang == "ar" else "**Image Analysis:**\n"
-                    ) + image_analysis + "\n\n"
-                    answer = prefix + answer
 
                 results.append(ModelCompareResult(
                     model=row.get("model", ""),

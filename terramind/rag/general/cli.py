@@ -39,13 +39,16 @@ def main() -> None:
     print("\n--- Retrieved chunks ---")
     retrieved = retrieve_chunks(db, query)
     for i, hit in enumerate(retrieved, start=1):
-        print(f"\nResult {i} | {hit.metadata.get('title', 'n/a')}")
+        section = hit.metadata.get("h2") or hit.metadata.get("h1") or "n/a"
+        print(f"\nResult {i} | {hit.metadata.get('title', 'n/a')} | {section}")
         print(hit.page_content[:300], "...")
 
     print("\n--- RAG answer ---")
-    result = answer_with_rag(db, query)
-    sources = [doc.metadata.get("source", "n/a") for doc in retrieved]
-    print(f"\n{result['answer']}\n\n---\n\nSources: {sources}")
+    result = answer_with_rag(db, query, generation_prompt=query)
+    from terramind.rag.general.pipeline import sources_from_retrieved
+
+    labels = [s["title"] for s in sources_from_retrieved(retrieved)]
+    print(f"\n{result['answer']}\n\n---\n\nSources: {labels}")
 
 
 if __name__ == "__main__":
