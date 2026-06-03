@@ -1,9 +1,27 @@
-"""
-General RAG — load markdown/text documents.
+"""General RAG — load markdown/text documents."""
 
-TODO: Move from Rag_Gen.py:
-  - load_document(path) -> Document with metadata (title, source, filename)
-  - _guess_title() helper for source display
-  - Later: add loaders for more files under data/raw/text/
-See docs/RAG_MIGRATION_PLAN.md step 2 (general).
-"""
+from pathlib import Path
+
+from langchain_core.documents import Document
+
+
+def _guess_title(text: str, filename: str) -> str:
+    for line in text.splitlines():
+        line = line.strip()
+        if line.startswith("# "):
+            return line.lstrip("# ").strip()
+    return Path(filename).stem.replace("_", " ")
+
+
+def load_document(file_path: str | Path) -> Document:
+    path = Path(file_path)
+    text = path.read_text(encoding="utf-8")
+    return Document(
+        page_content=text,
+        metadata={
+            "source": str(path),
+            "filename": path.name,
+            "title": _guess_title(text, path.name),
+            "file_type": path.suffix.lstrip("."),
+        },
+    )

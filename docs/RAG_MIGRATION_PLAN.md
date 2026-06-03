@@ -4,8 +4,7 @@ Reference for splitting the two root RAG scripts into organized packages without
 
 **Paths:** run commands from **`<repo-root>`** (your clone directory). Data and indexes stay at `<repo-root>/data/` and `<repo-root>/vectorstore/`.
 
-**Current state:** Full logic lives in `Rag_Pc.py` and `Rag_Gen.py`.  
-`terramind/rag/product/` and `terramind/rag/general/` re-export those files so ports **8001 / 8000 / 3000** keep working.
+**Current state:** General RAG lives in `terramind/rag/general/` (done). Product RAG still in `Rag_Pc.py` with `terramind/rag/product/` re-exporting it.
 
 **Target state:** Logic lives in `terramind/rag/*/`. Root scripts become thin CLIs or are removed.
 
@@ -57,7 +56,7 @@ Reference for splitting the two root RAG scripts into organized packages without
 ## Wiring checklist (after each pipeline is complete)
 
 - [ ] `terramind/rag/product/__init__.py` imports from `.pipeline` only (remove `from Rag_Pc import …`)
-- [ ] `terramind/rag/general/__init__.py` imports from `.pipeline` only
+- [x] `terramind/rag/general/__init__.py` imports from `.pipeline` only
 - [ ] `terramind/models/product_rag.py` unchanged (still uses `terramind.rag.product`)
 - [ ] `GET http://localhost:8001/health` shows vector counts
 - [ ] UI: product_rag + general_rag + compare + image still work

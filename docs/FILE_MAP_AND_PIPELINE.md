@@ -98,9 +98,9 @@ App.jsx  POST /api/ask/compare
 | **`terramind/api/app.py`** | Model API: `/query`, `/query/compare`, `/models`, `/health` | FrontPage `rag_service.py` via HTTP |
 | **`terramind/models/`** | Registry + 3 mode adapters + vision + conversation | `terramind.api.app` |
 | **`terramind/rag/product/`** | Product RAG package (templates); **`__init__` re-exports `Rag_Pc.py`** | `terramind.models.product_rag` |
-| **`terramind/rag/general/`** | General RAG package (templates); **`__init__` re-exports `Rag_Gen.py`** | `terramind.models.general_rag` |
+| **`terramind/rag/general/`** | General RAG package (config → load → chunk → store → retrieve → generate → pipeline) | `terramind.models.general_rag` |
 | **`Rag_Pc.py`** | **Current** product RAG implementation (Excel → Chroma) | `terramind.rag.product` |
-| **`Rag_Gen.py`** | **Current** general RAG implementation (markdown → Chroma) | `terramind.rag.general` |
+| **`Rag_Gen.py`** | Legacy general RAG (remove when ready; use `terramind.rag.general`) | — |
 | **`rag_api.py`** | Shim → `terramind.api.app` | Same as above (legacy command) |
 | **`models/`** (root) | Shim → `terramind.models` | Backward-compatible imports only |
 | **`requirements.txt`** | Python deps (full stack) | `pip install -r requirements.txt` at repo root |
@@ -113,16 +113,16 @@ See **`terramind/README.md`** and **`docs/RAG_MIGRATION_PLAN.md`** for the plann
 | Command | What it does |
 |---------|----------------|
 | `python Rag_Pc.py --reset` | Rebuild product vector index |
-| `python Rag_Gen.py --reset` | Rebuild general document index |
+| `python -m terramind.rag.general.cli --reset` | Rebuild general document index |
 | `python Rag_Pc.py "question"` | CLI test of product RAG only |
-| `python Rag_Gen.py "question"` | CLI test of general RAG only |
+| `python -m terramind.rag.general.cli "question"` | CLI test of general RAG only |
 
 ### DATA
 
 | Path | What it does |
 |------|----------------|
 | **`data/raw/text/ProductCatalog(En).xlsx`** | Product catalog source (`Rag_Pc.py` `CATALOG_PATH`) |
-| **`data/raw/text/Pest_Management_FAO.md`** | General RAG source (`Rag_Gen.py` `DATA_PATH`) |
+| **`data/raw/text/Pest_Management_FAO.md`** | General RAG source (`terramind.rag.general.config` `DATA_PATH`) |
 | **`vectorstore/chroma_products/`** | Persisted embeddings for products (gitignored) |
 | **`vectorstore/chroma/`** | Persisted embeddings for general docs (gitignored) |
 | **`.env`** (root) | `OPENAI_API_KEY`, etc. |
@@ -256,7 +256,7 @@ rag_service → rag_api (/query | /query/compare)
 rag_api → models.run_model
 run_model → product_rag | general_rag | base_llm
 product_rag → Rag_Pc.get_product_db + answer_with_rag
-general_rag → Rag_Gen.get_general_db + answer_with_rag
+general_rag → terramind.rag.general.get_general_db + answer_with_rag
 run_model → resolve_image_analysis → vision.analyze_image (if image)
 product_rag/general_rag → conversation.build_prompt_question (if history/image text)
 ```

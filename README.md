@@ -43,7 +43,7 @@ Set `OPENAI_API_KEY` in `<repo-root>/.env` or `FrontPage/.env`.
 ```powershell
 cd <repo-root>
 python Rag_Pc.py --reset
-python Rag_Gen.py --reset
+python -m terramind.rag.general.cli --reset
 ```
 
 ### 3. Run the app
@@ -84,7 +84,7 @@ TerraMind/
 │   ├── models/                # Three modes + vision + conversation
 │   └── rag/product|general/   # RAG module templates (logic still in Rag_*.py)
 ├── Rag_Pc.py                  # Product RAG implementation (migrate → terramind/rag/product/)
-├── Rag_Gen.py                 # General RAG implementation (migrate → terramind/rag/general/)
+├── terramind/rag/general/     # General RAG (migrated from Rag_Gen.py)
 ├── rag_api.py                 # Shim → terramind.api.app
 ├── models/                    # Shim → terramind.models (backward compat)
 ├── vectorstore/               # Chroma indexes (local)

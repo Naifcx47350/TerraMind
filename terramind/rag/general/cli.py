@@ -1,12 +1,52 @@
-"""
-General RAG — command-line entry.
+"""General RAG — command-line entry: python -m terramind.rag.general.cli"""
 
-TODO: Move __main__ from Rag_Gen.py:
-  - --reset, optional question
-  - Run: python -m terramind.rag.general.cli --reset
-See docs/RAG_MIGRATION_PLAN.md step 8 (general).
-"""
+import argparse
+
+from terramind.rag.general.pipeline import (
+    answer_with_rag,
+    init_general_rag,
+)
+from terramind.rag.general.retrieve import retrieve_chunks
+
+DEFAULT_QUESTION = (
+    "A potato farmer has repeated late blight outbreaks and wants to reduce pesticide use. "
+    "Based on the provided document, what integrated disease management steps should they take "
+    "before relying on fungicides, and when should fungicide application be planned?"
+)
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="TerraMind general agriculture RAG"
+    )
+    parser.add_argument(
+        "--reset",
+        action="store_true",
+        help="Delete and rebuild the Chroma index",
+    )
+    parser.add_argument(
+        "question",
+        nargs="?",
+        default=None,
+        help="Optional test question",
+    )
+    args = parser.parse_args()
+
+    query = args.question or DEFAULT_QUESTION
+    db = init_general_rag(reset=args.reset)
+    print(f"General RAG ready ({db._collection.count()} vectors in index)")
+
+    print("\n--- Retrieved chunks ---")
+    retrieved = retrieve_chunks(db, query)
+    for i, hit in enumerate(retrieved, start=1):
+        print(f"\nResult {i} | {hit.metadata.get('title', 'n/a')}")
+        print(hit.page_content[:300], "...")
+
+    print("\n--- RAG answer ---")
+    result = answer_with_rag(db, query)
+    sources = [doc.metadata.get("source", "n/a") for doc in retrieved]
+    print(f"\n{result['answer']}\n\n---\n\nSources: {sources}")
+
 
 if __name__ == "__main__":
-    # TODO: implement CLI; until then use: python Rag_Gen.py
-    raise SystemExit("CLI not migrated yet — use: python Rag_Gen.py [--reset] [question]")
+    main()
