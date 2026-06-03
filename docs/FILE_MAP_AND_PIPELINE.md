@@ -103,7 +103,8 @@ App.jsx  POST /api/ask/compare
 | **`Rag_Gen.py`** | **Current** general RAG implementation (markdown → Chroma) | `terramind.rag.general` |
 | **`rag_api.py`** | Shim → `terramind.api.app` | Same as above (legacy command) |
 | **`models/`** (root) | Shim → `terramind.models` | Backward-compatible imports only |
-| **`requirements.txt`** | Python deps for root env | `pip install` at repo root |
+| **`requirements.txt`** | Python deps (full stack) | `pip install -r requirements.txt` at repo root |
+| **`requirements-dev.txt`** | Dev extras (pytest) | `pip install -r requirements-dev.txt` |
 
 See **`terramind/README.md`** and **`docs/RAG_MIGRATION_PLAN.md`** for the planned RAG file split (`config`, `load`, `store`, …). Each template file has a short TODO in its docstring.
 
@@ -173,7 +174,7 @@ See **`terramind/README.md`** and **`docs/RAG_MIGRATION_PLAN.md`** for the plann
 | **`app/services/rag_service.py`** | Vision, HTTP to :8001, mock, LLM fallback | `ask.py` |
 | **`app/middleware/error_handler.py`** | Global errors | `main.py` |
 | **`app/middleware/logger.py`** | Request logging | `main.py` |
-| **`requirements.txt`** | FrontPage Python deps | `pip install` in `FrontPage/` |
+| **`requirements.txt`** | Points to root `requirements.txt` (`-r ../requirements.txt`) | Same env as repo root |
 
 ### ACTIVE — frontend (:3000)
 

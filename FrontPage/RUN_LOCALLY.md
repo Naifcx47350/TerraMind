@@ -114,6 +114,7 @@ Activate your Python env and install deps (once):
 
 ```powershell
 conda activate terramind
+cd <repo-root>
 pip install -r requirements.txt
 ```
 

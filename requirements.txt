@@ -1,10 +1,37 @@
-openai>=1.40.0
-chromadb>=0.5.0
+# =============================================================================
+# TerraMind — Python dependencies (full local stack)
+# =============================================================================
+# Install from <repo-root>:
+#   conda activate terramind
+#   pip install -r requirements.txt
+#
+# Covers: terramind API (:8001), FrontPage (:8000), Rag_Pc, Rag_Gen, run_dev.py
+# Node.js 18+ still required for the React UI (npm install in FrontPage/frontend-react).
+# =============================================================================
+
+# --- Environment ---
 python-dotenv>=1.0.0
 
-fastapi==0.115.0
-uvicorn[standard]==0.30.0
-pydantic==2.9.0
-pydantic-settings==2.5.0
-httpx==0.27.0
-pytest==8.3.0
+# --- OpenAI (embeddings + chat + vision via LangChain) ---
+openai>=1.40.0
+
+# --- Web API (FastAPI + FrontPage gateway + model API) ---
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+pydantic>=2.9.0
+pydantic-settings>=2.5.0
+httpx>=0.27.0
+
+# --- Vector store ---
+chromadb>=0.5.0
+
+# --- LangChain (RAG pipelines) ---
+langchain-core>=0.3.0
+langchain-openai>=0.2.0
+langchain-chroma>=0.2.0
+langchain-text-splitters>=0.3.0
+langchain-classic>=0.3.0
+
+# --- Product catalog RAG (Excel) ---
+pandas>=2.0.0
+openpyxl>=3.1.0
