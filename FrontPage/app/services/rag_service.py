@@ -255,7 +255,7 @@ async def _answer_with_llm(question: str, lang: str, context: str = "", history:
 async def _analyze_image(image_base64: str, mime: str, question: str, lang: str) -> str:
     if settings.vision_api_key:
         try:
-            from models.vision import analyze_image
+            from terramind.models.vision import analyze_image
 
             return await asyncio.to_thread(
                 analyze_image, image_base64, mime, question, lang

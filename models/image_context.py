@@ -1,11 +1,3 @@
-"""Merge vision analysis into questions for RAG and base LLM."""
+"""Backward compatibility — use terramind.models.image_context."""
 
-
-def question_with_image_context(question: str, image_analysis: str | None) -> str:
-    if not (image_analysis or "").strip():
-        return question
-    return (
-        "The user uploaded a crop/plant image. Vision analysis:\n"
-        f"{image_analysis.strip()}\n\n"
-        f"User question: {question}"
-    )
+from terramind.models.image_context import *  # noqa: F403

@@ -2,11 +2,11 @@
 
 You need **three terminals** when using real product RAG:
 
-| Terminal | Service | Port |
-|----------|---------|------|
-| 1 | TerraMind Model API (`rag_api.py` → `models/`) | **8001** |
-| 2 | FrontPage API (`uvicorn app.main`) | **8000** |
-| 3 | React UI (`npm run dev`) | **3000** |
+| Terminal | Service                                        | Port     |
+| -------- | ---------------------------------------------- | -------- |
+| 1        | TerraMind Model API (`terramind.api.app` or `rag_api.py`) | **8001** |
+| 2        | FrontPage API (`uvicorn app.main`)             | **8000** |
+| 3        | React UI (`npm run dev`)                       | **3000** |
 
 For mock-only demos you can skip terminal 1 and set `USE_MOCK=true` (two terminals only).
 
@@ -16,10 +16,10 @@ Pipeline overview: [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 ## Prerequisites
 
-| Tool | Used for |
-|------|----------|
-| **Python 3.11+** (e.g. conda `terramind`) | Backend API |
-| **Node.js** via nvm (e.g. `24.15.0`) | Frontend (Vite + React) |
+| Tool                                      | Used for                |
+| ----------------------------------------- | ----------------------- |
+| **Python 3.11+** (e.g. conda `terramind`) | Backend API             |
+| **Node.js** via nvm (e.g. `24.15.0`)      | Frontend (Vite + React) |
 
 ---
 
@@ -42,14 +42,15 @@ python Rag_Gen.py --reset   # general agriculture docs (optional)
 Start the unified model API (routes by `model` id):
 
 ```powershell
-uvicorn rag_api:app --reload --port 8001
+uvicorn terramind.api.app:app --reload --port 8001
+# legacy: uvicorn rag_api:app --reload --port 8001
 ```
 
-| Model id | Backend | Data |
-|----------|---------|------|
-| `product_rag` | `models/product_rag.py` → `Rag_Pc.py` | Client product Excel |
-| `general_rag` | `models/general_rag.py` → `Rag_Gen.py` | FAO / IPM documents |
-| `base_llm` | `models/base_llm.py` | OpenAI only (no retrieval) |
+| Model id      | Backend                                | Data                       |
+| ------------- | -------------------------------------- | -------------------------- |
+| `product_rag` | `terramind/models/product_rag.py` → `terramind/rag/product/` → `Rag_Pc.py` | Client product Excel |
+| `general_rag` | `terramind/models/general_rag.py` → `terramind/rag/general/` → `Rag_Gen.py` | FAO / IPM documents |
+| `base_llm`    | `models/base_llm.py`                   | OpenAI only (no retrieval) |
 
 Check:
 
@@ -58,10 +59,10 @@ Check:
 
 In the React UI:
 
-- **Model dropdown (top right)** — one mode per message  
-- **Compare** (near the input) — same question to all three modes, side-by-side  
-- **Image attach** — vision analysis included for every mode (`gpt-4o-mini`)  
-- Chats are saved in the browser (`localStorage`) and **history** is sent on each turn  
+- **Model dropdown (top right)** — one mode per message
+- **Compare** (near the input) — same question to all three modes, side-by-side
+- **Image attach** — vision analysis included for every mode (`gpt-4o-mini`)
+- Chats are saved in the browser (`localStorage`) and **history** is sent on each turn
 
 Technical details: [../docs/PROJECT_OVERVIEW.md](../docs/PROJECT_OVERVIEW.md)
 
@@ -137,9 +138,9 @@ uvicorn app.main:app --reload --port 8000
 
 Check:
 
-- API: http://localhost:8000  
-- Swagger docs: http://localhost:8000/docs  
-- Health: http://localhost:8000/api/health  
+- API: http://localhost:8000
+- Swagger docs: http://localhost:8000/docs
+- Health: http://localhost:8000/api/health
 
 Leave this terminal running.
 
@@ -184,13 +185,13 @@ You should see `v24.15.0`. If `nvm use` succeeds but `node -v` shows another ver
 
 ## 4. Quick checklist (product RAG + UI)
 
-1. Terminal 1: `rag_api` on **8001** — `/health` OK  
-2. Terminal 2: FrontPage `uvicorn` on **8000** — `.env` has `RAG_SERVICE_URL` and `USE_MOCK=false`  
-3. Terminal 3: `npm run dev` on **3000**  
-4. Browser: http://localhost:3000 — ask a product question (e.g. “How do I use Citrus Bacteria Clear?”)  
+1. Terminal 1: `rag_api` on **8001** — `/health` OK
+2. Terminal 2: FrontPage `uvicorn` on **8000** — `.env` has `RAG_SERVICE_URL` and `USE_MOCK=false`
+3. Terminal 3: `npm run dev` on **3000**
+4. Browser: http://localhost:3000 — ask a product question (e.g. “How do I use Citrus Bacteria Clear?”)
 5. Answer should cite catalog products; enable **Show sources** in the sidebar
 
-If the UI says *“Cannot connect to API”*, terminal 2 (port 8000) is down.
+If the UI says _“Cannot connect to API”_, terminal 2 (port 8000) is down.
 
 If answers look like mock tomato/wheat text, check `USE_MOCK` is `false` and `RAG_SERVICE_URL` is set; terminal 1 must be running.
 
@@ -198,13 +199,13 @@ If answers look like mock tomato/wheat text, check `USE_MOCK` is `false` and `RA
 
 ## Troubleshooting
 
-| Problem | What to do |
-|---------|------------|
+| Problem                                                   | What to do                                                                                     |
+| --------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
 | Cannot connect to API / Vite `ECONNREFUSED` on `/api/ask` | Start `uvicorn` **inside `FrontPage/`** on port 8000; confirm http://localhost:8000/api/health |
-| `Could not import module "app.main"` | You are in the wrong folder — `cd FrontPage` before `uvicorn` |
-| Frontend won’t start | `cd frontend-react`, `nvm use 24.15.0`, `node -v`, then `npm install` and `npm run dev` |
-| Wrong Node version | New terminal → `nvm use 24.15.0` → verify with `node -v` |
-| Port already in use | Stop the other process on 3000 or 8000, or change Vite/API port in config |
+| `Could not import module "app.main"`                      | You are in the wrong folder — `cd FrontPage` before `uvicorn`                                  |
+| Frontend won’t start                                      | `cd frontend-react`, `nvm use 24.15.0`, `node -v`, then `npm install` and `npm run dev`        |
+| Wrong Node version                                        | New terminal → `nvm use 24.15.0` → verify with `node -v`                                       |
+| Port already in use                                       | Stop the other process on 3000 or 8000, or change Vite/API port in config                      |
 
 ---
 
@@ -223,21 +224,21 @@ Until then, use `USE_MOCK=true` or `LLM_PROVIDER` + `LLM_API_KEY` as in `README.
 
 ## Useful commands
 
-| Task | Command |
-|------|---------|
-| API tests | `cd FrontPage` then `pytest tests/ -v` |
+| Task                        | Command                                  |
+| --------------------------- | ---------------------------------------- |
+| API tests                   | `cd FrontPage` then `pytest tests/ -v`   |
 | Production build (frontend) | `cd frontend-react` then `npm run build` |
-| Preview production build | `npm run preview` |
+| Preview production build    | `npm run preview`                        |
 
 ---
 
 ## Port summary
 
-| Service | URL |
-|---------|-----|
-| Frontend (Vite) | http://localhost:3000 |
-| Backend (FastAPI) | http://localhost:8000 |
-| API docs | http://localhost:8000/docs |
+| Service           | URL                        |
+| ----------------- | -------------------------- |
+| Frontend (Vite)   | http://localhost:3000      |
+| Backend (FastAPI) | http://localhost:8000      |
+| API docs          | http://localhost:8000/docs |
 
 ---
 
@@ -248,7 +249,8 @@ Until then, use `USE_MOCK=true` or `LLM_PROVIDER` + `LLM_API_KEY` as in `README.
 ```powershell
 cd C:\Users\Nc47\Desktop\TerraMind
 conda activate terramind
-uvicorn rag_api:app --reload --port 8001
+uvicorn terramind.api.app:app --reload --port 8001
+# legacy: uvicorn rag_api:app --reload --port 8001
 ```
 
 **Terminal 2 — API**

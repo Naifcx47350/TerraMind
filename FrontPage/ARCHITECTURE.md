@@ -1,7 +1,8 @@
 # TerraMind — System Architecture
 
 Compact architecture reference for the **web MVP** (React + FrontPage API + Model API).  
-For full narrative documentation (models, storage, compare, images, history), see **[../docs/PROJECT_OVERVIEW.md](../docs/PROJECT_OVERVIEW.md)**.
+For full narrative documentation (models, storage, compare, images, history), see **[../PROJECT_OVERVIEW.md](../PROJECT_OVERVIEW.md)**.  
+For every file’s role and legacy vs active paths, see **[../docs/FILE_MAP_AND_PIPELINE.md](../docs/FILE_MAP_AND_PIPELINE.md)**.
 
 ---
 
