@@ -7,52 +7,42 @@ Organized backend for the TerraMind web MVP.
 ```text
 terramind/
 ├── api/
-│   └── app.py              # FastAPI :8001 — /query, /query/compare, /models, /health
+│   └── app.py              # FastAPI :8001 — /query, /query/compare, /query/advisory, /models, /health
 ├── models/
-│   ├── __init__.py         # Registry: run_model(), list_models()
-│   ├── product_rag.py      # Adapter → rag.product
-│   ├── general_rag.py      # Adapter → rag.general
-│   ├── base_llm.py         # OpenAI chat only
-│   ├── vision.py           # Image analysis
-│   ├── conversation.py     # Chat history → prompt text
+│   ├── __init__.py         # Registry, run_model(), run_advisory(), auto default
+│   ├── auto_rag.py         # Routes → product_rag | general_rag
+│   ├── router.py           # Dual-index + keyword routing
+│   ├── product_rag.py      # → terramind.rag.product
+│   ├── general_rag.py      # → terramind.rag.general
+│   ├── base_llm.py
+│   ├── vision.py
+│   ├── conversation.py
 │   └── image_context.py
 └── rag/
-    ├── product/            # Product Excel RAG (templates + re-export from Rag_Pc.py)
-    │   ├── config.py       # TODO
-    │   ├── load.py
-    │   ├── chunk.py
-    │   ├── store.py
-    │   ├── retrieve.py
-    │   ├── generate.py
-    │   ├── pipeline.py
-    │   └── cli.py
-    └── general/            # Document RAG (load → chunk → store → retrieve → generate)
-        └── (same module names)
+    ├── scoring.py          # Retrieval scores + confidence
+    ├── source_display.py   # UI source labels
+    ├── general/            # Full general RAG pipeline
+    └── product/            # Re-exports Rag_Pc.py (migration in progress)
 ```
 
 ## Run
 
-From **`<repo-root>`** (your TerraMind clone):
+From **`<repo-root>`**:
 
 ```powershell
 cd <repo-root>
 uvicorn terramind.api.app:app --reload --port 8001
 ```
 
-`rag_api.py` at repo root still works (shim).
+Or `python run_dev.py` (starts UI + FrontPage + model API). `rag_api.py` is a shim to `terramind.api.app`.
 
-## Migration plan
-
-**Full reference:** [docs/RAG_MIGRATION_PLAN.md](../docs/RAG_MIGRATION_PLAN.md)
-
-1. **Now:** `Rag_Pc.py` / `Rag_Gen.py` at repo root hold full logic; `terramind.rag.*` re-exports them.
-2. **Next:** Follow TODOs in each `terramind/rag/*/*.py` file (config → load → store → … → pipeline).
-3. **Then:** Root `Rag_Pc.py` / `Rag_Gen.py` become thin CLIs or are removed.
-
-Build indexes (unchanged until CLI moves):
+## Build indexes
 
 ```powershell
-cd <repo-root>
 python Rag_Pc.py --reset
 python -m terramind.rag.general.cli --reset
 ```
+
+## Migration
+
+Product logic still lives in root **`Rag_Pc.py`**. General RAG is fully in **`terramind/rag/general/`**. Status: [docs/PROJECT_STATUS.md](../docs/PROJECT_STATUS.md).

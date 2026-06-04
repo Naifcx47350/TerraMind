@@ -4,7 +4,7 @@
 
 # TerraMind
 
-Agriculture support assistant with **three comparable AI modes**: product-catalog RAG, general-document RAG, and a base LLM baseline — plus a **React chat UI** with compare view, image upload, and saved conversations.
+Agriculture support assistant with **Auto RAG** (default), manual product/general RAG, base LLM baseline, and advisory mode — plus a **React chat UI** with compare view, image upload, retrieval scores, and saved conversations.
 
 ---
 
@@ -12,17 +12,18 @@ Agriculture support assistant with **three comparable AI modes**: product-catalo
 
 | Document | Description |
 |----------|-------------|
-| **[docs/SYSTEM_ARCHITECTURE.md](docs/SYSTEM_ARCHITECTURE.md)** | **System architecture** — runtime topology, flows, RAG boundaries (update when stack changes) |
-| **[docs/PLANNED_FEATURES.md](docs/PLANNED_FEATURES.md)** | **Roadmap** — Auto RAG router (default mode), similarity scores + confidence in UI |
-| **[PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md)** | **Main technical guide** — features, models, storage, compare, images, APIs |
-| **[docs/FILE_MAP_AND_PIPELINE.md](docs/FILE_MAP_AND_PIPELINE.md)** | **File-by-file map** — what runs, what calls what, legacy vs active |
+| **[docs/README.md](docs/README.md)** | Index of all `docs/` files |
+| **[docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md)** | **Status & history** — shipped work, remaining tasks, legacy/removed artifacts |
+| **[PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md)** | **Main guide** — features, models, storage, compare, images, APIs |
+| **[docs/SYSTEM_ARCHITECTURE.md](docs/SYSTEM_ARCHITECTURE.md)** | Runtime topology and RAG boundaries |
+| **[docs/FILE_MAP_AND_PIPELINE.md](docs/FILE_MAP_AND_PIPELINE.md)** | File-by-file map and request pipelines |
+| **[docs/GENERAL_RAG_CORPUS.md](docs/GENERAL_RAG_CORPUS.md)** | General RAG PDF corpus and rebuild |
+| **[docs/GENERAL_RAG_EVAL.md](docs/GENERAL_RAG_EVAL.md)** | Retrieval eval runbook |
+| **[docs/GENERAL_RAG_VALIDATION_REPORT.md](docs/GENERAL_RAG_VALIDATION_REPORT.md)** | May 2026 validation baseline (20/20) |
+| **[data/README.md](data/README.md)** | Data folders — tracked vs gitignored |
 | **[terramind/README.md](terramind/README.md)** | Backend package layout |
-| **[docs/GENERAL_RAG_CORPUS.md](docs/GENERAL_RAG_CORPUS.md)** | **General RAG** — source PDFs, folder layout, rebuild index |
-| **[docs/GENERAL_RAG_VALIDATION_REPORT.md](docs/GENERAL_RAG_VALIDATION_REPORT.md)** | **General RAG validation** — May 2026 inspect/reset/eval results and methodology |
-| **[docs/RAG_MIGRATION_PLAN.md](docs/RAG_MIGRATION_PLAN.md)** | **Next steps** — split RAG into `terramind/rag/` modules |
-| [FrontPage/RUN_LOCALLY.md](FrontPage/RUN_LOCALLY.md) | Run all three services — uses **`<repo-root>`** (your clone path) |
-| [FrontPage/ARCHITECTURE.md](FrontPage/ARCHITECTURE.md) | Short architecture diagram |
-| [FrontPage/README.md](FrontPage/README.md) | FrontPage API quick start |
+| **[FrontPage/RUN_LOCALLY.md](FrontPage/RUN_LOCALLY.md)** | Run all three services (ports, env) |
+| **[FrontPage/README.md](FrontPage/README.md)** | FrontPage API quick reference |
 
 ---
 
@@ -39,7 +40,7 @@ Agriculture support assistant with **three comparable AI modes**: product-catalo
 
 ## Quick start (web MVP)
 
-**Paths:** `<repo-root>` = your TerraMind clone (folder with `Rag_Pc.py` and `FrontPage/`). See [FrontPage/RUN_LOCALLY.md](FrontPage/RUN_LOCALLY.md) for full steps.
+**Paths:** `<repo-root>` = your TerraMind clone (folder with `terramind/`, `Rag_Pc.py`, `run_dev.py`, and `FrontPage/`). See [FrontPage/RUN_LOCALLY.md](FrontPage/RUN_LOCALLY.md) for full steps.
 
 ### 1. Environment
 
@@ -77,13 +78,15 @@ Open **http://localhost:3000**.
 
 ---
 
-## The three models
+## Models (picker order)
 
 | Mode | ID | Knowledge source |
 |------|-----|------------------|
-| Product Catalog RAG | `product_rag` | Client Excel (`ProductCatalog(En).xlsx`) |
+| Auto (recommended) | `auto_rag` | Router picks product or general RAG per question |
 | Agriculture Knowledge RAG | `general_rag` | Public refs in `data/raw/documents/` (IPM, GAP, soil health, pesticides) |
+| Product Catalog RAG | `product_rag` | Client Excel (`ProductCatalog(En).xlsx`) |
 | Base LLM | `base_llm` | No retrieval — OpenAI only |
+| Advisory (UI) | `advisory` | General then product in one answer (`/query/advisory`) |
 
 **General vs product:** The General Agriculture RAG uses trusted public references (good agricultural practices, soil health, cover crops, crop rotation, integrated pest management). The Product RAG handles **company-specific** catalog information only. Details: [docs/GENERAL_RAG_CORPUS.md](docs/GENERAL_RAG_CORPUS.md).
 
@@ -95,49 +98,38 @@ Default LLM: **`gpt-4o-mini`** for chat and vision.
 
 ```text
 TerraMind/
-├── docs/                      # Developer docs (not RAG sources)
-│   ├── GENERAL_RAG_CORPUS.md  # General RAG sources & rebuild
-│   └── FILE_MAP_AND_PIPELINE.md
-├── terramind/                 # Backend package (API + models + RAG layout)
-│   ├── api/app.py             # Model HTTP API (:8001)
-│   ├── models/                # Three modes + vision + conversation
-│   └── rag/product|general/   # RAG module templates (logic still in Rag_*.py)
-├── Rag_Pc.py                  # Product RAG implementation (migrate → terramind/rag/product/)
-├── terramind/rag/general/     # General RAG (migrated from Rag_Gen.py)
+├── docs/                      # Developer docs — start at PROJECT_STATUS.md
+├── terramind/                 # Backend: api, models, rag/general, rag/product
+├── Rag_Pc.py                  # Product RAG (→ migrate into terramind/rag/product/)
 ├── rag_api.py                 # Shim → terramind.api.app
-├── models/                    # Shim → terramind.models (backward compat)
-├── vectorstore/               # Chroma indexes (local)
-├── data/raw/documents/        # General RAG PDFs (IPM, GAP, soil, etc.)
-├── data/raw/text/             # Product Excel + optional extra text
+├── run_dev.py                 # Start :8001 + :8000 + :3000
+├── vectorstore/               # Chroma indexes (gitignored)
+├── data/                      # Corpus + eval; see data/README.md
 ├── FrontPage/                 # Web API (:8000) + React UI (:3000)
-├── src/                       # Earlier CLI RAG modules
-└── scripts/                   # Ingestion utilities
+├── scripts/eval_general_rag.py
+└── tests/                     # pytest (router, scoring)
 ```
 
 ---
 
 ## Features (web)
 
-- Model picker (top right) and **Compare all 3** side-by-side
+- Model picker (Auto default) and **Compare** (product / general / base LLM)
+- **Auto route hint** under picker after each answer
+- **Show sources** and **Show scores** (confidence + retrieval match)
 - Plant **image upload** (vision → all modes)
 - **Conversation history** in-thread + **localStorage** session restore
-- Sources display for RAG answers
 - English / Arabic (RTL)
 
 ---
 
-## Phase 1 CLI (optional)
+## Optional eval script
 
-Older script-based flow under `scripts/` and `src/`:
-
-```bash
-python scripts/01_ingest_documents.py
-python scripts/02_create_chunks.py
-python scripts/03_build_vectorstore.py
-python scripts/05_run_rag.py "Your question"
+```powershell
+python scripts/eval_general_rag.py
 ```
 
-The **recommended demo path** is the FrontPage stack above.
+Writes timestamped answers under `data/eval/runs/` (gitignored). Retrieval-only eval: `python -m terramind.rag.general.cli --eval-retrieval`.
 
 ---
 

@@ -13,7 +13,7 @@ Planned modules (templates in this folder):
 
 Today: implementation re-exported from Rag_Pc.py at repo root.
 
-Next: docs/RAG_MIGRATION_PLAN.md — move code into sibling .py files, then import from pipeline.py here.
+Next: docs/PROJECT_STATUS.md — move code into sibling .py files, then import from pipeline.py here.
 """
 
 from Rag_Pc import (

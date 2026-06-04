@@ -7,5 +7,5 @@ TODO: Move from Rag_Pc.py (top ~50 lines):
   - EMBEDDING_MODEL, CHAT_MODEL, RETRIEVAL_K
   - Excel column names + PRODUCT_FIELDS dict
 Then update Rag_Pc.py to `from terramind.rag.product.config import ...` until Rag_Pc is removed.
-See docs/RAG_MIGRATION_PLAN.md step 1 (product).
+See docs/PROJECT_STATUS.md (product migration).
 """

@@ -27,7 +27,7 @@ This document records **what we changed**, **how we verified it**, and **what th
 
 - **Removed** `Pest_Management_FAO.md` from the repo. It duplicated content now covered by **`Pest_Mangment_FAO.pdf`** (filename typo on disk is intentional and mapped in config).
 - **Kept** `EXCLUDED_FILENAMES` in `terramind/rag/general/config.py` so that markdown name is ignored if someone re-adds it under `data/raw/text/`.
-- **General RAG package** (`terramind/rag/general/`) is the active pipeline: load PDFs with `pypdf`, chunk, embed (`text-embedding-3-small`), store in Chroma, retrieve with MMR + topic boost + lexical rerank.
+- **General RAG package** (`terramind/rag/general/`) is the active pipeline: load PDFs with `pypdf`, chunk, embed (`text-embedding-3-small`), store in Chroma, retrieve with scored vector search + topic boost + lexical rerank.
 
 ### 2.2 Why a rebuild was required
 

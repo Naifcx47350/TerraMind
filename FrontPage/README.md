@@ -1,9 +1,9 @@
 # TerraMind — Web Application (FrontPage)
 
-Agricultural chat UI and API gateway for the TerraMind **three-model** stack (product RAG, general RAG, base LLM).
+Agricultural chat UI and API gateway for TerraMind (**Auto**, product RAG, general RAG, base LLM, advisory).
 
 **Full technical documentation:** [../docs/PROJECT_OVERVIEW.md](../docs/PROJECT_OVERVIEW.md)  
-**Architecture summary:** [ARCHITECTURE.md](./ARCHITECTURE.md)  
+**Architecture:** [../docs/SYSTEM_ARCHITECTURE.md](../docs/SYSTEM_ARCHITECTURE.md)  
 **Local run guide:** [RUN_LOCALLY.md](./RUN_LOCALLY.md)
 
 ---
@@ -11,7 +11,7 @@ Agricultural chat UI and API gateway for the TerraMind **three-model** stack (pr
 ## What users see
 
 - Chat interface with sidebar conversations (saved in the browser)
-- **Model dropdown** (top right): Product Catalog RAG, Agriculture Knowledge RAG, Base LLM
+- **Model dropdown** (top right): Auto (default), Agriculture Knowledge RAG, Product Catalog RAG, Base LLM, Advisory
 - **Compare** button: same question → three answers in parallel columns
 - Image upload for crop/plant diagnosis (vision via **gpt-4o-mini**)
 - Optional source chips, dark/light mode, Arabic RTL
@@ -35,16 +35,16 @@ FrontPage/
 ├── frontend-react/
 │   ├── src/App.jsx              # UI (sessions, compare, logo)
 │   └── public/TM_Logo.png       # Logo served at /TM_Logo.png
-├── ARCHITECTURE.md
 ├── RUN_LOCALLY.md
 └── requirements.txt
 ```
 
 Repo root (not inside `FrontPage/`):
 
-- `rag_api.py` — model API on **port 8001**
-- `models/` — `product_rag`, `general_rag`, `base_llm`
-- `Rag_Pc.py`, `Rag_Gen.py` — Chroma indexes
+- `terramind/api/app.py` or `rag_api.py` — model API on **port 8001**
+- `terramind/models/` — `auto_rag`, `product_rag`, `general_rag`, `base_llm`
+- `Rag_Pc.py` — product Chroma index; `terramind/rag/general/` — general index
+- `run_dev.py` — start all three services
 
 ---
 
@@ -129,7 +129,7 @@ Same body (no `model` required). Returns `results[]` with one entry per mode.
 1. React sends question + **history** (last 20 messages) + optional image.
 2. FrontPage may run **vision** once → `image_analysis` text.
 3. FrontPage calls `http://localhost:8001/query` or `/query/compare`.
-4. Model API runs `Rag_Pc` / `Rag_Gen` / `base_llm` via `models/`.
+4. Model API runs `terramind.models` (auto / product / general / base) via HTTP.
 5. Answer + sources return to the UI; session saved to **localStorage**.
 
 ---
@@ -138,10 +138,10 @@ Same body (no `model` required). Returns `results[]` with one entry per mode.
 
 | Feature | Implementation |
 |---------|----------------|
-| Three models | `model` id → `rag_api` → `models/` |
+| Models | `model` id → `terramind.api.app` → `terramind.models` |
 | Compare | `/api/ask/compare` → 3-column UI |
-| Images | `models/vision.py` + prompt injection for all modes |
-| Session memory | `history` in API body; RAG uses `models/conversation.py` |
+| Images | `terramind.models.vision` + prompt injection for all modes |
+| Session memory | `history` in API body; RAG uses `terramind.models.conversation` |
 | Persist chats | `localStorage` key `terramind_sessions_v1` |
 | Mock mode | `USE_MOCK=true` — no port 8001 needed |
 

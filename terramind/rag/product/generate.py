@@ -5,5 +5,5 @@ TODO: Move from Rag_Pc.py:
   - RAG_PROMPT ChatPromptTemplate (context + question + answer rules)
   - Function: generate_answer(context, question) -> str (ChatOpenAI gpt-4o-mini)
   - Keep “answer only from context” rules in the template
-See docs/RAG_MIGRATION_PLAN.md step 5 (product).
+See docs/PROJECT_STATUS.md (product migration).
 """
