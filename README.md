@@ -25,6 +25,17 @@ Agriculture support assistant with **three comparable AI modes**: product-catalo
 
 ---
 
+
+---
+
+## Project Architecture
+
+<div align="center">
+  <img src="assets/Architecture.jpeg" width="100%" height="100%">
+</div>
+
+---
+
 ## Quick start (web MVP)
 
 **Paths:** `<repo-root>` = your TerraMind clone (folder with `Rag_Pc.py` and `FrontPage/`). See [FrontPage/RUN_LOCALLY.md](FrontPage/RUN_LOCALLY.md) for full steps.
