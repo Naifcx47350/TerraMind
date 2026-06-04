@@ -85,3 +85,70 @@ def test_route_image_describe_with_vision():
     assert route == "base_llm"
     assert "photo" in reason.lower()
     probe.assert_not_called()
+
+
+def test_route_catalog_fungicide_question():
+    with patch("terramind.models.router._probe_top_score") as probe:
+        route, reason = route_question(
+            "which of your catalog fungicides would fit the potato problem we discussed",
+            "catalog fungicides potato",
+        )
+    assert route == "product_rag"
+    probe.assert_not_called()
+
+
+def test_route_hello_again_to_base_llm():
+    with patch("terramind.models.router._probe_top_score") as probe:
+        route, _ = route_question("hello again", "hello again")
+    assert route == "base_llm"
+    probe.assert_not_called()
+
+
+def test_route_gibberish_to_base_llm():
+    with patch("terramind.models.router._probe_top_score") as probe:
+        route, reason = route_question("dadada", "dadada")
+    assert route == "base_llm"
+    assert "unclear" in reason.lower() or "conversational" in reason.lower()
+    probe.assert_not_called()
+
+
+def test_route_vague_plant_to_base_llm():
+    with patch("terramind.models.router._probe_top_score") as probe:
+        route, reason = route_question("me wnt to plant how", "me wnt to plant how")
+    assert route == "base_llm"
+    probe.assert_not_called()
+
+
+def test_route_hypothetical_product_to_base_llm():
+    with patch("terramind.models.router._probe_top_score") as probe:
+        route, _ = route_question(
+            "how would u help me if i asked for a product?",
+            "how would u help if asked for product",
+        )
+    assert route == "base_llm"
+    probe.assert_not_called()
+
+
+def test_route_arabic_product_to_product_rag():
+    with patch("terramind.models.router._probe_top_score") as probe:
+        route, reason = route_question(
+            "اريد ان تعطيني منتج يساعد في تحسين التربة",
+            "منتج تحسين التربة",
+        )
+    assert route == "product_rag"
+    assert "product" in reason.lower()
+    probe.assert_not_called()
+
+
+def test_route_arabic_how_can_you_help_to_base_llm():
+    with patch("terramind.models.router._probe_top_score") as probe:
+        route, _ = route_question("كيف تستطيع مساعدتي؟", "كيف تستطيع مساعدتي")
+    assert route == "base_llm"
+    probe.assert_not_called()
+
+
+def test_route_arabic_what_confusion_to_base_llm():
+    with patch("terramind.models.router._probe_top_score") as probe:
+        route, _ = route_question("ماذا؟", "ماذا")
+    assert route == "base_llm"
+    probe.assert_not_called()

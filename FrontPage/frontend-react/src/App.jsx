@@ -150,6 +150,21 @@ const ROUTED_LABELS = {
   base_llm: "Base LLM",
 };
 
+/** Same three backends as terramind.models.COMPARE_MODEL_IDS (Auto excluded). */
+const COMPARE_MODEL_IDS = ["product_rag", "general_rag", "base_llm"];
+
+function compareModelList(modelList) {
+  const byId = Object.fromEntries(modelList.map((m) => [m.id, m]));
+  return COMPARE_MODEL_IDS.map(
+    (id) =>
+      byId[id] || {
+        id,
+        name: ROUTED_LABELS[id] || id,
+        description: "",
+      },
+  );
+}
+
 const AUTO_ROUTE_HINT_MS = 10000;
 
 function AutoRouteHint({ label, reason, t, fading }) {
@@ -228,16 +243,18 @@ function RagScores({
 }
 
 function ComparePanels({ msg, models, t, showSrc, showScores, isAr }) {
+  const compareModels = compareModelList(models);
   const panels =
-    msg.panels ||
-    models.map((m) => ({
-      modelId: m.id,
-      modelName: m.name,
-      answer: "",
-      sources: [],
-      latency: 0,
-      loading: true,
-    }));
+    msg.panels?.length > 0
+      ? msg.panels
+      : compareModels.map((m) => ({
+          modelId: m.id,
+          modelName: m.name,
+          answer: "",
+          sources: [],
+          latency: 0,
+          loading: true,
+        }));
 
   return (
     <div style={{ marginBottom: 24 }}>
@@ -440,6 +457,27 @@ function sessionsForStorage(sessions) {
   }));
 }
 
+function sessionSearchableText(session) {
+  const parts = [session.name || ""];
+  for (const m of session.messages || []) {
+    if (m.role === "user") parts.push(m.text || "");
+    else if (m.role === "bot") parts.push(m.answer || "");
+    else if (m.role === "error") parts.push(m.text || "");
+    else if (m.role === "compare" && m.panels) {
+      for (const p of m.panels) {
+        parts.push(p.modelName || "", p.answer || "", p.error || "");
+      }
+    }
+  }
+  return parts.join(" ").toLowerCase();
+}
+
+function sessionMatchesSearch(session, query) {
+  const q = query.trim().toLowerCase();
+  if (!q) return true;
+  return sessionSearchableText(session).includes(q);
+}
+
 function fileToBase64(f) {
   return new Promise((r, e) => {
     const x = new FileReader();
@@ -478,6 +516,21 @@ const I = {
       strokeLinejoin="round"
     >
       <path d="M12 5v14M5 12h14" />
+    </svg>
+  ),
+  search: ({ c = "currentColor" }) => (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={c}
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="11" cy="11" r="8" />
+      <line x1="21" y1="21" x2="16.65" y2="16.65" />
     </svg>
   ),
   sun: () => (
@@ -663,6 +716,7 @@ export default function App() {
   const autoRouteTimerRef = useRef(null);
   const logoClickRef = useRef({ count: 0, lastAt: 0 });
   const [compareMode, setCompareMode] = useState(false);
+  const [convSearch, setConvSearch] = useState("");
   const bottomRef = useRef(null);
   const fileRef = useRef(null);
   const taRef = useRef(null);
@@ -727,6 +781,9 @@ export default function App() {
 
   const t = dark ? DARK : LIGHT;
   const all = sessions.find((s) => s.id === activeId) || sessions[0];
+  const filteredSessions = convSearch.trim()
+    ? sessions.filter((s) => sessionMatchesSearch(s, convSearch))
+    : sessions;
 
   const clearAutoRouteTimer = () => {
     if (autoRouteTimerRef.current) {
@@ -902,7 +959,7 @@ export default function App() {
     }
 
     if (compareMode) {
-      const compareModels = models.filter((m) => m.id !== "advisory");
+      const compareModels = compareModelList(models);
       const placeholderPanels = compareModels.map((m) => ({
         modelId: m.id,
         modelName: m.name,
@@ -926,10 +983,12 @@ export default function App() {
       scroll();
 
       try {
+        const compareBody = { ...body };
+        delete compareBody.model;
         const r = await fetch(`${API}/ask/compare`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
+          body: JSON.stringify(compareBody),
         });
         if (!r.ok) throw new Error(`Server error ${r.status}`);
         const d = await r.json();
@@ -1229,6 +1288,56 @@ export default function App() {
           </div>
           <div
             style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              marginBottom: 8,
+              padding: "6px 10px",
+              background: t.bgInput,
+              border: `1px solid ${t.border1}`,
+              borderRadius: 8,
+            }}
+          >
+            <I.search c={t.text4} />
+            <input
+              type="search"
+              value={convSearch}
+              onChange={(e) => setConvSearch(e.target.value)}
+              placeholder="Search conversations…"
+              aria-label="Search conversations"
+              style={{
+                flex: 1,
+                minWidth: 0,
+                border: "none",
+                outline: "none",
+                background: "transparent",
+                fontFamily: F,
+                fontSize: 13,
+                color: t.text1,
+              }}
+            />
+            {convSearch.trim() && (
+              <button
+                type="button"
+                onClick={() => setConvSearch("")}
+                title="Clear search"
+                aria-label="Clear search"
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  padding: 0,
+                  fontSize: 16,
+                  lineHeight: 1,
+                  color: t.text4,
+                }}
+              >
+                ×
+              </button>
+            )}
+          </div>
+          <div
+            style={{
               flex: 1,
               overflowY: "auto",
               display: "flex",
@@ -1236,7 +1345,19 @@ export default function App() {
               gap: 1,
             }}
           >
-            {sessions.map((s) => (
+            {filteredSessions.length === 0 ? (
+              <div
+                style={{
+                  fontSize: 12,
+                  color: t.text4,
+                  padding: "12px 8px",
+                  textAlign: "center",
+                }}
+              >
+                No conversations match
+              </div>
+            ) : (
+              filteredSessions.map((s) => (
               <div
                 key={s.id}
                 onMouseEnter={() => setHover(s.id)}
@@ -1321,7 +1442,8 @@ export default function App() {
                   </button>
                 )}
               </div>
-            ))}
+            ))
+            )}
           </div>
 
           <div
