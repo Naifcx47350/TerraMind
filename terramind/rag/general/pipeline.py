@@ -18,6 +18,7 @@ def init_general_rag(reset: bool = False) -> Chroma:
     """Load corpus from data dir, chunk, and build or open the Chroma index."""
     global _db
     if reset or not _chroma_exists():
+        print("Loading general RAG corpus...")
         docs = load_documents()
         chunks = chunk_documents(docs)
         print(f"Indexed {len(docs)} document(s) -> {len(chunks)} chunks")

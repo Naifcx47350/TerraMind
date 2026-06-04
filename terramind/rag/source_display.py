@@ -65,6 +65,17 @@ def resolve_source_title(
 
 
 def _general_source_title(metadata: dict[str, Any]) -> str:
+    filename = metadata.get("filename")
+    if filename:
+        try:
+            from terramind.rag.general.config import display_name_for_file
+
+            mapped = display_name_for_file(str(filename))
+            if mapped:
+                return mapped
+        except ImportError:
+            pass
+
     if metadata.get("display_name"):
         return str(metadata["display_name"])
 

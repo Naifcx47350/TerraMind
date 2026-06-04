@@ -22,6 +22,7 @@ from terramind.models import (
     list_models,
     model_display_name,
     resolve_image_analysis,
+    run_advisory,
     run_model,
 )
 
@@ -75,6 +76,26 @@ class ModelCompareResult(BaseModel):
 class CompareResponse(BaseModel):
     question: str
     results: list[ModelCompareResult]
+    latency_ms: int
+
+
+class AdvisoryPart(BaseModel):
+    answer: str
+    sources: list[SourceOut]
+    confidence: str
+    retrieved_chunks: int
+    system: str
+
+
+class AdvisoryResponse(BaseModel):
+    question: str
+    answer: str
+    sources: list[SourceOut]
+    confidence: str
+    retrieved_chunks: int
+    system: str = "advisory"
+    general: AdvisoryPart
+    product: AdvisoryPart
     latency_ms: int
 
 
@@ -212,3 +233,63 @@ async def query_compare(request: QueryRequest):
     print(f"[terramind.api] compare answered in {elapsed_ms}ms")
 
     return CompareResponse(question=question, results=list(results), latency_ms=elapsed_ms)
+
+
+@app.post("/query/advisory", response_model=AdvisoryResponse)
+async def query_advisory(request: QueryRequest):
+    """General agriculture guidance + product catalog in one flow (single vision call)."""
+    if not request.question.strip():
+        raise HTTPException(status_code=400, detail="question is required")
+
+    question = request.question.strip()
+    start = time.time()
+    try:
+        analysis = None
+        if request.image_base64 and request.image_mime:
+            analysis = resolve_image_analysis(
+                question,
+                request.image_analysis,
+                request.image_base64,
+                request.image_mime,
+                request.language,
+            )
+        elif request.image_analysis:
+            analysis = request.image_analysis.strip()
+
+        result = await asyncio.to_thread(
+            run_advisory,
+            question,
+            request.history,
+            analysis,
+            None,
+            None,
+            request.language,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Advisory failed: {e}") from e
+
+    elapsed_ms = int((time.time() - start) * 1000)
+    print(f"[terramind.api] advisory answered in {elapsed_ms}ms")
+
+    def _part(payload: dict, label: str) -> AdvisoryPart:
+        return AdvisoryPart(
+            answer=payload.get("answer", "") or "",
+            sources=[SourceOut(**s) for s in payload.get("sources", [])],
+            confidence=payload.get("confidence", "medium"),
+            retrieved_chunks=payload.get("retrieved_chunks", 0),
+            system=payload.get("system", label),
+        )
+
+    general = result.get("general") or {}
+    product = result.get("product") or {}
+
+    return AdvisoryResponse(
+        question=question,
+        answer=result.get("answer", "") or "",
+        sources=[SourceOut(**s) for s in result.get("sources", [])],
+        confidence=result.get("confidence", "medium"),
+        retrieved_chunks=result.get("retrieved_chunks", 0),
+        general=_part(general, "general_rag"),
+        product=_part(product, "product_rag"),
+        latency_ms=elapsed_ms,
+    )

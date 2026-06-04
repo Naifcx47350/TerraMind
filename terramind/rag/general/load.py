@@ -1,14 +1,22 @@
-"""General RAG — load and clean markdown/text documents."""
+"""General RAG — load PDF, markdown, and text documents."""
 
 import re
 from pathlib import Path
 
 from langchain_core.documents import Document
+from pypdf import PdfReader
 
 from terramind.rag.general.config import (
-    DATA_PATH,
-    GENERAL_DATA_DIR,
-    SUPPORTED_EXTENSIONS,
+    EXCLUDED_FILENAMES,
+    GENERAL_DOCUMENTS_DIR,
+    GENERAL_SAMPLE_DIR,
+    GENERAL_TEXT_DIR,
+    SAMPLE_FILE_ALLOWLIST,
+    PDF_EXTENSIONS,
+    TEXT_EXTENSIONS,
+    display_name_for_file,
+    document_id_for_path,
+    topic_for_filename,
 )
 from terramind.rag.source_display import clean_heading_title
 
@@ -44,10 +52,15 @@ _TABLE_SEP = re.compile(r"^\|[\s\-:|]+\|\s*$")
 
 
 def _guess_title(text: str, filename: str) -> str:
+    mapped = display_name_for_file(filename)
+    if mapped:
+        return mapped
     for line in text.splitlines():
         line = line.strip()
         if line.startswith("# "):
             return line.lstrip("# ").strip()
+        if line.lower().startswith("title:"):
+            return line.split(":", 1)[1].strip()
     return Path(filename).stem.replace("_", " ")
 
 
@@ -94,7 +107,6 @@ def strip_boilerplate(text: str) -> str:
             continue
         out.append(line)
 
-    # Drop consecutive duplicate lines (repeated titles in PDF→MD exports).
     deduped: list[str] = []
     prev: str | None = None
     for line in out:
@@ -109,22 +121,49 @@ def strip_boilerplate(text: str) -> str:
     return cleaned.strip()
 
 
+def _read_pdf_text(path: Path) -> str:
+    reader = PdfReader(str(path))
+    parts: list[str] = []
+    for page in reader.pages:
+        text = page.extract_text() or ""
+        if text.strip():
+            parts.append(text)
+    return "\n\n".join(parts)
+
+
+def _document_metadata(path: Path, raw_title: str) -> dict:
+    mapped = display_name_for_file(path.name)
+    display_name = clean_heading_title(mapped or raw_title) or filename_stem_from_path(path)
+    return {
+        "source": str(path.resolve()),
+        "filename": path.name,
+        "document_id": document_id_for_path(path),
+        "corpus_topic": topic_for_filename(path.name),
+        "title": raw_title,
+        "display_name": display_name,
+        "corpus_folder": path.parent.name.replace("_", " "),
+        "file_type": path.suffix.lstrip(".").lower(),
+    }
+
+
 def load_document(file_path: str | Path) -> Document:
     path = Path(file_path)
-    raw = path.read_text(encoding="utf-8")
-    text = strip_boilerplate(raw)
-    raw_title = _guess_title(text, path.name)
-    display_name = clean_heading_title(raw_title) or filename_stem_from_path(path)
+    suffix = path.suffix.lower()
+
+    if suffix in PDF_EXTENSIONS:
+        raw = _read_pdf_text(path)
+        if not raw.strip():
+            raise ValueError(f"No extractable text in PDF: {path}")
+        text = strip_boilerplate(raw)
+        raw_title = display_name_for_file(path.name) or filename_stem_from_path(path)
+    else:
+        raw = path.read_text(encoding="utf-8")
+        text = strip_boilerplate(raw)
+        raw_title = _guess_title(text, path.name)
+
     return Document(
         page_content=text,
-        metadata={
-            "source": str(path.resolve()),
-            "filename": path.name,
-            "title": raw_title,
-            "display_name": display_name,
-            "corpus_folder": path.parent.name.replace("_", " "),
-            "file_type": path.suffix.lstrip(".").lower(),
-        },
+        metadata=_document_metadata(path, raw_title),
     )
 
 
@@ -132,33 +171,77 @@ def filename_stem_from_path(path: Path) -> str:
     return path.stem.replace("_", " ")
 
 
-def discover_document_paths(data_dir: Path | None = None) -> list[Path]:
-    """All supported text files under the corpus directory (recursive)."""
-    root = data_dir or GENERAL_DATA_DIR
+def _collect_from_dir(
+    root: Path,
+    extensions: set[str],
+    *,
+    sample_allowlist: frozenset[str] | None = None,
+) -> list[Path]:
     if not root.is_dir():
-        return [DATA_PATH] if DATA_PATH.is_file() else []
-
+        return []
     paths: list[Path] = []
     for path in sorted(root.rglob("*")):
         if not path.is_file():
             continue
         if path.name.startswith((".", "~$")):
             continue
-        if path.suffix.lower() not in SUPPORTED_EXTENSIONS:
+        if path.name.upper() == "README.MD":
+            continue
+        if path.name in EXCLUDED_FILENAMES:
+            continue
+        if sample_allowlist is not None and path.name not in sample_allowlist:
+            continue
+        if path.suffix.lower() not in extensions:
             continue
         paths.append(path.resolve())
-
-    if paths:
-        return paths
-    return [DATA_PATH] if DATA_PATH.is_file() else []
+    return paths
 
 
-def load_documents(data_dir: Path | None = None) -> list[Document]:
-    paths = discover_document_paths(data_dir)
+def discover_document_paths() -> list[Path]:
+    """
+    PDFs and text from data/raw/documents/; optional .md/.txt from data/raw/text/.
+    Product Excel in text/ is excluded.
+    """
+    paths: list[Path] = []
+    paths.extend(_collect_from_dir(GENERAL_DOCUMENTS_DIR, TEXT_EXTENSIONS | PDF_EXTENSIONS))
+    paths.extend(_collect_from_dir(GENERAL_TEXT_DIR, TEXT_EXTENSIONS))
+    paths.extend(
+        _collect_from_dir(
+            GENERAL_SAMPLE_DIR,
+            TEXT_EXTENSIONS,
+            sample_allowlist=SAMPLE_FILE_ALLOWLIST,
+        )
+    )
+
+    # Stable order, one path per file
+    unique = sorted({str(p): p for p in paths}.values(), key=lambda p: str(p).lower())
+    return list(unique)
+
+
+def load_documents() -> list[Document]:
+    paths = discover_document_paths()
     if not paths:
         raise FileNotFoundError(
-            f"No general RAG documents found under {data_dir or GENERAL_DATA_DIR}. "
-            f"Add .md or .txt files, then rebuild: "
-            "python -m terramind.rag.general.cli --reset"
+            f"No general RAG documents found. Add PDF or .md files under "
+            f"{GENERAL_DOCUMENTS_DIR} (see data/raw/documents/README.md), then rebuild:\n"
+            "  python -m terramind.rag.general.cli --reset"
         )
-    return [load_document(p) for p in paths]
+
+    docs: list[Document] = []
+    errors: list[str] = []
+    for path in paths:
+        try:
+            docs.append(load_document(path))
+            print(f"  Loaded: {path.name} ({len(docs[-1].page_content):,} chars)")
+        except Exception as e:
+            errors.append(f"{path.name}: {e}")
+
+    if not docs:
+        raise FileNotFoundError(
+            "No documents could be loaded.\n" + "\n".join(errors)
+        )
+    if errors:
+        print("Warnings:")
+        for err in errors:
+            print(f"  - {err}")
+    return docs

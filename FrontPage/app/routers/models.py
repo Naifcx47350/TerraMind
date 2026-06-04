@@ -14,7 +14,10 @@ FALLBACK_MODELS = [
     {
         "id": "general_rag",
         "name": "Agriculture Knowledge RAG",
-        "description": "General IPM and crop guidance documents (e.g. FAO)",
+        "description": (
+            "Trusted public agriculture references: GAP, soil health, "
+            "crop rotation, IPM, pesticide stewardship"
+        ),
     },
     {
         "id": "base_llm",

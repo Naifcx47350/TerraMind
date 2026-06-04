@@ -447,6 +447,88 @@ def _compare_url() -> str | None:
     return f"{url.rstrip('/')}/compare"
 
 
+def _advisory_url() -> str | None:
+    url = (settings.rag_service_url or "").strip()
+    if not url:
+        return None
+    if url.endswith("/query"):
+        return url[: -len("/query")] + "/query/advisory"
+    return f"{url.rstrip('/')}/query/advisory"
+
+
+async def call_rag_advisory(request: AskRequest) -> AskResponse:
+    """General + product RAG sequence (public guidance then catalog)."""
+    start = time.time()
+    lang = _detect_language(request.question)
+
+    image_analysis = None
+    if request.image_base64 and request.image_mime:
+        try:
+            image_analysis = await _analyze_image(
+                request.image_base64, request.image_mime, request.question, lang
+            )
+        except Exception:
+            image_analysis = None
+
+    advisory_url = _advisory_url()
+    if not advisory_url:
+        return AskResponse(
+            answer="Advisory mode requires RAG_SERVICE_URL pointing at the model API (port 8001).",
+            sources=[],
+            confidence="low",
+            retrieved_chunks=0,
+            latency_ms=int((time.time() - start) * 1000),
+            system="error:no_advisory_url",
+            model="advisory",
+            detected_language=lang,
+            image_analysis=image_analysis,
+        )
+
+    try:
+        payload = {
+            "question": request.question,
+            "history": [
+                {"role": m.role, "content": m.content}
+                for m in (request.history or [])[-10:]
+            ],
+        }
+        if image_analysis:
+            payload["image_analysis"] = image_analysis
+        if request.image_base64 and request.image_mime:
+            payload["image_base64"] = request.image_base64
+            payload["image_mime"] = request.image_mime
+
+        async with httpx.AsyncClient(timeout=settings.request_timeout * 2) as client:
+            resp = await client.post(advisory_url, json=payload)
+            resp.raise_for_status()
+            data = resp.json()
+
+        return AskResponse(
+            answer=data.get("answer", ""),
+            sources=_parse_sources(data.get("sources", [])),
+            confidence=data.get("confidence", "medium"),
+            retrieved_chunks=data.get("retrieved_chunks", 0),
+            latency_ms=data.get("latency_ms", int((time.time() - start) * 1000)),
+            system="advisory",
+            model="advisory",
+            detected_language=lang,
+            image_analysis=image_analysis,
+        )
+    except Exception as e:
+        logger.error("Advisory call failed (%s): %s", advisory_url, e)
+        return AskResponse(
+            answer=f"Advisory service failed: {e}",
+            sources=[],
+            confidence="low",
+            retrieved_chunks=0,
+            latency_ms=int((time.time() - start) * 1000),
+            system="error:advisory",
+            model="advisory",
+            detected_language=lang,
+            image_analysis=image_analysis,
+        )
+
+
 def _parse_sources(sources: list) -> list[SourceDoc]:
     parsed = []
     for s in sources:

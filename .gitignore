@@ -1,6 +1,15 @@
 # === Data, Outputs, and Results ===
 data/
+!data/raw/
+data/raw/**
+!data/raw/documents/
+!data/raw/documents/**
+!data/sample/
+!data/sample/**
 vectorstore/
+!data/eval/
+!data/eval/**
+data/eval/runs/
 
 # === Environment Variables ===
 .env

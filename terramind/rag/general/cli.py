@@ -1,17 +1,19 @@
-"""General RAG — command-line entry: python -m terramind.rag.general.cli"""
+"""General RAG — CLI: build index, inspect corpus, eval retrieval, test Q&A."""
 
 import argparse
+import sys
 
+from terramind.rag.general.eval import inspect_corpus, run_retrieval_eval
 from terramind.rag.general.pipeline import (
     answer_with_rag,
     init_general_rag,
+    sources_from_retrieved,
 )
 from terramind.rag.general.retrieve import retrieve_chunks
 
 DEFAULT_QUESTION = (
     "A potato farmer has repeated late blight outbreaks and wants to reduce pesticide use. "
-    "Based on the provided document, what integrated disease management steps should they take "
-    "before relying on fungicides, and when should fungicide application be planned?"
+    "What integrated disease management steps should they take before relying on fungicides?"
 )
 
 
@@ -25,28 +27,53 @@ def main() -> None:
         help="Delete and rebuild the Chroma index",
     )
     parser.add_argument(
+        "--inspect",
+        action="store_true",
+        help="Load each source file and print char counts + preview (no index)",
+    )
+    parser.add_argument(
+        "--dry-load",
+        action="store_true",
+        help="Alias for --inspect",
+    )
+    parser.add_argument(
+        "--eval-retrieval",
+        action="store_true",
+        help="Run golden retrieval questions (no LLM); requires index",
+    )
+    parser.add_argument(
         "question",
         nargs="?",
         default=None,
-        help="Optional test question",
+        help="Optional test question (full RAG answer)",
     )
     args = parser.parse_args()
 
-    query = args.question or DEFAULT_QUESTION
+    if args.inspect or args.dry_load:
+        warnings = inspect_corpus(dry_load=True)
+        sys.exit(1 if warnings else 0)
+
     db = init_general_rag(reset=args.reset)
     print(f"General RAG ready ({db._collection.count()} vectors in index)")
+
+    if args.eval_retrieval:
+        summary = run_retrieval_eval(db)
+        sys.exit(0 if summary.get("rate_pct", 0) >= 80 else 1)
+
+    query = args.question or DEFAULT_QUESTION
 
     print("\n--- Retrieved chunks ---")
     retrieved = retrieve_chunks(db, query)
     for i, hit in enumerate(retrieved, start=1):
         section = hit.metadata.get("h2") or hit.metadata.get("h1") or "n/a"
-        print(f"\nResult {i} | {hit.metadata.get('title', 'n/a')} | {section}")
+        print(
+            f"\nResult {i} | {hit.metadata.get('filename', 'n/a')} "
+            f"| {hit.metadata.get('corpus_topic', '')} | {section}"
+        )
         print(hit.page_content[:300], "...")
 
     print("\n--- RAG answer ---")
     result = answer_with_rag(db, query, generation_prompt=query)
-    from terramind.rag.general.pipeline import sources_from_retrieved
-
     labels = [s["title"] for s in sources_from_retrieved(retrieved)]
     print(f"\n{result['answer']}\n\n---\n\nSources: {labels}")
 

@@ -12,9 +12,12 @@ Agriculture support assistant with **three comparable AI modes**: product-catalo
 
 | Document | Description |
 |----------|-------------|
-| **[PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md)** | **Main technical guide** — architecture, models, storage, compare, images, APIs |
+| **[docs/SYSTEM_ARCHITECTURE.md](docs/SYSTEM_ARCHITECTURE.md)** | **System architecture** — runtime topology, flows, RAG boundaries (update when stack changes) |
+| **[PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md)** | **Main technical guide** — features, models, storage, compare, images, APIs |
 | **[docs/FILE_MAP_AND_PIPELINE.md](docs/FILE_MAP_AND_PIPELINE.md)** | **File-by-file map** — what runs, what calls what, legacy vs active |
 | **[terramind/README.md](terramind/README.md)** | Backend package layout |
+| **[docs/GENERAL_RAG_CORPUS.md](docs/GENERAL_RAG_CORPUS.md)** | **General RAG** — source PDFs, folder layout, rebuild index |
+| **[docs/GENERAL_RAG_VALIDATION_REPORT.md](docs/GENERAL_RAG_VALIDATION_REPORT.md)** | **General RAG validation** — May 2026 inspect/reset/eval results and methodology |
 | **[docs/RAG_MIGRATION_PLAN.md](docs/RAG_MIGRATION_PLAN.md)** | **Next steps** — split RAG into `terramind/rag/` modules |
 | [FrontPage/RUN_LOCALLY.md](FrontPage/RUN_LOCALLY.md) | Run all three services — uses **`<repo-root>`** (your clone path) |
 | [FrontPage/ARCHITECTURE.md](FrontPage/ARCHITECTURE.md) | Short architecture diagram |
@@ -67,8 +70,10 @@ Open **http://localhost:3000**.
 | Mode | ID | Knowledge source |
 |------|-----|------------------|
 | Product Catalog RAG | `product_rag` | Client Excel (`ProductCatalog(En).xlsx`) |
-| Agriculture Knowledge RAG | `general_rag` | General docs (e.g. FAO pest management markdown) |
+| Agriculture Knowledge RAG | `general_rag` | Public refs in `data/raw/documents/` (IPM, GAP, soil health, pesticides) |
 | Base LLM | `base_llm` | No retrieval — OpenAI only |
+
+**General vs product:** The General Agriculture RAG uses trusted public references (good agricultural practices, soil health, cover crops, crop rotation, integrated pest management). The Product RAG handles **company-specific** catalog information only. Details: [docs/GENERAL_RAG_CORPUS.md](docs/GENERAL_RAG_CORPUS.md).
 
 Default LLM: **`gpt-4o-mini`** for chat and vision.
 
@@ -78,7 +83,9 @@ Default LLM: **`gpt-4o-mini`** for chat and vision.
 
 ```text
 TerraMind/
-├── docs/PROJECT_OVERVIEW.md   # Technical introduction
+├── docs/                      # Developer docs (not RAG sources)
+│   ├── GENERAL_RAG_CORPUS.md  # General RAG sources & rebuild
+│   └── FILE_MAP_AND_PIPELINE.md
 ├── terramind/                 # Backend package (API + models + RAG layout)
 │   ├── api/app.py             # Model HTTP API (:8001)
 │   ├── models/                # Three modes + vision + conversation
@@ -88,7 +95,8 @@ TerraMind/
 ├── rag_api.py                 # Shim → terramind.api.app
 ├── models/                    # Shim → terramind.models (backward compat)
 ├── vectorstore/               # Chroma indexes (local)
-├── data/raw/text/             # Source files
+├── data/raw/documents/        # General RAG PDFs (IPM, GAP, soil, etc.)
+├── data/raw/text/             # Product Excel + optional extra text
 ├── FrontPage/                 # Web API (:8000) + React UI (:3000)
 ├── src/                       # Earlier CLI RAG modules
 └── scripts/                   # Ingestion utilities
