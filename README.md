@@ -33,8 +33,10 @@ Agriculture support assistant with **Auto RAG** (default), manual product/genera
 ## Project Architecture
 
 <div align="center">
-  <img src="assets/Architecture.jpeg" width="100%" height="100%">
+  <img src="assets/architecture/system-flow.png" alt="TerraMind system flow — browser, APIs, RAG modes, and response" width="100%">
 </div>
+
+<p align="center"><em>High-level request flow. Ports, services, and RAG boundaries: <a href="docs/SYSTEM_ARCHITECTURE.md">docs/SYSTEM_ARCHITECTURE.md</a>.</em></p>
 
 ---
 

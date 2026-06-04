@@ -153,7 +153,7 @@ Product RAG migration: **`docs/PROJECT_STATUS.md`** §2. General RAG is complete
 | **`docs/FILE_MAP_AND_PIPELINE.md`** | This file |
 | **`data/README.md`** | Data layout + gitignore |
 | **`docs/SYSTEM_ARCHITECTURE.md`** | Canonical architecture |
-| **`assets/`** | Logo, architecture diagram |
+| **`assets/`** | Logo (`assets/logo/`), diagrams (`assets/architecture/`) |
 | **`docs/`** | Developer documentation only (not ingested by RAG) |
 | **`docs/GENERAL_RAG_CORPUS.md`** | General RAG corpus list and rebuild steps |
 | **`TM_Logo.png`** | Branding for README; **not** served to UI |
