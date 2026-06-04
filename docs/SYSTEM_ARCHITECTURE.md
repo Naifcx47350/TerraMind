@@ -28,46 +28,46 @@ Architecture is a **three-process dev stack** (React UI → BFF API → Model AP
 
 ```mermaid
 flowchart TB
-  subgraph browser [Browser :3000]
-    UI[React App.jsx]
-    LS[(localStorage sessions)]
+  subgraph browser ["Browser port 3000"]
+    UI["React App.jsx"]
+    LS[("localStorage sessions")]
     UI --- LS
   end
 
-  subgraph fp [FrontPage :8000]
-    Ask[/api/ask]
-    Cmp[/api/ask/compare]
-    Adv[/api/ask/advisory]
-    RAGSvc[rag_service.py]
+  subgraph fp ["FrontPage port 8000"]
+    Ask["POST /api/ask"]
+    Cmp["POST /api/ask/compare"]
+    Adv["POST /api/ask/advisory"]
+    RAGSvc["rag_service.py"]
     Ask --> RAGSvc
     Cmp --> RAGSvc
     Adv --> RAGSvc
   end
 
-  subgraph model [Model API :8001]
-    Q[/query]
-    QC[/query/compare]
-    QA[/query/advisory]
-    Reg[terramind.models]
+  subgraph model ["Model API port 8001"]
+    Q["POST /query"]
+    QC["POST /query/compare"]
+    QA["POST /query/advisory"]
+    Reg["terramind.models"]
     Q --> Reg
     QC --> Reg
     QA --> Reg
   end
 
-  subgraph knowledge [On-disk knowledge]
-    CP[(chroma_products)]
-    CG[(chroma general)]
-    Excel[data/raw/text catalog]
-    PDFs[data/raw/documents]
+  subgraph knowledge ["On-disk knowledge"]
+    CP[("chroma_products")]
+    CG[("chroma general")]
+    Excel["data/raw/text catalog"]
+    PDFs["data/raw/documents"]
   end
 
-  subgraph openai [OpenAI]
-    Chat[gpt-4o-mini]
-    Emb[text-embedding-3-small]
-    Vis[vision]
+  subgraph openai ["OpenAI"]
+    Chat["gpt-4o-mini"]
+    Emb["text-embedding-3-small"]
+    Vis["vision"]
   end
 
-  UI -->|/api/*| fp
+  UI -->|"proxy /api/*"| fp
   RAGSvc -->|httpx| model
   Reg --> CP
   Reg --> CG

@@ -173,14 +173,14 @@ Several passes still show **another manual in rank 2 or 3** (e.g. `ipm-02` has F
 
 ```mermaid
 flowchart TD
-  A[Duplicate FAO .md removed on disk] --> B{Index rebuilt?}
-  B -->|No| C[Stale Chroma still has .md chunks]
-  B -->|Yes| D[warn_if_stale_index silent]
-  C --> E[Eval shows Pest_Management_FAO.md in top-k]
-  D --> F[--inspect: 7 files OK]
-  F --> G[--reset: 2354 vectors]
-  G --> H[--eval-retrieval: 20/20]
-  H --> I[Smoke: FAO PDF only for late blight Q]
+  A["Duplicate FAO md removed on disk"] --> B{"Index rebuilt?"}
+  B -->|No| C["Stale Chroma has md chunks"]
+  B -->|Yes| D["warn_if_stale_index silent"]
+  C --> E["Eval shows FAO md in top-k"]
+  D --> F["inspect: 7 files OK"]
+  F --> G["reset: 2354 vectors"]
+  G --> H["eval-retrieval: 20/20"]
+  H --> I["Smoke: FAO PDF for late blight"]
 ```
 
 1. **Hypothesis:** Deleting `.md` is not enough; vectors must be rebuilt.

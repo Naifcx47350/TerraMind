@@ -36,17 +36,17 @@ Three processes run in development:
 
 ```mermaid
 flowchart LR
-  User[Browser :3000]
-  FP[FrontPage API :8000]
-  RAG[Model API :8001]
-  PC[chroma_products]
-  GEN[chroma general]
-  LLM[OpenAI gpt-4o-mini]
+  User["Browser port 3000"]
+  FP["FrontPage API port 8000"]
+  RAG["Model API port 8001"]
+  PC[("chroma_products")]
+  GEN[("chroma general")]
+  LLM["OpenAI gpt-4o-mini"]
 
-  User -->|POST /api/ask| FP
-  User -->|POST /api/ask/compare| FP
-  FP -->|optional vision| LLM
-  FP -->|POST /query| RAG
+  User -->|"POST /api/ask"| FP
+  User -->|"POST /api/ask/compare"| FP
+  FP -->|"optional vision"| LLM
+  FP -->|"POST /query"| RAG
   RAG --> PC
   RAG --> GEN
   RAG --> LLM
