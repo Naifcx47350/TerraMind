@@ -3,9 +3,13 @@
 from __future__ import annotations
 
 from terramind.meta_questions import (
+    has_agriculture_intent,
     has_strong_product_intent,
+    is_clarification_question,
     is_image_describe_question,
     is_meta_question,
+    is_off_topic_question,
+    is_translation_request,
 )
 from terramind.models.conversation import build_retrieval_query
 from terramind.rag.general.topics import infer_topics_from_query
@@ -66,6 +70,7 @@ MIXED_GENERAL_HINTS: tuple[str, ...] = (
 )
 
 ROUTE_SCORE_MARGIN = 0.06
+MIN_RAG_ROUTE_SCORE = 0.38
 
 
 def _keyword_counts(query: str) -> tuple[int, int, int]:
@@ -105,6 +110,15 @@ def route_question(
     """
     if is_meta_question(question):
         return "base_llm", "conversational question — no agriculture retrieval"
+
+    if is_clarification_question(question):
+        return "base_llm", "unclear or vague question — no agriculture retrieval"
+
+    if is_translation_request(question):
+        return "base_llm", "translation request — use conversation context, no retrieval"
+
+    if is_off_topic_question(question):
+        return "base_llm", "off-topic question — no agriculture retrieval"
 
     if (image_analysis or "").strip() and is_image_describe_question(question):
         return "base_llm", "photo description — vision context, no document retrieval"
@@ -168,6 +182,17 @@ def route_question(
             return "product_rag", "default tie — catalog score at least as strong"
     if product_score is not None and (general_score is None or product_score > (general_score or 0)):
         return "product_rag", "catalog retrieval available"
+
+    best_score = max(
+        (s for s in (general_score, product_score) if s is not None),
+        default=None,
+    )
+    if best_score is not None and best_score < MIN_RAG_ROUTE_SCORE:
+        if not has_agriculture_intent(question) or is_clarification_question(question):
+            return (
+                "base_llm",
+                f"weak document match ({best_score:.2f}) — conversational reply",
+            )
 
     return "general_rag", "default — agriculture knowledge"
 
