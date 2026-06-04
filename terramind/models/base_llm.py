@@ -68,6 +68,7 @@ def answer(
         "answer": response.content or "",
         "sources": [],
         "confidence": "medium",
+        "retrieval_score": None,
         "retrieved_chunks": 0,
         "system": "base_llm",
     }

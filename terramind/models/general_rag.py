@@ -25,20 +25,21 @@ def answer(
         retrieval_q,
         generation_prompt=generation_q,
     )
-    sources = sources_from_retrieved(result["retrieved"])
+    retrieved = result["retrieved"]
+    sources = sources_from_retrieved(retrieved)
     filenames = sorted(
-        {d.metadata.get("filename") for d in result["retrieved"] if d.metadata.get("filename")}
+        {d.metadata.get("filename") for d in retrieved if d.metadata.get("filename")}
     )
     logger.debug(
         "general_rag retrieval_q_len=%s chunks=%s source_files=%s",
         len(retrieval_q),
-        len(result["retrieved"]),
+        len(retrieved),
         filenames,
     )
+    from terramind.rag.scoring import rag_metrics
+
     return {
         "answer": result["answer"] or "",
-        "sources": sources,
-        "confidence": "high" if sources else "low",
-        "retrieved_chunks": len(result["retrieved"]),
         "system": "general_rag",
+        **rag_metrics(retrieved, sources),
     }

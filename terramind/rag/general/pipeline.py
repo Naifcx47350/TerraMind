@@ -9,7 +9,7 @@ from terramind.rag.general.generate import generate_answer
 from terramind.rag.general.load import load_documents
 from terramind.rag.general.retrieve import format_context, retrieve_chunks
 from terramind.rag.general.store import _chroma_exists, build_chroma_db
-from terramind.rag.source_display import dedupe_key, source_entry_from_chunk
+from terramind.rag.scoring import sources_from_retrieved as _sources_from_retrieved
 
 _db: Chroma | None = None
 
@@ -58,20 +58,4 @@ def answer_with_rag(
 
 
 def sources_from_retrieved(retrieved: list[Document]) -> list[dict]:
-    """UI source chips — one per document, friendly title (see source_display.py)."""
-    seen: set[str] = set()
-    sources: list[dict] = []
-    for doc in retrieved:
-        key = dedupe_key("general", doc.metadata)
-        if key in seen:
-            continue
-        seen.add(key)
-        section = (
-            doc.metadata.get("h3")
-            or doc.metadata.get("h2")
-            or doc.metadata.get("h1")
-        )
-        sources.append(
-            source_entry_from_chunk("general", doc.metadata, section=section)
-        )
-    return sources
+    return _sources_from_retrieved("general", retrieved)

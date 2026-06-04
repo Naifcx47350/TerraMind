@@ -10,6 +10,7 @@ from terramind.rag.general.pipeline import (
     sources_from_retrieved,
 )
 from terramind.rag.general.retrieve import retrieve_chunks
+from terramind.rag.scoring import aggregate_retrieval_score, chunk_relevance, confidence_from_retrieval
 
 DEFAULT_QUESTION = (
     "A potato farmer has repeated late blight outbreaks and wants to reduce pesticide use. "
@@ -42,6 +43,11 @@ def main() -> None:
         help="Run golden retrieval questions (no LLM); requires index",
     )
     parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Print per-chunk relevance scores (with default question / retrieval preview)",
+    )
+    parser.add_argument(
         "question",
         nargs="?",
         default=None,
@@ -66,16 +72,39 @@ def main() -> None:
     retrieved = retrieve_chunks(db, query)
     for i, hit in enumerate(retrieved, start=1):
         section = hit.metadata.get("h2") or hit.metadata.get("h1") or "n/a"
+        score = chunk_relevance(hit)
+        score_txt = f" | relevance={score:.3f}" if score is not None else ""
         print(
             f"\nResult {i} | {hit.metadata.get('filename', 'n/a')} "
-            f"| {hit.metadata.get('corpus_topic', '')} | {section}"
+            f"| {hit.metadata.get('corpus_topic', '')} | {section}{score_txt}"
         )
         print(hit.page_content[:300], "...")
 
+    if args.verbose:
+        agg = aggregate_retrieval_score(retrieved)
+        conf = confidence_from_retrieval(retrieved)
+        print(
+            f"\nRetrieval: best_score={agg:.3f} confidence={conf} chunks={len(retrieved)}"
+            if agg is not None
+            else f"\nRetrieval: confidence={conf} chunks={len(retrieved)}"
+        )
+
     print("\n--- RAG answer ---")
     result = answer_with_rag(db, query, generation_prompt=query)
-    labels = [s["title"] for s in sources_from_retrieved(retrieved)]
+    sources = sources_from_retrieved(result["retrieved"])
+    labels = [s["title"] for s in sources]
     print(f"\n{result['answer']}\n\n---\n\nSources: {labels}")
+    if args.verbose:
+        from terramind.rag.scoring import rag_metrics
+
+        m = rag_metrics(result["retrieved"], sources)
+        rs = m.get("retrieval_score")
+        print(
+            f"Answer metrics: confidence={m['confidence']} "
+            f"retrieval_score={rs:.3f} chunks={m['retrieved_chunks']}"
+            if rs is not None
+            else f"Answer metrics: confidence={m['confidence']} chunks={m['retrieved_chunks']}"
+        )
 
 
 if __name__ == "__main__":

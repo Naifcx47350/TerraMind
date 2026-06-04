@@ -55,15 +55,21 @@ const F = "Arial, sans-serif";
 
 const DEFAULT_MODELS = [
   {
-    id: "product_rag",
-    name: "Product Catalog RAG",
-    description: "Client Excel product sheets",
+    id: "auto_rag",
+    name: "Auto (recommended)",
+    description:
+      "Picks Product Catalog or Agriculture Knowledge RAG from your question",
   },
   {
     id: "general_rag",
     name: "Agriculture Knowledge RAG",
     description:
       "Public refs: GAP, soil health, rotation, IPM — not product catalog",
+  },
+  {
+    id: "product_rag",
+    name: "Product Catalog RAG",
+    description: "Client Excel product sheets",
   },
   {
     id: "base_llm",
@@ -89,7 +95,93 @@ function TerraLogo({ size = 1000, style = {} }) {
   );
 }
 
-function ComparePanels({ msg, models, t, showSrc, isAr }) {
+function formatConfidence(level) {
+  if (!level) return "—";
+  const s = String(level).toLowerCase();
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function formatRetrievalPct(score) {
+  if (score == null || Number.isNaN(Number(score))) return null;
+  return `${Math.round(Number(score) * 100)}%`;
+}
+
+const ROUTED_LABELS = {
+  product_rag: "Product Catalog RAG",
+  general_rag: "Agriculture Knowledge RAG",
+};
+
+const AUTO_ROUTE_HINT_MS = 10000;
+
+function AutoRouteHint({ label, reason, t, fading }) {
+  if (!label) return null;
+  return (
+    <div
+      title={reason || ""}
+      style={{
+        fontSize: 10,
+        color: t.text4,
+        lineHeight: 1.3,
+        maxWidth: 220,
+        textAlign: "right",
+        opacity: fading ? 0 : 1,
+        transition: "opacity 0.6s ease",
+        pointerEvents: "none",
+      }}
+    >
+      Using {label}
+    </div>
+  );
+}
+
+function RagScores({ confidence, retrievalScore, retrievedChunks, modelId, t, ar }) {
+  const isRag = modelId && modelId !== "base_llm";
+  const pct = formatRetrievalPct(retrievalScore);
+  if (!confidence && !isRag) return null;
+
+  const label = ar ? "ثقة الإجابة" : "Confidence";
+  const matchLabel = ar ? "تطابق الاسترجاع" : "Retrieval match";
+  const chunksLabel = ar ? "مقاطع" : "chunks";
+
+  return (
+    <div
+      style={{
+        marginTop: 10,
+        fontSize: 12,
+        color: t.text3,
+        lineHeight: 1.5,
+        direction: ar ? "rtl" : "ltr",
+        textAlign: ar ? "right" : "left",
+      }}
+      title={
+        ar
+          ? "أعلى = تطابق أقوى بين سؤالك ومقاطع قاعدة المعرفة"
+          : "Higher = closer match between your question and retrieved knowledge chunks"
+      }
+    >
+      <span style={{ color: t.text2 }}>
+        {label}: <strong>{formatConfidence(confidence)}</strong>
+      </span>
+      {isRag && pct && (
+        <span>
+          {" "}
+          · {matchLabel}: <strong>{pct}</strong>
+          {retrievedChunks != null && retrievedChunks > 0
+            ? ` · ${retrievedChunks} ${chunksLabel}`
+            : ""}
+        </span>
+      )}
+      {isRag && !pct && retrievedChunks > 0 && (
+        <span>
+          {" "}
+          · {retrievedChunks} {chunksLabel}
+        </span>
+      )}
+    </div>
+  );
+}
+
+function ComparePanels({ msg, models, t, showSrc, showScores, isAr }) {
   const panels =
     msg.panels ||
     models.map((m) => ({
@@ -201,6 +293,16 @@ function ComparePanels({ msg, models, t, showSrc, isAr }) {
                   />
                 ) : (
                   "—"
+                )}
+                {showScores && !panel.loading && !panel.error && (
+                  <RagScores
+                    confidence={panel.confidence}
+                    retrievalScore={panel.retrieval_score}
+                    retrievedChunks={panel.retrieved_chunks}
+                    modelId={panel.modelId}
+                    t={t}
+                    ar={ar}
+                  />
                 )}
               </div>
               {showSrc && panel.sources?.length > 0 && !panel.loading && (
@@ -471,14 +573,20 @@ export default function App() {
     () => stored?.activeId ?? stored?.sessions?.[0]?.id ?? Date.now(),
   );
   const [showSrc, setShowSrc] = useState(false);
+  const [showScores, setShowScores] = useState(
+    () => localStorage.getItem("terramind_show_scores_v1") === "1",
+  );
   const [text, setText] = useState("");
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [hover, setHover] = useState(null);
   const [models, setModels] = useState(DEFAULT_MODELS);
-  const [selectedModel, setSelectedModel] = useState("product_rag");
+  const [selectedModel, setSelectedModel] = useState("auto_rag");
   const [modelOpen, setModelOpen] = useState(false);
+  const [autoRouteHint, setAutoRouteHint] = useState(null);
+  const [autoRouteFading, setAutoRouteFading] = useState(false);
+  const autoRouteTimerRef = useRef(null);
   const [compareMode, setCompareMode] = useState(false);
   const bottomRef = useRef(null);
   const fileRef = useRef(null);
@@ -523,6 +631,56 @@ export default function App() {
 
   const t = dark ? DARK : LIGHT;
   const all = sessions.find((s) => s.id === activeId) || sessions[0];
+
+  const clearAutoRouteTimer = () => {
+    if (autoRouteTimerRef.current) {
+      clearTimeout(autoRouteTimerRef.current);
+      autoRouteTimerRef.current = null;
+    }
+  };
+
+  const showAutoRouteHint = (routedTo, reason) => {
+    if (!routedTo) return;
+    const label = ROUTED_LABELS[routedTo] || routedTo;
+    clearAutoRouteTimer();
+    setAutoRouteFading(false);
+    setAutoRouteHint({ label, reason: reason || "" });
+    autoRouteTimerRef.current = setTimeout(() => {
+      setAutoRouteFading(true);
+      autoRouteTimerRef.current = setTimeout(() => {
+        setAutoRouteHint(null);
+        setAutoRouteFading(false);
+        autoRouteTimerRef.current = null;
+      }, 600);
+    }, AUTO_ROUTE_HINT_MS);
+  };
+
+  useEffect(() => () => clearAutoRouteTimer(), []);
+
+  useEffect(() => {
+    if (selectedModel !== "auto_rag") {
+      clearAutoRouteTimer();
+      setAutoRouteHint(null);
+      setAutoRouteFading(false);
+    }
+  }, [selectedModel]);
+
+  useEffect(() => {
+    if (selectedModel !== "auto_rag") return;
+    const msgs = all?.messages || [];
+    for (let i = msgs.length - 1; i >= 0; i--) {
+      const m = msgs[i];
+      if (m.role === "bot" && m.routed_to) {
+        setAutoRouteHint({
+          label: ROUTED_LABELS[m.routed_to] || m.routed_to,
+          reason: m.router_reason || "",
+        });
+        setAutoRouteFading(false);
+        return;
+      }
+    }
+    setAutoRouteHint(null);
+  }, [activeId, selectedModel, all?.messages]);
 
   const scroll = () =>
     setTimeout(
@@ -666,6 +824,9 @@ export default function App() {
           modelName: row.model_name || row.model,
           answer: row.answer,
           sources: row.sources || [],
+          confidence: row.confidence,
+          retrieval_score: row.retrieval_score,
+          retrieved_chunks: row.retrieved_chunks,
           latency: row.latency_ms,
           error: row.error,
           loading: false,
@@ -725,6 +886,9 @@ export default function App() {
       });
       if (!r.ok) throw new Error(`Server error ${r.status}`);
       const d = await r.json();
+      if (selectedModel === "auto_rag" && d.routed_to) {
+        showAutoRouteHint(d.routed_to, d.router_reason);
+      }
       patch(activeId, (s) => ({
         ...s,
         messages: [
@@ -733,6 +897,12 @@ export default function App() {
             role: "bot",
             answer: d.answer,
             sources: d.sources,
+            confidence: d.confidence,
+            retrieval_score: d.retrieval_score,
+            retrieved_chunks: d.retrieved_chunks,
+            model: d.model || selectedModel,
+            routed_to: d.routed_to,
+            router_reason: d.router_reason,
             lang: d.detected_language,
             latency: d.latency_ms,
             hasImage: !!img,
@@ -980,6 +1150,31 @@ export default function App() {
             Show sources
           </label>
 
+          <label
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              fontSize: 13,
+              color: t.text3,
+              cursor: "pointer",
+              paddingLeft: 2,
+              marginBottom: 10,
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={showScores}
+              onChange={(e) => {
+                const on = e.target.checked;
+                setShowScores(on);
+                localStorage.setItem("terramind_show_scores_v1", on ? "1" : "0");
+              }}
+              style={{ accentColor: t.accent, width: 14, height: 14 }}
+            />
+            Show scores
+          </label>
+
           <button
             onClick={() => setDark((d) => !d)}
             style={{
@@ -1063,6 +1258,10 @@ export default function App() {
             ref={modelRef}
             style={{
               marginLeft: "auto",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-end",
+              gap: 3,
               position: "relative",
               opacity: compareMode ? 0.45 : 1,
               pointerEvents: compareMode ? "none" : "auto",
@@ -1101,6 +1300,14 @@ export default function App() {
               </span>
               <I.chevron c={t.text3} />
             </button>
+            {selectedModel === "auto_rag" && !compareMode && (
+              <AutoRouteHint
+                label={autoRouteHint?.label}
+                reason={autoRouteHint?.reason}
+                t={t}
+                fading={autoRouteFading}
+              />
+            )}
             {modelOpen && (
               <div
                 style={{
@@ -1287,6 +1494,7 @@ export default function App() {
                       models={models}
                       t={t}
                       showSrc={showSrc}
+                      showScores={showScores}
                       isAr={isAr}
                     />
                   );
@@ -1419,6 +1627,16 @@ export default function App() {
                           dir={ar ? "rtl" : "ltr"}
                         />
                       </div>
+                      {showScores && msg.role === "bot" && (
+                        <RagScores
+                          confidence={msg.confidence}
+                          retrievalScore={msg.retrieval_score}
+                          retrievedChunks={msg.retrieved_chunks}
+                          modelId={msg.routed_to || msg.model || selectedModel}
+                          t={t}
+                          ar={ar}
+                        />
+                      )}
                       {showSrc && msg.sources?.length > 0 && (
                         <div
                           style={{

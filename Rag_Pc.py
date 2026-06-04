@@ -206,7 +206,17 @@ def build_chroma_db(chunk_docs: list[Document], reset: bool = False) -> Chroma:
 # 5. Retrieval — find products most similar to the question
 # -----------------------------------------------------------------------------
 def retrieve_products(db: Chroma, question: str, k: int = RETRIEVAL_K) -> list[Document]:
-    return db.similarity_search(question, k=k)
+    from langchain_core.documents import Document
+
+    from terramind.rag.scoring import distance_to_relevance
+
+    pairs = db.similarity_search_with_score(question, k=k)
+    out: list[Document] = []
+    for doc, distance in pairs:
+        meta = dict(doc.metadata)
+        meta["relevance_score"] = distance_to_relevance(distance)
+        out.append(Document(page_content=doc.page_content, metadata=meta))
+    return out
 
 
 def format_context(retrieved: list[Document]) -> str:
@@ -252,23 +262,9 @@ def get_product_db() -> Chroma:
 
 def sources_from_retrieved(retrieved: list[Document]) -> list[dict]:
     """Format retrieval hits for FrontPage /api/ask (SourceDoc-compatible dicts)."""
-    seen: set[tuple[str, str]] = set()
-    sources: list[dict] = []
-    for doc in retrieved:
-        name = doc.metadata.get("product_name", "Unknown product")
-        pid = doc.metadata.get("product_id", "")
-        key = (name, pid)
-        if key in seen:
-            continue
-        seen.add(key)
-        sources.append(
-            {
-                "title": name,
-                "source": doc.metadata.get("source", "ProductCatalog(En).xlsx"),
-                "section": pid or None,
-            }
-        )
-    return sources
+    from terramind.rag.scoring import sources_from_retrieved as _sources_scored
+
+    return _sources_scored("product", retrieved)
 
 
 def answer_with_rag(db: Chroma, question: str, k: int = RETRIEVAL_K) -> dict:

@@ -13,11 +13,12 @@ def answer(
     db = get_product_db()
     q = build_prompt_question(question, history, image_analysis)
     result = answer_with_rag(db, q)
-    sources = sources_from_retrieved(result["retrieved"])
+    retrieved = result["retrieved"]
+    sources = sources_from_retrieved(retrieved)
+    from terramind.rag.scoring import rag_metrics
+
     return {
         "answer": result["answer"] or "",
-        "sources": sources,
-        "confidence": "high" if sources else "low",
-        "retrieved_chunks": len(result["retrieved"]),
         "system": "product_rag",
+        **rag_metrics(retrieved, sources),
     }

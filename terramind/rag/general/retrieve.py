@@ -4,7 +4,6 @@ from langchain_chroma import Chroma
 from langchain_core.documents import Document
 
 from terramind.rag.general.config import (
-    MMR_LAMBDA,
     RETRIEVAL_FETCH_K,
     RETRIEVAL_K,
     TOPIC_BOOST_FETCH_MULTIPLIER,
@@ -12,6 +11,7 @@ from terramind.rag.general.config import (
 )
 from terramind.rag.general.hybrid import rerank_with_lexical
 from terramind.rag.general.topics import infer_topics_from_query
+from terramind.rag.scoring import distance_to_relevance
 
 
 def _section_label(doc: Document) -> str | None:
@@ -39,9 +39,17 @@ def _topic_boost_candidates(
     if not topics:
         return candidates
     topic_set = set(topics)
-    preferred = [d for d in candidates if d.metadata.get("corpus_topic") in topic_set]
-    other = [d for d in candidates if d.metadata.get("corpus_topic") not in topic_set]
+    preferred = [d for d in candidates if d.metadata.get(
+        "corpus_topic") in topic_set]
+    other = [d for d in candidates if d.metadata.get(
+        "corpus_topic") not in topic_set]
     return preferred + other
+
+
+def _doc_with_relevance(doc: Document, distance: float) -> Document:
+    meta = dict(doc.metadata)
+    meta["relevance_score"] = distance_to_relevance(distance)
+    return Document(page_content=doc.page_content, metadata=meta)
 
 
 def retrieve_chunks(
@@ -50,7 +58,7 @@ def retrieve_chunks(
     k: int = RETRIEVAL_K,
     fetch_k: int | None = None,
 ) -> list[Document]:
-    """MMR over a larger pool, topic boost, then lexical rerank."""
+    """Vector search with scores, topic boost, then lexical rerank."""
     q = (query or "").strip()
     if not q:
         return []
@@ -61,12 +69,8 @@ def retrieve_chunks(
         base_fetch = min(base_fetch * TOPIC_BOOST_FETCH_MULTIPLIER, 48)
 
     pool_k = max(base_fetch, k * 3)
-    pool = db.max_marginal_relevance_search(
-        q,
-        k=pool_k,
-        fetch_k=max(pool_k, base_fetch),
-        lambda_mult=MMR_LAMBDA,
-    )
+    pairs = db.similarity_search_with_score(q, k=pool_k)
+    pool = [_doc_with_relevance(doc, dist) for doc, dist in pairs]
     pool = _topic_boost_candidates(pool, topics)
     return rerank_with_lexical(q, pool, k=k)
 

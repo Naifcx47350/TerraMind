@@ -13,6 +13,7 @@ Agriculture support assistant with **three comparable AI modes**: product-catalo
 | Document | Description |
 |----------|-------------|
 | **[docs/SYSTEM_ARCHITECTURE.md](docs/SYSTEM_ARCHITECTURE.md)** | **System architecture** — runtime topology, flows, RAG boundaries (update when stack changes) |
+| **[docs/PLANNED_FEATURES.md](docs/PLANNED_FEATURES.md)** | **Roadmap** — Auto RAG router (default mode), similarity scores + confidence in UI |
 | **[PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md)** | **Main technical guide** — features, models, storage, compare, images, APIs |
 | **[docs/FILE_MAP_AND_PIPELINE.md](docs/FILE_MAP_AND_PIPELINE.md)** | **File-by-file map** — what runs, what calls what, legacy vs active |
 | **[terramind/README.md](terramind/README.md)** | Backend package layout |

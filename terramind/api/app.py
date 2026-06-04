@@ -38,7 +38,10 @@ app.add_middleware(
 
 class QueryRequest(BaseModel):
     question: str = Field(..., min_length=1, max_length=2000)
-    model: str = Field(default=DEFAULT_MODEL_ID, description="product_rag | general_rag | base_llm")
+    model: str = Field(
+        default=DEFAULT_MODEL_ID,
+        description="auto_rag | product_rag | general_rag | base_llm",
+    )
     language: str | None = None
     history: list[dict] = []
     crop_type: str | None = None
@@ -51,15 +54,20 @@ class SourceOut(BaseModel):
     title: str
     source: str
     section: str | None = None
+    relevance_score: float | None = None
+    chunk_count: int | None = None
 
 
 class QueryResponse(BaseModel):
     answer: str
     sources: list[SourceOut]
     confidence: str
+    retrieval_score: float | None = None
     retrieved_chunks: int
     system: str
     model: str
+    routed_to: str | None = None
+    router_reason: str | None = None
 
 
 class ModelCompareResult(BaseModel):
@@ -68,6 +76,7 @@ class ModelCompareResult(BaseModel):
     answer: str
     sources: list[SourceOut]
     confidence: str
+    retrieval_score: float | None = None
     retrieved_chunks: int
     latency_ms: int
     error: str | None = None
@@ -83,6 +92,7 @@ class AdvisoryPart(BaseModel):
     answer: str
     sources: list[SourceOut]
     confidence: str
+    retrieval_score: float | None = None
     retrieved_chunks: int
     system: str
 
@@ -92,6 +102,7 @@ class AdvisoryResponse(BaseModel):
     answer: str
     sources: list[SourceOut]
     confidence: str
+    retrieval_score: float | None = None
     retrieved_chunks: int
     system: str = "advisory"
     general: AdvisoryPart
@@ -164,9 +175,12 @@ async def query(request: QueryRequest):
         answer=result["answer"],
         sources=[SourceOut(**s) for s in result.get("sources", [])],
         confidence=result.get("confidence", "medium"),
+        retrieval_score=result.get("retrieval_score"),
         retrieved_chunks=result.get("retrieved_chunks", 0),
         system=result.get("system", request.model),
         model=request.model,
+        routed_to=result.get("routed_to"),
+        router_reason=result.get("router_reason"),
     )
 
 
@@ -213,6 +227,7 @@ async def query_compare(request: QueryRequest):
                 answer=result.get("answer", "") or "",
                 sources=[SourceOut(**s) for s in result.get("sources", [])],
                 confidence=result.get("confidence", "medium"),
+                retrieval_score=result.get("retrieval_score"),
                 retrieved_chunks=result.get("retrieved_chunks", 0),
                 latency_ms=int((time.time() - t0) * 1000),
             )
@@ -276,6 +291,7 @@ async def query_advisory(request: QueryRequest):
             answer=payload.get("answer", "") or "",
             sources=[SourceOut(**s) for s in payload.get("sources", [])],
             confidence=payload.get("confidence", "medium"),
+            retrieval_score=payload.get("retrieval_score"),
             retrieved_chunks=payload.get("retrieved_chunks", 0),
             system=payload.get("system", label),
         )
@@ -288,6 +304,7 @@ async def query_advisory(request: QueryRequest):
         answer=result.get("answer", "") or "",
         sources=[SourceOut(**s) for s in result.get("sources", [])],
         confidence=result.get("confidence", "medium"),
+        retrieval_score=result.get("retrieval_score"),
         retrieved_chunks=result.get("retrieved_chunks", 0),
         general=_part(general, "general_rag"),
         product=_part(product, "product_rag"),
