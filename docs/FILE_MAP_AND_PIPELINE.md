@@ -19,13 +19,12 @@ These are the **only** processes needed to run the webpage today.
 | **3** | `npm run dev` in `FrontPage/frontend-react/` | **3000** | `frontend-react/src/main.jsx` → `App.jsx` | React chat in the browser |
 
 ```text
-Browser :3000  ──proxy /api──►  FrontPage :8000  ──HTTP──►  rag_api :8001
+Browser :3000  ──proxy /api──►  FrontPage :8000  ──HTTP──►  Model API :8001
                                     │                         │
-                                    │                         ├── auto_rag → router
-                                    │                         ├── product_rag → Rag_Pc
-                                    │                         ├── general_rag → terramind.rag.general
-                                    │                         └── base_llm
-                                    └── models/vision.py (optional, from FrontPage too)
+                                    │                         ├── auto_rag → router → product | general | base_llm
+                                    │                         ├── product_rag / general_rag / base_llm (manual)
+                                    │                         └── streaming: /query/stream (default UI)
+                                    └── vision (optional, before stream)
 ```
 
 **Not used for the web app:** Phase 1 `scripts/01_*` … `05_*` (removed), `data/processed/` JSONL, fine-tuning JSONL under `data/raw/Fine tuning data/`.
@@ -38,33 +37,34 @@ What runs when a user sends one message (one model selected).
 
 ```text
 App.jsx
-  POST /api/ask  { question, model, history, image_base64?, image_mime? }
+  POST /api/ask/stream  { question, model, history, image_base64?, image_mime? }
     │
     ▼
-FrontPage/app/routers/ask.py  →  ask()
+FrontPage/app/routers/ask.py  →  ask_stream()
     │
     ▼
-FrontPage/app/services/rag_service.py  →  call_rag()
+FrontPage/app/services/rag_service.py  →  stream_rag() | stream_rag_advisory()
     │   • detect language
     │   • _analyze_image() if image  →  models/vision.py (gpt-4o-mini)
-    │   • build JSON payload
+    │   • proxy NDJSON from :8001
     ▼
-HTTP POST  http://localhost:8001/query
+HTTP POST  http://localhost:8001/query/stream  (or /query/advisory/stream)
     │
     ▼
-terramind.api.app  →  query()
-    │   • resolve_image_analysis() if needed
+terramind.api.app  →  query_stream() | query_advisory_stream()
     ▼
-terramind.models  →  run_model(model_id, ...)
+terramind.models.streaming  →  stream_model_events() | stream_advisory_events()
     │
-    ├── auto_rag     →  terramind.models.router  →  product_rag | general_rag
-    ├── product_rag  →  terramind.rag.product  →  Rag_Pc.answer_with_rag()
-    ├── general_rag  →  terramind.rag.general  →  pipeline.answer_with_rag()
-    └── base_llm     →  terramind.models.base_llm
+    ├── auto_rag     →  router  →  product_rag | general_rag | base_llm
+    ├── product_rag  →  retrieve + stream LLM tokens
+    ├── general_rag  →  retrieve + stream LLM tokens
+    └── base_llm     →  stream LLM only
     │
     ▼
-JSON answer + sources  →  back to UI  →  localStorage session update
+NDJSON status + tokens + done  →  UI updates bot bubble  →  localStorage session update
 ```
+
+Legacy non-streaming path: `POST /api/ask` → `call_rag()` → `POST /query`.
 
 ### Compare mode (extra path)
 
@@ -97,8 +97,10 @@ App.jsx  POST /api/ask/compare
 
 | File / folder | What it does | Called by |
 |---------------|--------------|-----------|
-| **`terramind/api/app.py`** | Model API: `/query`, `/query/compare`, `/models`, `/health` | FrontPage `rag_service.py` via HTTP |
-| **`terramind/models/`** | Registry: `auto_rag`, `product_rag`, `general_rag`, `base_llm`, `router`, vision | `terramind.api.app` |
+| **`terramind/api/app.py`** | Model API: `/query`, `/query/stream`, `/query/compare`, `/query/advisory`, `/models`, `/health` | FrontPage `rag_service.py` via HTTP |
+| **`terramind/models/`** | Registry, `streaming.py`, `auto_rag`, `router`, RAG adapters, vision | `terramind.api.app` |
+| **`terramind/meta_questions.py`** | Meta/identity detection (Auto → base LLM; Advisory short-circuit) | `router.py`, `run_advisory`, streaming |
+| **`terramind/rag/llm_stream.py`** | OpenAI token streaming via LangChain | `streaming.py`, `generate.py`, `Rag_Pc.py` |
 | **`terramind/rag/general/`** | Full general pipeline + CLI + eval | `terramind.models.general_rag` |
 | **`terramind/rag/product/`** | Re-exports **`Rag_Pc.py`** (migration in progress) | `terramind.models.product_rag` |
 | **`terramind/rag/scoring.py`** | Retrieval scores + confidence | RAG answer dicts |
@@ -170,7 +172,7 @@ Product RAG migration: **`docs/PROJECT_STATUS.md`** §2. General RAG is complete
 |------|--------------|-----------|
 | **`app/main.py`** | FastAPI app, CORS, routers, loads root `.env`, adds repo to `sys.path` | `uvicorn app.main:app` |
 | **`app/config.py`** | Settings: `RAG_SERVICE_URL`, `USE_MOCK`, vision defaults | All services |
-| **`app/routers/ask.py`** | `POST /api/ask`, `/api/ask/compare`, `/api/ask/advisory` | Browser via Vite proxy |
+| **`app/routers/ask.py`** | `POST /api/ask`, `/api/ask/stream`, `/api/ask/compare`, `/api/ask/advisory`, `/api/ask/advisory/stream` | Browser via Vite proxy |
 | **`app/routers/models.py`** | `GET /api/models` (proxy or fallback list) | `App.jsx` on load |
 | **`app/routers/health.py`** | `GET /api/health` — shows mock vs RAG mode | Debugging |
 | **`app/routers/history.py`** | `GET/DELETE /api/history` — global in-memory log | Optional; **not** per-session storage |
@@ -185,7 +187,7 @@ Product RAG migration: **`docs/PROJECT_STATUS.md`** §2. General RAG is complete
 | File | What it does |
 |------|--------------|
 | **`frontend-react/src/main.jsx`** | React mount → `App` |
-| **`frontend-react/src/App.jsx`** | Chat, Auto picker, compare, scores, routed hint, `MarkdownMessage.jsx` |
+| **`frontend-react/src/App.jsx`** | Chat, streaming UI, Auto picker, hidden Advisory unlock (6× logo), compare, scores, `MarkdownMessage.jsx` |
 | **`frontend-react/index.html`** | HTML shell |
 | **`frontend-react/vite.config.js`** | Dev server port 3000; proxy `/api` → 8000 |
 | **`frontend-react/package.json`** | npm deps & `dev` script |
@@ -252,11 +254,11 @@ Only remove after confirming nobody uses CLI demos:
 ```text
 main.jsx → App.jsx
 App.jsx → ask.py (via /api/ask)
-ask.py → rag_service.call_rag | call_rag_compare
-rag_service → rag_api (/query | /query/compare)
-rag_api → models.run_model
-run_model → auto_rag | product_rag | general_rag | base_llm
-auto_rag → router.route_question → one RAG backend
+ask.py → rag_service.stream_rag | stream_rag_advisory | call_rag_compare
+rag_service → /query/stream | /query/advisory/stream | /query/compare
+streaming → stream_model_events | stream_advisory_events
+run_model (JSON path) → auto_rag | product_rag | general_rag | base_llm
+auto_rag → router.route_question → product_rag | general_rag | base_llm
 product_rag → Rag_Pc.get_product_db + answer_with_rag
 general_rag → terramind.rag.general.get_general_db + answer_with_rag
 run_model → resolve_image_analysis → vision.analyze_image (if image)

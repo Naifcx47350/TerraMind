@@ -4,7 +4,7 @@
 
 # TerraMind
 
-Agriculture support assistant with **Auto RAG** (default), manual product/general RAG, base LLM baseline, and advisory mode — plus a **React chat UI** with compare view, image upload, retrieval scores, and saved conversations.
+Agriculture support assistant with **Auto RAG** (default), manual product/general RAG, base LLM baseline, and a **hidden Advisory mode** — plus a **React chat UI** with **streaming answers**, compare view, image upload, retrieval scores, and saved conversations.
 
 ---
 
@@ -84,11 +84,11 @@ Open **http://localhost:3000**.
 
 | Mode | ID | Knowledge source |
 |------|-----|------------------|
-| Auto (recommended) | `auto_rag` | Router picks product or general RAG per question |
+| Auto (recommended) | `auto_rag` | Router picks **product RAG**, **general RAG**, or **base LLM** (meta/conversational questions skip retrieval) |
 | Agriculture Knowledge RAG | `general_rag` | Public refs in `data/raw/documents/` (IPM, GAP, soil health, pesticides) |
 | Product Catalog RAG | `product_rag` | Client Excel (`ProductCatalog(En).xlsx`) |
 | Base LLM | `base_llm` | No retrieval — OpenAI only |
-| Advisory (UI) | `advisory` | General then product in one answer (`/query/advisory`) |
+| Advisory (hidden UI) | `advisory` | General then product in one answer — unlock via logo easter egg; see [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) |
 
 **General vs product:** The General Agriculture RAG uses trusted public references (good agricultural practices, soil health, cover crops, crop rotation, integrated pest management). The Product RAG handles **company-specific** catalog information only. Details: [docs/GENERAL_RAG_CORPUS.md](docs/GENERAL_RAG_CORPUS.md).
 
@@ -109,7 +109,7 @@ TerraMind/
 ├── data/                      # Corpus + eval; see data/README.md
 ├── FrontPage/                 # Web API (:8000) + React UI (:3000)
 ├── scripts/eval_general_rag.py
-└── tests/                     # pytest (router, scoring)
+└── tests/                     # pytest (router, scoring, advisory meta)
 ```
 
 ---
@@ -117,7 +117,9 @@ TerraMind/
 ## Features (web)
 
 - Model picker (Auto default) and **Compare** (product / general / base LLM)
-- **Auto route hint** under picker after each answer
+- **Streaming answers** — status lines (retrieval / routing) then tokens as the model generates (`POST /api/ask/stream`)
+- **Auto route hint** under picker after each answer (`product_rag`, `general_rag`, or `base_llm`)
+- **Hidden Advisory** — click the TerraMind logo **6 times** (within 2.5s) to unlock **Advisory (General + Product)** in the picker (persists for the browser tab session)
 - **Show sources** and **Show scores** (confidence + retrieval match)
 - Plant **image upload** (vision → all modes)
 - **Conversation history** in-thread + **localStorage** session restore

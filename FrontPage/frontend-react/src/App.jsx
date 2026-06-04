@@ -147,6 +147,7 @@ function formatRetrievalPct(score) {
 const ROUTED_LABELS = {
   product_rag: "Product Catalog RAG",
   general_rag: "Agriculture Knowledge RAG",
+  base_llm: "Base LLM",
 };
 
 const AUTO_ROUTE_HINT_MS = 10000;
@@ -607,6 +608,26 @@ const I = {
   ),
 };
 
+async function consumeNdjsonStream(response, onEvent) {
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() ?? "";
+    for (const line of lines) {
+      if (!line.trim()) continue;
+      onEvent(JSON.parse(line));
+    }
+  }
+  if (buffer.trim()) {
+    onEvent(JSON.parse(buffer.trim()));
+  }
+}
+
 export default function App() {
   const stored = loadStoredSessions();
   const [dark, setDark] = useState(true);
@@ -743,18 +764,30 @@ export default function App() {
   useEffect(() => {
     if (selectedModel !== "auto_rag") return;
     const msgs = all?.messages || [];
+    let lastBot = null;
     for (let i = msgs.length - 1; i >= 0; i--) {
-      const m = msgs[i];
-      if (m.role === "bot" && m.routed_to) {
-        setAutoRouteHint({
-          label: ROUTED_LABELS[m.routed_to] || m.routed_to,
-          reason: m.router_reason || "",
-        });
-        setAutoRouteFading(false);
-        return;
+      if (msgs[i].role === "bot") {
+        lastBot = msgs[i];
+        break;
       }
     }
-    setAutoRouteHint(null);
+    if (!lastBot) {
+      setAutoRouteHint(null);
+      return;
+    }
+    // New turn still streaming — don't show the previous answer's route.
+    if (lastBot.streaming && !lastBot.routed_to) {
+      setAutoRouteHint(null);
+      setAutoRouteFading(false);
+      return;
+    }
+    if (lastBot.routed_to) {
+      setAutoRouteHint({
+        label: ROUTED_LABELS[lastBot.routed_to] || lastBot.routed_to,
+        reason: lastBot.router_reason || "",
+      });
+      setAutoRouteFading(false);
+    }
   }, [activeId, selectedModel, all?.messages]);
 
   const scroll = () =>
@@ -833,6 +866,11 @@ export default function App() {
     setText("");
     setImage(null);
     setLoading(true);
+    if (selectedModel === "auto_rag") {
+      clearAutoRouteTimer();
+      setAutoRouteHint(null);
+      setAutoRouteFading(false);
+    }
 
     const userMsg = {
       role: "user",
@@ -954,51 +992,129 @@ export default function App() {
 
     try {
       const askPath =
-        selectedModel === "advisory" ? `${API}/ask/advisory` : `${API}/ask`;
-      const r = await fetch(askPath, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      if (!r.ok) throw new Error(`Server error ${r.status}`);
-      const d = await r.json();
-      if (selectedModel === "auto_rag" && d.routed_to) {
-        showAutoRouteHint(d.routed_to, d.router_reason);
-      }
+        selectedModel === "advisory"
+          ? `${API}/ask/advisory/stream`
+          : `${API}/ask/stream`;
+
       patch(activeId, (s) => ({
         ...s,
         messages: [
           ...s.messages,
           {
             role: "bot",
-            answer: d.answer,
-            sources: d.sources,
-            confidence: d.confidence,
-            retrieval_score: d.retrieval_score,
-            retrieved_chunks: d.retrieved_chunks,
-            model: d.model || selectedModel,
-            routed_to: d.routed_to,
-            router_reason: d.router_reason,
-            lang: d.detected_language,
-            latency: d.latency_ms,
-            hasImage: !!img,
+            answer: "",
+            streaming: true,
+            status: "Starting…",
+            sources: [],
             time: timeStr,
           },
         ],
       }));
+      scroll();
+
+      const applyStreamPatch = (updateFn) => {
+        patch(activeId, (s) => {
+          const msgs = [...s.messages];
+          const last = msgs[msgs.length - 1];
+          if (last?.role !== "bot" || !last?.streaming) return s;
+          msgs[msgs.length - 1] = updateFn(last);
+          return { ...s, messages: msgs };
+        });
+        scroll();
+      };
+
+      const r = await fetch(askPath, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!r.ok) throw new Error(`Server error ${r.status}`);
+
+      let streamError = null;
+      await consumeNdjsonStream(r, (ev) => {
+        if (ev.event === "error") {
+          streamError = new Error(ev.message || "Stream failed");
+          return;
+        }
+        if (ev.event === "status") {
+          applyStreamPatch((last) => ({
+            ...last,
+            status: ev.message || last.status,
+            ...(ev.routed_to
+              ? { routed_to: ev.routed_to, router_reason: ev.router_reason || "" }
+              : {}),
+          }));
+          if (selectedModel === "auto_rag" && ev.routed_to) {
+            showAutoRouteHint(ev.routed_to, ev.router_reason);
+          }
+        }
+        if (ev.event === "token") {
+          applyStreamPatch((last) => ({
+            ...last,
+            answer: (last.answer || "") + (ev.content || ""),
+            status: "",
+          }));
+        }
+        if (ev.event === "done") {
+          if (selectedModel === "auto_rag" && ev.routed_to) {
+            showAutoRouteHint(ev.routed_to, ev.router_reason);
+          }
+          applyStreamPatch((last) => ({
+            ...last,
+            streaming: false,
+            status: "",
+            answer: ev.answer ?? last.answer ?? "",
+            sources: ev.sources || [],
+            confidence: ev.confidence,
+            retrieval_score: ev.retrieval_score,
+            retrieved_chunks: ev.retrieved_chunks,
+            model: ev.model || selectedModel,
+            routed_to: ev.routed_to,
+            router_reason: ev.router_reason,
+            lang: ev.detected_language,
+            latency: ev.latency_ms,
+            hasImage: !!img,
+          }));
+        }
+      });
+
+      if (streamError) throw streamError;
+
+      patch(activeId, (s) => {
+        const msgs = [...s.messages];
+        const last = msgs[msgs.length - 1];
+        if (last?.role === "bot" && last?.streaming) {
+          msgs[msgs.length - 1] = {
+            ...last,
+            streaming: false,
+            status: "",
+            answer: last.answer || "No response received.",
+          };
+        }
+        return { ...s, messages: msgs };
+      });
     } catch (e) {
-      patch(activeId, (s) => ({
-        ...s,
-        messages: [
-          ...s.messages,
-          {
-            role: "error",
-            text: e.message.includes("fetch")
-              ? "Cannot connect to API. Make sure the server is running on localhost:8000"
-              : e.message,
-          },
-        ],
-      }));
+      patch(activeId, (s) => {
+        const msgs = [...s.messages];
+        if (
+          msgs[msgs.length - 1]?.role === "bot" &&
+          msgs[msgs.length - 1]?.streaming
+        ) {
+          msgs.pop();
+        }
+        return {
+          ...s,
+          messages: [
+            ...msgs,
+            {
+              role: "error",
+              text: e.message.includes("fetch")
+                ? "Cannot connect to API. Make sure the server is running on localhost:8000"
+                : e.message,
+            },
+          ],
+        };
+      });
     } finally {
       setLoading(false);
       scroll();
@@ -1014,6 +1130,10 @@ export default function App() {
   const hasCompareMessages = all.messages.some((m) => m.role === "compare");
   const showBottomLoader =
     loading &&
+    !(
+      all.messages[all.messages.length - 1]?.role === "bot" &&
+      all.messages[all.messages.length - 1]?.streaming
+    ) &&
     !(
       all.messages[all.messages.length - 1]?.role === "compare" &&
       all.messages[all.messages.length - 1]?.panels?.[0]?.loading
@@ -1693,7 +1813,12 @@ export default function App() {
                           marginRight: ar ? "auto" : 0,
                         }}
                       >
-                        {msg.time} · {msg.latency}ms
+                        {msg.time}
+                        {!msg.streaming && msg.latency != null
+                          ? ` · ${msg.latency}ms`
+                          : msg.streaming
+                            ? " · …"
+                            : ""}
                       </span>
                     </div>
                     <div
@@ -1702,12 +1827,38 @@ export default function App() {
                         paddingRight: ar ? 36 : 0,
                       }}
                     >
+                      {msg.streaming && msg.status && (
+                        <div
+                          style={{
+                            fontSize: 12,
+                            color: t.text4,
+                            marginBottom: 8,
+                            fontStyle: "italic",
+                          }}
+                        >
+                          {msg.status}
+                        </div>
+                      )}
                       <div style={{ fontSize: 14 }}>
                         <MarkdownMessage
                           content={msg.answer}
                           theme={t}
                           dir={ar ? "rtl" : "ltr"}
                         />
+                        {msg.streaming && (
+                          <span
+                            style={{
+                              display: "inline-block",
+                              width: 8,
+                              height: 14,
+                              marginLeft: 2,
+                              background: t.accent,
+                              opacity: 0.7,
+                              verticalAlign: "text-bottom",
+                              animation: "blink 1s step-end infinite",
+                            }}
+                          />
+                        )}
                       </div>
                       {showScores && msg.role === "bot" && (
                         <RagScores
@@ -2050,6 +2201,7 @@ export default function App() {
 
       <style>{`
         @keyframes dot{0%,100%{opacity:.25;transform:scale(.75)}50%{opacity:1;transform:scale(1)}}
+        @keyframes blink{50%{opacity:0}}
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
         body{-webkit-font-smoothing:antialiased}
         ::-webkit-scrollbar{width:5px}

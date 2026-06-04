@@ -1,6 +1,6 @@
 # TerraMind — System Architecture
 
-**Status:** Current as of May 2026. This file is the **canonical architecture reference** — update it when the stack or boundaries change (e.g. after migrations, new services, or deployment).
+**Status:** Current as of June 2026. This file is the **canonical architecture reference** — update it when the stack or boundaries change (e.g. after migrations, new services, or deployment).
 
 **Related (not duplicated here):** feature walkthrough → [PROJECT_OVERVIEW.md](../PROJECT_OVERVIEW.md); file-by-file map → [FILE_MAP_AND_PIPELINE.md](./FILE_MAP_AND_PIPELINE.md); local run → [FrontPage/RUN_LOCALLY.md](../FrontPage/RUN_LOCALLY.md).
 
@@ -83,14 +83,23 @@ flowchart TB
 
 ## 3. Request flows
 
-### 3.1 Single model
+### 3.1 Single model (streaming — default UI)
 
 1. User sends message (+ optional image) from React.
-2. `POST /api/ask` → `FrontPage/app/services/rag_service.py`.
-3. If image present and no pre-analysis: **one** vision call (`terramind.models.vision`).
-4. `POST http://localhost:8001/query` with `{ question, model, history, image_analysis?, … }`.
-5. `terramind.models.run_model(model_id, …)` → mode-specific `answer()`.
-6. Uniform JSON: `answer`, `sources`, `confidence`, `retrieved_chunks`, `system`.
+2. `POST /api/ask/stream` → `FrontPage/app/services/rag_service.py` → proxies to Model API.
+3. If image present: **one** vision call on FrontPage before stream starts.
+4. `POST http://localhost:8001/query/stream` with `{ question, model, history, image_analysis?, … }`.
+5. `terramind.models.streaming.stream_model_events()` emits **NDJSON**:
+   - `{"event":"status","message":"…"}` — routing / retrieval progress  
+   - `{"event":"token","content":"…"}` — LLM tokens  
+   - `{"event":"done",…}` — full metadata (`sources`, `routed_to`, `latency_ms`, …)
+6. React updates the bot bubble incrementally; finalizes on `done`.
+
+Non-streaming `POST /query` and `POST /api/ask` remain for scripts and integration tests.
+
+### 3.1b Single model (JSON — legacy)
+
+Same as above but waits for one JSON body from `POST /query` / `POST /api/ask`.
 
 ### 3.2 Compare (three models in parallel)
 
@@ -101,10 +110,12 @@ flowchart TB
 
 ### 3.3 Advisory (general + product)
 
-1. UI model id `advisory` → `POST /api/ask/advisory`.
-2. `POST /query/advisory` → `terramind.models.run_advisory()`.
-3. **Sequential:** `general_rag` first, then `product_rag` with a shortened general summary appended to the product question.
-4. Merged answer returned for the chat bubble; payload includes `general` and `product` parts.
+1. User selects **Advisory** after unlocking it in the UI (logo easter egg — not in public dropdown).
+2. `POST /api/ask/advisory/stream` → `POST /query/advisory/stream` → `stream_advisory_events()`.
+3. **Sequential:** general RAG stream, then product RAG stream, merged in the final `done` event.
+4. **Meta questions** (*who are you*, greetings): short intro only — **no** Chroma retrieval (`terramind/meta_questions.py`).
+
+Non-streaming `/query/advisory` and `/api/ask/advisory` remain available.
 
 ---
 
@@ -114,19 +125,23 @@ Registry: `terramind/models/__init__.py` (`MODEL_REGISTRY`, `run_model`, `run_ad
 
 | UI / API `model` | Backend module | Retrieval | Vector store |
 |------------------|----------------|-----------|--------------|
-| `auto_rag` (**default**) | `terramind.models.auto_rag` → `router.py` | One of product or general | Probed both; answers one |
+| `auto_rag` (**default**) | `terramind.models.auto_rag` → `router.py` | One of product, general, or **base LLM** | Probed both indexes when agronomy-related; meta → base LLM |
 | `product_rag` | `terramind.models.product_rag` | Yes — catalog rows | `vectorstore/chroma_products/` |
 | `general_rag` | `terramind.models.general_rag` | Yes — public PDFs + sample text | `vectorstore/chroma/` |
 | `base_llm` | `terramind.models.base_llm` | No | — |
-| `advisory` (UI only) | `run_advisory` in `__init__.py` | Both chains above | Both stores |
+| `advisory` (hidden UI) | `run_advisory` / `stream_advisory_events` | Both RAG chains when needed; meta short-circuit | Both stores |
 
-**Auto routing:** `route_question()` uses top-1 relevance on each index plus keyword hints; response includes `routed_to` and `router_reason`. Compare mode still runs only the three fixed backends (not Auto).
+**Auto routing:** `route_question()` in `router.py` checks **`is_meta_question()`** first → `base_llm` (no retrieval). Otherwise uses dual-index top-1 relevance plus keyword hints → `product_rag` or `general_rag`. Response includes `routed_to` and `router_reason`. Compare mode still runs only the three fixed backends (not Auto).
+
+**Meta detection:** `terramind/meta_questions.py` — greetings, identity, capability questions (English + some Arabic).
 
 **Shared cross-cutting:**
 
 | Concern | Location |
 |---------|----------|
 | Chat history in prompts | `terramind/models/conversation.py` |
+| Meta / identity detection | `terramind/meta_questions.py` |
+| Streaming orchestration | `terramind/models/streaming.py`, `terramind/rag/llm_stream.py` |
 | Retrieval vs generation query split (general) | `build_retrieval_query` / `build_prompt_question` |
 | Image context in prompts | `terramind/models/image_context.py` |
 | Friendly source titles | `terramind/rag/source_display.py` |
@@ -180,6 +195,7 @@ discover → load (pypdf) → chunk → embed → Chroma
 | `vectorstore/chroma/` | General chunks + metadata (`filename`, `corpus_topic`, headers) | ChromaDB on disk |
 | `vectorstore/chroma_products/` | Product row chunks | ChromaDB on disk |
 | `localStorage` (`terramind_sessions_v1`) | Per-browser chat sessions | Client only |
+| `sessionStorage` (`terramind_advisory_unlocked_v1`) | Hidden Advisory unlock (current tab) | Client only |
 | FrontPage in-memory history | Dev audit log (optional) | Not user sessions |
 
 **Runtime caches:** `get_general_db()` / `get_product_db()` hold in-process Chroma handles; **restart Model API after `--reset`** so indexes reload.
@@ -194,9 +210,11 @@ discover → load (pypdf) → chunk → embed → Chroma
 |--------|------|----------|
 | GET | `/health` | Status + vector counts |
 | GET | `/models` | Registry for UI |
-| POST | `/query` | Single model |
+| POST | `/query` | Single model (JSON) |
+| POST | `/query/stream` | Single model NDJSON stream |
 | POST | `/query/compare` | Parallel three models |
-| POST | `/query/advisory` | General then product |
+| POST | `/query/advisory` | General then product (JSON) |
+| POST | `/query/advisory/stream` | Advisory NDJSON stream |
 
 **Shim:** `rag_api.py` re-exports `terramind.api.app` for older docs/commands.
 
@@ -204,9 +222,11 @@ discover → load (pypdf) → chunk → embed → Chroma
 
 | Method | Path | Proxies to |
 |--------|------|------------|
-| POST | `/api/ask` | `/query` |
+| POST | `/api/ask` | `/query` (JSON) |
+| POST | `/api/ask/stream` | `/query/stream` |
 | POST | `/api/ask/compare` | `/query/compare` |
 | POST | `/api/ask/advisory` | `/query/advisory` |
+| POST | `/api/ask/advisory/stream` | `/query/advisory/stream` |
 | GET | `/api/models` | `/models` |
 
 Config: `RAG_SERVICE_URL` (default `http://localhost:8001/query`), `USE_MOCK` for offline UI.
@@ -222,7 +242,8 @@ Config: `RAG_SERVICE_URL` (default `http://localhost:8001/query`), `USE_MOCK` fo
 │   └── frontend-react/      # React + Vite (3000)
 ├── terramind/
 │   ├── api/app.py           # Model API (8001)
-│   ├── models/              # Per-mode adapters + advisory + vision
+│   ├── models/              # Per-mode adapters, advisory, streaming, vision
+│   ├── meta_questions.py    # Meta / identity detection (Auto + Advisory)
 │   └── rag/
 │       ├── general/         # Public docs RAG (active)
 │       ├── product/         # Catalog RAG (active)
@@ -262,7 +283,9 @@ Secrets: `.env` / environment (`OPENAI_API_KEY`, optional `RAG_SERVICE_URL`).
 
 | Feature | Summary |
 |---------|---------|
-| **Auto RAG mode** | **Shipped** — `auto_rag` default; dual-index probe + keywords → `routed_to` in API/UI |
+| **Auto RAG mode** | **Shipped** — routes to product, general, or **base LLM**; meta questions skip retrieval |
+| **Streaming chat** | **Shipped** — NDJSON `/query/stream`; UI uses `/api/ask/stream` |
+| **Hidden Advisory UI** | **Shipped** — 6× logo click unlock; `/query/advisory/stream` |
 | **Scores in UI** | **Shipped** — “Show scores” toggle; `retrieval_score` + `confidence` |
 | Product RAG migration | Full move off root `Rag_Pc.py` — see PROJECT_STATUS §2 |
 | Deployment | Not defined in repo yet |

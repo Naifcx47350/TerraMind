@@ -13,8 +13,9 @@ For **system architecture only** (topology, services, RAG boundaries, API contra
 TerraMind is a **chat-style web assistant** for farmers and agronomy staff. From the browser, users can:
 
 - Ask questions in **any language** (English and Arabic are first-class; RTL layout is supported).
-- Choose **one of three AI modes** from a dropdown (top right), similar to model pickers in ChatGPT.
-- Turn on **Compare** to send the **same question to all three modes** and read answers side-by-side in three columns.
+- Choose **one of four AI modes** from a dropdown (top right), similar to model pickers in ChatGPT. **Advisory** is not listed by default — see **Advisory (hidden)** under [§4 Models](#4-models-modes).
+- Turn on **Compare** to send the **same question to all three RAG/LLM backends** and read answers side-by-side in three columns.
+- See answers **stream in** with retrieval/routing status lines, then token-by-token generation (single-message chat).
 - **Upload a plant/crop photo** so vision analysis is included in every mode’s context.
 - Browse **past conversations** in the sidebar; chats **persist in the browser** across refresh.
 - Toggle **Show sources** to see which catalog rows or documents grounded a RAG answer.
@@ -66,7 +67,7 @@ Vite proxies `/api/*` to `http://localhost:8000`, so the frontend only talks to 
 | **Vite** | Dev server, HMR, `/api` proxy |
 | **Plain CSS-in-JSX** | Theming (dark/light), layout, compare grid |
 | **localStorage** | Session persistence (`terramind_sessions_v1`) |
-| **Fetch API** | `POST /api/ask`, `POST /api/ask/compare`, `GET /api/models` |
+| **Fetch API** | `POST /api/ask/stream`, `/api/ask/advisory/stream`, `/api/ask/compare`, `GET /api/models` |
 
 ### Backends
 
@@ -105,11 +106,11 @@ All modes share the same **response shape** (`answer`, `sources`, `confidence`, 
 
 | UI name | ID | Module | Knowledge | LLM |
 |---------|-----|--------|-----------|-----|
-| **Auto (recommended)** | `auto_rag` | `auto_rag.py` + `router.py` | Routes to product or general | `gpt-4o-mini` |
+| **Auto (recommended)** | `auto_rag` | `auto_rag.py` + `router.py` | Routes to product, general, or **base LLM** (meta questions) | `gpt-4o-mini` |
 | **Agriculture Knowledge RAG** | `general_rag` | `general_rag.py` → `terramind/rag/general/` | Public PDFs in `data/raw/documents/` | `gpt-4o-mini` |
 | **Product Catalog RAG** | `product_rag` | `product_rag.py` → `Rag_Pc.py` / `terramind/rag/product/` | Excel catalog in Chroma | `gpt-4o-mini` |
 | **Base LLM** | `base_llm` | `base_llm.py` | None (no retrieval) | `gpt-4o-mini` |
-| **Advisory** (UI only) | `advisory` | `run_advisory()` in `__init__.py` | General then product | `gpt-4o-mini` |
+| **Advisory** (hidden UI) | `advisory` | `run_advisory()` in `__init__.py` | General then product (meta questions skip RAG) | `gpt-4o-mini` |
 
 ### Product Catalog RAG (`product_rag`)
 
@@ -132,7 +133,20 @@ Best for: *IPM*, *soil and rotation*, *disease principles*, *GAP*, content **not
 
 Direct **system prompt + chat messages** to OpenAI with **no vector lookup**. Used as a **comparison baseline** — may give generic advice and must not invent catalog-specific label data.
 
-Prompt rules explicitly state there is **no product catalog** in this mode.
+Prompt rules explicitly state there is **no product catalog** in this mode. **Auto mode** also routes here for conversational questions (*who are you*, *hello*, *what can you do*, etc.) so those answers do not hit RAG indexes.
+
+### Advisory (hidden — General + Product)
+
+**Not in the public model dropdown.** Unlock in the UI by clicking the TerraMind logo **6 times** within **2.5 seconds** (sidebar, header, or welcome-screen logo). Unlock state is stored in **`sessionStorage`** (`terramind_advisory_unlocked_v1`) for the current browser tab.
+
+When unlocked, **Advisory (General + Product)** appears in the picker and runs:
+
+1. **General RAG** — public agriculture guidance  
+2. **Product RAG** — catalog recommendation informed by the general summary  
+
+**Meta / identity questions** (*who are you*, greetings) return a short TerraMind intro **without** vector retrieval or catalog lookup.
+
+Backend: `POST /api/ask/advisory/stream` (UI default) or `/query/advisory` on port 8001.
 
 ### Model registry
 
@@ -142,7 +156,9 @@ Prompt rules explicitly state there is **no product catalog** in this mode.
 - `run_model(model_id, question, history, …)` — dispatches to the correct backend  
 - `resolve_image_analysis()` — one vision call shared across modes when an image is uploaded  
 
-**Auto RAG (default):** routes each question to product or general RAG (hint under picker). **Show scores** for confidence + retrieval match. History: **[docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md)**.
+**Auto RAG (default):** `router.py` picks **product RAG**, **general RAG**, or **base LLM** per question. Meta/conversational questions skip retrieval and use base LLM. The UI shows a **“Using …”** hint under the picker (`routed_to`). **Show scores** for confidence + retrieval match when RAG ran.
+
+**Streaming (single-message chat):** the UI calls `POST /api/ask/stream` (or `/api/ask/advisory/stream`). The server emits **NDJSON** lines: `status` (retrieval/routing progress), `token` (answer chunks), then `done` (sources, scores, latency). Compare mode still uses non-streaming JSON.
 
 ---
 
@@ -170,6 +186,8 @@ localStorage key: terramind_sessions_v1
 ```
 
 Each session has: `id`, `name`, `messages[]`, `ts`. User and bot text are stored; **image preview blobs are stripped** on save (only text survives refresh).
+
+Advisory unlock (hidden mode) uses a separate **`sessionStorage`** key: `terramind_advisory_unlocked_v1`.
 
 On every message send, the client builds a **`history` array** (last 20 turns) and sends it in the JSON body so models can see prior context in **that chat**.
 
@@ -243,16 +261,19 @@ Referenced in `App.jsx` as `/TM_Logo.png?v=2` (version query busts browser cache
 
 ## 8. End-to-end request flows
 
-### Single model (default)
+### Single model (default — streaming)
 
 ```text
-1. User submits → App.jsx POST /api/ask { question, model, history, image? }
-2. FrontPage: detect language; analyze image if present
-3. FrontPage POST http://localhost:8001/query { question, model, history, image_analysis?, image_base64? }
-4. rag_api → run_model() → product_rag | general_rag | base_llm
-5. Response → sources, answer, latency → UI renders bot message
-6. localStorage updated with new messages
+1. User submits → App.jsx POST /api/ask/stream { question, model, history, image? }
+2. UI adds a streaming bot placeholder (status line + empty answer)
+3. FrontPage: detect language; analyze image if present
+4. FrontPage proxies NDJSON from http://localhost:8001/query/stream (or /query/advisory/stream)
+5. Events: status → token(s) → done (sources, routed_to, latency)
+6. terramind.models.streaming → run_model path (auto / product / general / base) or run_advisory
+7. UI finalizes bot message; localStorage session update
 ```
+
+Non-streaming **`POST /api/ask`** and **`POST /query`** remain available for scripts and tests.
 
 ### Compare all models
 
@@ -293,8 +314,10 @@ TerraMind/
 
 | Method | Path | Description |
 |--------|------|-------------|
-| POST | `/api/ask` | Single model; body includes `model`, `history`, optional image |
-| POST | `/api/ask/advisory` | General + product sequence |
+| POST | `/api/ask` | Single model (full JSON response; legacy/scripts) |
+| POST | `/api/ask/stream` | **Default UI path** — NDJSON stream (status, tokens, done) |
+| POST | `/api/ask/advisory` | General + product sequence (JSON) |
+| POST | `/api/ask/advisory/stream` | Advisory NDJSON stream (hidden UI mode) |
 | POST | `/api/ask/compare` | Product, general, base LLM in parallel |
 | GET | `/api/models` | List modes for dropdown (proxies 8001 or fallback list) |
 | GET | `/api/health` | Backend mode (mock / RAG / error) |
@@ -306,7 +329,9 @@ TerraMind/
 | Method | Path | Description |
 |--------|------|-------------|
 | POST | `/query` | Single model (`routed_to` when `auto_rag`) |
+| POST | `/query/stream` | Single model NDJSON stream |
 | POST | `/query/advisory` | General then product |
+| POST | `/query/advisory/stream` | Advisory NDJSON stream |
 | POST | `/query/compare` | Parallel compare (3 fixed backends) |
 | GET | `/models` | Registry metadata |
 | GET | `/health` | Vector counts per index |
@@ -347,4 +372,4 @@ Default chat/vision model: **`gpt-4o-mini`** in `Rag_Pc.py`, `terramind/rag/gene
 
 ---
 
-*Last updated to reflect: three-model picker, compare mode, gpt-4o-mini defaults, image vision for all modes, and localStorage session history.*
+*Last updated: June 2026 — Auto routes meta questions to base LLM; streaming chat; hidden Advisory (6× logo unlock).*

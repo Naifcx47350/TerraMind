@@ -288,6 +288,18 @@ def answer_with_rag(db: Chroma, question: str, k: int = RETRIEVAL_K) -> dict:
     }
 
 
+def stream_answer_with_rag(db: Chroma, question: str, k: int = RETRIEVAL_K):
+    """Retrieve catalog rows, then stream LLM tokens."""
+    from terramind.rag.llm_stream import stream_chat_tokens
+
+    retrieved = retrieve_products(db, question, k=k)
+    context = format_context(retrieved)
+    prompt_value = RAG_PROMPT.invoke({"context": context, "question": question})
+    messages = prompt_value.to_messages()
+    token_gen = stream_chat_tokens(messages, model=CHAT_MODEL, temperature=0.2)
+    return retrieved, token_gen
+
+
 # -----------------------------------------------------------------------------
 # Main — run the pipeline
 # -----------------------------------------------------------------------------

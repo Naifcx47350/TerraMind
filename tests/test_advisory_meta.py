@@ -17,6 +17,20 @@ def test_is_meta_question_not_field_task():
     assert not is_meta_question("who are you " + "x" * 200)
 
 
+def test_image_describe_question():
+    from terramind.meta_questions import is_image_describe_question
+
+    assert is_image_describe_question("what can u see in this image")
+    assert not is_image_describe_question("how do I treat tomato blight")
+
+
+def test_strong_product_intent():
+    from terramind.meta_questions import has_strong_product_intent
+
+    assert has_strong_product_intent("what product is best for soil")
+    assert not has_strong_product_intent("how does crop rotation help soil")
+
+
 def test_advisory_meta_answer_content():
     text = advisory_meta_answer()
     assert "TerraMind" in text
