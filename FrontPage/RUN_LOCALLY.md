@@ -79,11 +79,11 @@ uvicorn terramind.api.app:app --reload --port 8001
 
 | Model id      | Backend                                | Data                       |
 | ------------- | -------------------------------------- | -------------------------- |
-| `auto_rag` (default) | `terramind/models/auto_rag.py` + `router.py` | Picks product or general per question |
+| `auto_rag` (default) | `terramind/models/auto_rag.py` + `router.py` | Picks product, general, or **base LLM** per question |
 | `general_rag` | `terramind/models/general_rag.py` → `terramind/rag/general/` | PDFs in `data/raw/documents/` |
 | `product_rag` | `terramind/models/product_rag.py` → `Rag_Pc.py` | Client product Excel |
 | `base_llm`    | `terramind/models/base_llm.py`         | OpenAI only (no retrieval) |
-| `advisory` (UI) | `run_advisory()` on model API        | General then product |
+| `advisory` (hidden UI) | `run_advisory()` / `stream_advisory_events` | General then product; unlock via 6× logo click |
 
 Check:
 
@@ -92,8 +92,10 @@ Check:
 
 In the React UI:
 
-- **Model dropdown (top right)** — Auto (default), Agriculture Knowledge, Product Catalog, Base LLM, Advisory
-- **Auto** — small “Using …” hint under the picker after each answer
+- **Model dropdown (top right)** — Auto (default), Agriculture Knowledge, Product Catalog, Base LLM (Advisory is **hidden** until unlocked)
+- **Hidden Advisory** — click the TerraMind logo **6 times** within 2.5 seconds (sidebar, header, or welcome logo)
+- **Streaming** — answers show retrieval/routing status, then text appears token-by-token
+- **Auto** — small “Using …” hint under the picker after each answer (Product, General, or Base LLM)
 - **Show scores** / **Show sources** in the sidebar
 - **Compare** (near the input) — product, general, and base LLM side-by-side
 - **Image attach** — vision analysis included for every mode (`gpt-4o-mini`)

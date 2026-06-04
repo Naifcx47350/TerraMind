@@ -21,6 +21,7 @@ from Rag_Pc import (
     get_product_db,
     init_product_rag,
     sources_from_retrieved,
+    stream_answer_with_rag,
 )
 
 __all__ = [
@@ -28,4 +29,5 @@ __all__ = [
     "get_product_db",
     "init_product_rag",
     "sources_from_retrieved",
+    "stream_answer_with_rag",
 ]

@@ -1,6 +1,6 @@
 # TerraMind — Web Application (FrontPage)
 
-Agricultural chat UI and API gateway for TerraMind (**Auto**, product RAG, general RAG, base LLM, advisory).
+Agricultural chat UI and API gateway for TerraMind (**Auto**, product RAG, general RAG, base LLM, hidden **Advisory**).
 
 **Full technical documentation:** [../docs/PROJECT_OVERVIEW.md](../docs/PROJECT_OVERVIEW.md)  
 **Architecture:** [../docs/SYSTEM_ARCHITECTURE.md](../docs/SYSTEM_ARCHITECTURE.md)  
@@ -11,7 +11,9 @@ Agricultural chat UI and API gateway for TerraMind (**Auto**, product RAG, gener
 ## What users see
 
 - Chat interface with sidebar conversations (saved in the browser)
-- **Model dropdown** (top right): Auto (default), Agriculture Knowledge RAG, Product Catalog RAG, Base LLM, Advisory
+- **Model dropdown** (top right): Auto (default), Agriculture Knowledge RAG, Product Catalog RAG, Base LLM — **not** Advisory (hidden; see below)
+- **Streaming answers** — status + token-by-token generation in the chat bubble
+- **Hidden Advisory** — click the TerraMind logo **6 times** within 2.5s to unlock **Advisory (General + Product)**
 - **Compare** button: same question → three answers in parallel columns
 - Image upload for crop/plant diagnosis (vision via **gpt-4o-mini**)
 - Optional source chips, dark/light mode, Arabic RTL
@@ -26,14 +28,14 @@ FrontPage/
 │   ├── main.py                  # FastAPI :8000
 │   ├── config.py                # .env, RAG URL, vision defaults
 │   ├── routers/
-│   │   ├── ask.py               # POST /api/ask, /api/ask/compare
+│   │   ├── ask.py               # POST /api/ask/stream, /compare, /advisory/stream
 │   │   ├── models.py            # GET /api/models
 │   │   ├── health.py            # GET /api/health
 │   │   └── history.py           # GET/DELETE /api/history (global log)
 │   ├── schemas/ask.py
 │   └── services/rag_service.py  # Proxy to :8001, vision, mock
 ├── frontend-react/
-│   ├── src/App.jsx              # UI (sessions, compare, logo)
+│   ├── src/App.jsx              # UI (streaming, sessions, compare, logo unlock)
 │   └── public/TM_Logo.png       # Logo served at /TM_Logo.png
 ├── RUN_LOCALLY.md
 └── requirements.txt
@@ -96,7 +98,10 @@ VISION_MODEL=gpt-4o-mini
 
 | Method | URL | Description |
 |--------|-----|-------------|
-| POST | `/api/ask` | Single model (`model` in body) |
+| POST | `/api/ask/stream` | **Default UI** — NDJSON stream (status, tokens, done) |
+| POST | `/api/ask` | Single model (full JSON; scripts/tests) |
+| POST | `/api/ask/advisory/stream` | Hidden Advisory mode stream |
+| POST | `/api/ask/advisory` | Advisory full JSON |
 | POST | `/api/ask/compare` | All three models in parallel |
 | GET | `/api/models` | Model list for UI dropdown |
 | GET | `/api/health` | Backend status |
@@ -128,9 +133,9 @@ Same body (no `model` required). Returns `results[]` with one entry per mode.
 
 1. React sends question + **history** (last 20 messages) + optional image.
 2. FrontPage may run **vision** once → `image_analysis` text.
-3. FrontPage calls `http://localhost:8001/query` or `/query/compare`.
-4. Model API runs `terramind.models` (auto / product / general / base) via HTTP.
-5. Answer + sources return to the UI; session saved to **localStorage**.
+3. FrontPage proxies **NDJSON** from `http://localhost:8001/query/stream` (or `/query/advisory/stream`).
+4. Model API streams routing/retrieval status, then LLM tokens, then `done` metadata.
+5. UI finalizes the bot message; session saved to **localStorage**.
 
 ---
 
@@ -138,8 +143,11 @@ Same body (no `model` required). Returns `results[]` with one entry per mode.
 
 | Feature | Implementation |
 |---------|----------------|
-| Models | `model` id → `terramind.api.app` → `terramind.models` |
-| Compare | `/api/ask/compare` → 3-column UI |
+| Models | `model` id → `terramind.api.app` → `terramind.models` / `streaming.py` |
+| Streaming | `/api/ask/stream` → NDJSON; status + tokens in `App.jsx` |
+| Hidden Advisory | 6× logo click → `sessionStorage`; `/api/ask/advisory/stream` |
+| Auto routing | `router.py` → product, general, or **base LLM** (meta questions) |
+| Compare | `/api/ask/compare` → 3-column UI (non-streaming) |
 | Images | `terramind.models.vision` + prompt injection for all modes |
 | Session memory | `history` in API body; RAG uses `terramind.models.conversation` |
 | Persist chats | `localStorage` key `terramind_sessions_v1` |

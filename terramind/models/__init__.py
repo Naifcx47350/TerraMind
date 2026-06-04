@@ -10,8 +10,8 @@ MODEL_REGISTRY = {
         "id": "auto_rag",
         "name": "Auto (recommended)",
         "description": (
-            "Picks Product Catalog or Agriculture Knowledge RAG from your question "
-            "(catalog vs field guidance)"
+            "Picks Product Catalog, Agriculture Knowledge RAG, or Base LLM "
+            "from your question (catalog vs field vs conversational)"
         ),
         "answer_fn": auto_rag_answer,
     },

@@ -48,7 +48,9 @@ python -m terramind.rag.general.cli --eval-retrieval
 
 ## Advisory mode (general + product)
 
-`POST /query/advisory` on port **8001** — general guidance first, then product catalog. UI model: **Advisory (General + Product)**.
+`POST /query/advisory` and **`POST /query/advisory/stream`** on port **8001** — general guidance first, then product catalog.
+
+**UI:** Advisory is **not** in the public model dropdown. Unlock by clicking the TerraMind logo **6 times** within 2.5s (`App.jsx` → `sessionStorage` key `terramind_advisory_unlocked_v1`). Meta questions (*who are you*, greetings) return a short intro without RAG retrieval.
 
 ## Product RAG
 

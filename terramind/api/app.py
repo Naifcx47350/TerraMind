@@ -12,6 +12,7 @@ import time
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 load_dotenv()
@@ -310,3 +311,61 @@ async def query_advisory(request: QueryRequest):
         product=_part(product, "product_rag"),
         latency_ms=elapsed_ms,
     )
+
+
+def _stream_query(request: QueryRequest):
+    from terramind.models.streaming import stream_model_events
+
+    def generate():
+        try:
+            yield from stream_model_events(
+                request.model,
+                request.question.strip(),
+                request.history,
+                request.image_analysis,
+                request.image_base64,
+                request.image_mime,
+                request.language,
+            )
+        except ValueError as e:
+            import json
+
+            yield json.dumps({"event": "error", "message": str(e)}) + "\n"
+        except Exception as e:
+            import json
+
+            yield json.dumps({"event": "error", "message": f"Model failed: {e}"}) + "\n"
+
+    return StreamingResponse(generate(), media_type="application/x-ndjson")
+
+
+@app.post("/query/stream")
+async def query_stream(request: QueryRequest):
+    if not request.question.strip():
+        raise HTTPException(status_code=400, detail="question is required")
+    return _stream_query(request)
+
+
+@app.post("/query/advisory/stream")
+async def query_advisory_stream(request: QueryRequest):
+    if not request.question.strip():
+        raise HTTPException(status_code=400, detail="question is required")
+
+    def generate():
+        from terramind.models.streaming import stream_advisory_events
+
+        try:
+            yield from stream_advisory_events(
+                request.question.strip(),
+                request.history,
+                request.image_analysis,
+                request.image_base64,
+                request.image_mime,
+                request.language,
+            )
+        except Exception as e:
+            import json
+
+            yield json.dumps({"event": "error", "message": f"Advisory failed: {e}"}) + "\n"
+
+    return StreamingResponse(generate(), media_type="application/x-ndjson")

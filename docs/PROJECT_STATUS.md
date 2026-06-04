@@ -2,7 +2,7 @@
 
 Single place for **what is done**, **what is left**, and **legacy / removed** items. Operational docs stay in the other `docs/*.md` files listed in [README.md](../README.md).
 
-*Last updated: May 2026*
+*Last updated: June 2026*
 
 ---
 
@@ -13,9 +13,11 @@ Single place for **what is done**, **what is left**, and **legacy / removed** it
 | Web stack | Done | `run_dev.py` → React :3000, FrontPage :8000, `terramind.api.app` :8001 |
 | General RAG | Done | `terramind/rag/general/` — PDF corpus, CLI, retrieval eval |
 | Product RAG | Done (root script) | `Rag_Pc.py` — Excel → `vectorstore/chroma_products/` |
-| **Auto RAG** (default) | Done | `terramind/models/auto_rag.py`, `router.py` — dual-index + keywords |
+| **Auto RAG** (default) | Done | `auto_rag.py`, `router.py` — routes to product, general, or **base LLM** (meta questions) |
 | Retrieval scores + confidence | Done | `terramind/rag/scoring.py`, UI **Show scores** |
-| Advisory mode | Done | `/query/advisory` — general then product |
+| **Streaming answers** | Done | `terramind/models/streaming.py`, `POST /api/ask/stream` — NDJSON status + tokens |
+| Advisory mode (hidden UI) | Done | `/query/advisory` — general then product; **6× logo click** unlock in `App.jsx` |
+| Meta / identity questions | Done | `terramind/meta_questions.py` — Auto → base LLM; Advisory short-circuit |
 | Compare mode | Done | Product + general + base LLM (Auto excluded) |
 | Vision + history + sessions | Done | `terramind/models/vision.py`, `localStorage` |
 | General RAG validation | Done | [GENERAL_RAG_VALIDATION_REPORT.md](./GENERAL_RAG_VALIDATION_REPORT.md) — 20/20 retrieval eval |
@@ -76,7 +78,8 @@ Add rows here when planning; move to §1 when shipped.
 
 | Idea | Notes |
 |------|--------|
-| LLM-based router for Auto | v1 uses keywords + dual-index scores only |
+| LLM-based router for Auto | v1 uses keywords + dual-index scores + meta detection |
+| Streaming in Compare mode | Single-message chat streams today; compare still waits for full JSON |
 | Per-source similarity on chips | v1 shows answer-level score only |
 | Parent–child chunks | Not implemented |
 | Product eval golden set | General set exists in `data/eval/` |

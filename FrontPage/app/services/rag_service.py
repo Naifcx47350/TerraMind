@@ -1,9 +1,11 @@
 import logging
 import time
+import asyncio
+from collections.abc import AsyncIterator
+
 import httpx
 
 logger = logging.getLogger(__name__)
-import asyncio
 
 from app.schemas.ask import (
     AskCompareResponse,
@@ -449,6 +451,160 @@ def _advisory_url() -> str | None:
     if url.endswith("/query"):
         return url[: -len("/query")] + "/query/advisory"
     return f"{url.rstrip('/')}/query/advisory"
+
+
+def _stream_url() -> str | None:
+    url = (settings.rag_service_url or "").strip()
+    if not url:
+        return None
+    if url.endswith("/query"):
+        return url[: -len("/query")] + "/query/stream"
+    return f"{url.rstrip('/')}/query/stream"
+
+
+def _advisory_stream_url() -> str | None:
+    url = (settings.rag_service_url or "").strip()
+    if not url:
+        return None
+    if url.endswith("/query"):
+        return url[: -len("/query")] + "/query/advisory/stream"
+    return f"{url.rstrip('/')}/query/advisory/stream"
+
+
+def _build_rag_payload(
+    request: AskRequest,
+    lang: str,
+    image_analysis: str | None,
+) -> dict:
+    payload = {
+        "question": request.question,
+        "model": request.model or "auto_rag",
+        "language": lang,
+        "history": [
+            {"role": m.role, "content": m.content}
+            for m in (request.history or [])[-10:]
+        ],
+    }
+    if request.crop_type and request.crop_type != "all":
+        payload["crop_type"] = request.crop_type
+    if image_analysis:
+        payload["image_analysis"] = image_analysis
+    if request.image_base64 and request.image_mime:
+        payload["image_base64"] = request.image_base64
+        payload["image_mime"] = request.image_mime
+    return payload
+
+
+async def _mock_stream_events(request: AskRequest, lang: str) -> AsyncIterator[bytes]:
+    import json
+
+    mock = _mock_response(request, 0, None)
+    yield (json.dumps({"event": "status", "message": "Generating answer…"}) + "\n").encode()
+    text = mock.answer or ""
+    for part in text.split():
+        await asyncio.sleep(0.025)
+        yield (json.dumps({"event": "token", "content": part + " "}) + "\n").encode()
+    yield (
+        json.dumps(
+            {
+                "event": "done",
+                "answer": text,
+                "sources": [s.model_dump() for s in mock.sources],
+                "confidence": mock.confidence,
+                "retrieval_score": mock.retrieval_score,
+                "retrieved_chunks": mock.retrieved_chunks,
+                "system": mock.system,
+                "model": mock.model,
+                "latency_ms": 500,
+                "detected_language": lang,
+            }
+        )
+        + "\n"
+    ).encode()
+
+
+async def stream_rag(request: AskRequest):
+    """Proxy NDJSON stream from model API (or mock)."""
+    lang = _detect_language(request.question)
+    image_analysis = None
+    if request.image_base64 and request.image_mime:
+        try:
+            image_analysis = await _analyze_image(
+                request.image_base64, request.image_mime, request.question, lang
+            )
+        except Exception:
+            image_analysis = None
+
+    if settings.use_mock:
+        async for chunk in _mock_stream_events(request, lang):
+            yield chunk
+        return
+
+    stream_url = _stream_url()
+    if not stream_url:
+        import json
+
+        msg = "Streaming requires RAG_SERVICE_URL pointing at the model API (port 8001)."
+        yield (json.dumps({"event": "error", "message": msg}) + "\n").encode()
+        return
+
+    payload = _build_rag_payload(request, lang, image_analysis)
+    try:
+        async with httpx.AsyncClient(timeout=settings.request_timeout) as client:
+            async with client.stream("POST", stream_url, json=payload) as resp:
+                resp.raise_for_status()
+                async for chunk in resp.aiter_bytes():
+                    yield chunk
+    except Exception as e:
+        logger.error("RAG stream failed (%s): %s", stream_url, e)
+        import json
+
+        yield (
+            json.dumps({"event": "error", "message": f"Stream failed: {e}"}) + "\n"
+        ).encode()
+
+
+async def stream_rag_advisory(request: AskRequest):
+    """Proxy advisory NDJSON stream from model API."""
+    lang = _detect_language(request.question)
+    image_analysis = None
+    if request.image_base64 and request.image_mime:
+        try:
+            image_analysis = await _analyze_image(
+                request.image_base64, request.image_mime, request.question, lang
+            )
+        except Exception:
+            image_analysis = None
+
+    if settings.use_mock:
+        req = request.model_copy(update={"model": "general_rag"})
+        async for chunk in _mock_stream_events(req, lang):
+            yield chunk
+        return
+
+    stream_url = _advisory_stream_url()
+    if not stream_url:
+        import json
+
+        msg = "Advisory streaming requires RAG_SERVICE_URL (port 8001)."
+        yield (json.dumps({"event": "error", "message": msg}) + "\n").encode()
+        return
+
+    payload = _build_rag_payload(request, lang, image_analysis)
+    payload.pop("model", None)
+    try:
+        async with httpx.AsyncClient(timeout=settings.request_timeout * 2) as client:
+            async with client.stream("POST", stream_url, json=payload) as resp:
+                resp.raise_for_status()
+                async for chunk in resp.aiter_bytes():
+                    yield chunk
+    except Exception as e:
+        logger.error("Advisory stream failed (%s): %s", stream_url, e)
+        import json
+
+        yield (
+            json.dumps({"event": "error", "message": f"Advisory stream failed: {e}"}) + "\n"
+        ).encode()
 
 
 async def call_rag_advisory(request: AskRequest) -> AskResponse:

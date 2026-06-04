@@ -1,7 +1,12 @@
-"""Route a user question to product_rag or general_rag (Auto mode)."""
+"""Route a user question to product_rag, general_rag, or base_llm (Auto mode)."""
 
 from __future__ import annotations
 
+from terramind.meta_questions import (
+    has_strong_product_intent,
+    is_image_describe_question,
+    is_meta_question,
+)
 from terramind.models.conversation import build_retrieval_query
 from terramind.rag.general.topics import infer_topics_from_query
 from terramind.rag.scoring import distance_to_relevance
@@ -89,12 +94,24 @@ def _probe_top_score(db, query: str) -> float | None:
 def route_question(
     question: str,
     retrieval_query: str | None = None,
+    image_analysis: str | None = None,
 ) -> tuple[str, str]:
     """
-    Choose product_rag or general_rag.
+    Choose product_rag, general_rag, or base_llm.
 
-    Uses dual-index top-1 relevance plus keyword hints.
+    Meta / conversational questions skip retrieval and use base_llm.
+    Photo-describe questions (with vision text) use base_llm, not document RAG.
+    Explicit "what product…" requests prefer product_rag over general IPM docs.
     """
+    if is_meta_question(question):
+        return "base_llm", "conversational question — no agriculture retrieval"
+
+    if (image_analysis or "").strip() and is_image_describe_question(question):
+        return "base_llm", "photo description — vision context, no document retrieval"
+
+    if has_strong_product_intent(question):
+        return "product_rag", "explicit product recommendation request"
+
     rq = (retrieval_query or question or "").strip()
     product_hits, general_topics, mixed_hints = _keyword_counts(question)
 
@@ -124,7 +141,9 @@ def route_question(
                 "general_rag",
                 f"reference retrieval stronger ({general_score:.2f} vs {product_score:.2f})",
             )
-        # Scores tied — mixed IPM + catalog phrasing → general first
+        # Scores tied — explicit product wording wins over mixed IPM + catalog
+        if product_hits >= 1 and has_strong_product_intent(question):
+            return "product_rag", "product recommendation wording with tied scores"
         if mixed_hints >= 1 and product_hits >= 1:
             return (
                 "general_rag",

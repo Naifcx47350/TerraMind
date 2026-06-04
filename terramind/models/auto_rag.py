@@ -1,5 +1,6 @@
-"""Auto mode — route to product or general RAG, then answer."""
+"""Auto mode — route to product, general RAG, or base LLM, then answer."""
 
+from terramind.models.base_llm import answer as base_llm_answer
 from terramind.models.conversation import build_retrieval_query
 from terramind.models.general_rag import answer as general_rag_answer
 from terramind.models.product_rag import answer as product_rag_answer
@@ -8,6 +9,7 @@ from terramind.models.router import route_question
 _BACKENDS = {
     "product_rag": product_rag_answer,
     "general_rag": general_rag_answer,
+    "base_llm": base_llm_answer,
 }
 
 
@@ -20,7 +22,7 @@ def answer(
     **_,
 ) -> dict:
     retrieval_q = build_retrieval_query(question, image_analysis)
-    routed_to, router_reason = route_question(question, retrieval_q)
+    routed_to, router_reason = route_question(question, retrieval_q, image_analysis)
     backend = _BACKENDS[routed_to]
     result = backend(
         question,

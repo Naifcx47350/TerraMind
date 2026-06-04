@@ -27,6 +27,35 @@ _META_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
     )
 )
 
+_IMAGE_DESCRIBE_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
+    re.compile(p, re.IGNORECASE)
+    for p in (
+        r"\bwhat can you see\b",
+        r"\bwhat can u see\b",
+        r"\bwhat do you see\b",
+        r"\bwhat can you tell me about (this|the) (image|photo|picture)\b",
+        r"\bwhat is in (this|the) (image|photo|picture)\b",
+        r"\bwhat'?s in (this|the) (image|photo|picture)\b",
+        r"\bdescribe (this|the) (image|photo|picture)\b",
+        r"\banalyze (this|the) (image|photo|picture)\b",
+        r"\blook at (this|the) (image|photo|picture)\b",
+    )
+)
+
+_STRONG_PRODUCT_INTENT: tuple[str, ...] = (
+    "what product",
+    "which product",
+    "what products",
+    "which products",
+    "recommend a product",
+    "recommend product",
+    "from your catalog",
+    "from the catalog",
+    "from our catalog",
+    "in your catalog",
+    "best product",
+)
+
 
 def is_meta_question(question: str, *, max_len: int = 120) -> bool:
     """True for greetings, identity, or capability questions — not field/agronomy tasks."""
@@ -34,6 +63,20 @@ def is_meta_question(question: str, *, max_len: int = 120) -> bool:
     if not q or len(q) > max_len:
         return False
     return any(p.search(q) for p in _META_PATTERNS)
+
+
+def is_image_describe_question(question: str) -> bool:
+    """User wants a description of an uploaded image, not document RAG."""
+    q = (question or "").strip()
+    if not q:
+        return False
+    return any(p.search(q) for p in _IMAGE_DESCRIBE_PATTERNS)
+
+
+def has_strong_product_intent(question: str) -> bool:
+    """Explicit ask for a catalog product recommendation."""
+    q = (question or "").lower()
+    return any(phrase in q for phrase in _STRONG_PRODUCT_INTENT)
 
 
 def advisory_meta_answer() -> str:
