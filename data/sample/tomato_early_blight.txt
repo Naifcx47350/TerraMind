@@ -1,0 +1,16 @@
+Title: Tomato Early Blight (Alternaria solani)
+
+Crop: Tomato
+Category: Disease management
+
+Symptoms:
+Brown concentric rings on older leaves, yellowing around spots, leaf drop in severe cases.
+
+Treatment:
+- Apply a fungicide containing chlorothalonil every 7-10 days when conditions are humid.
+- Remove and destroy infected leaves; do not compost them.
+- Avoid overhead irrigation; water at the base of plants.
+- Improve spacing for air circulation.
+
+Safety:
+Always read the product label before application. Wear gloves and eye protection.

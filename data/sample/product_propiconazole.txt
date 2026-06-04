@@ -1,0 +1,18 @@
+Product: WheatGuard Pro 250 EC (example)
+Active ingredient: Propiconazole 250 g/L
+Type: Fungicide (triazole)
+
+Registered crops: Wheat, barley (check local label)
+
+Target: Yellow rust, brown rust, powdery mildew (label-dependent)
+
+Application (example label guidance):
+- Wheat yellow rust: 0.5 L per hectare at first sign of disease.
+- Do not apply within 35 days of harvest unless label allows.
+
+Safety:
+- Wear chemical-resistant gloves and mask during mixing and spraying.
+- Do not tank-mix with products unless label permits.
+- Toxic to aquatic organisms; buffer zones required near water.
+
+Note: Dosage and intervals must match the registered label for your region.
