@@ -122,7 +122,8 @@ See **`terramind/README.md`** and **`docs/RAG_MIGRATION_PLAN.md`** for the plann
 | Path | What it does |
 |------|----------------|
 | **`data/raw/text/ProductCatalog(En).xlsx`** | Product catalog source (`Rag_Pc.py` `CATALOG_PATH`) |
-| **`data/raw/text/Pest_Management_FAO.md`** | General RAG source (`terramind.rag.general.config` `DATA_PATH`) |
+| **`data/raw/documents/`** | General RAG PDFs (IPM, GAP, soil, pesticides) — see `docs/GENERAL_RAG_CORPUS.md` |
+| **`data/raw/text/`** | Product Excel; optional extra `.md`/`.txt` for general RAG |
 | **`vectorstore/chroma_products/`** | Persisted embeddings for products (gitignored) |
 | **`vectorstore/chroma/`** | Persisted embeddings for general docs (gitignored) |
 | **`.env`** (root) | `OPENAI_API_KEY`, etc. |
@@ -151,7 +152,9 @@ See **`terramind/README.md`** and **`docs/RAG_MIGRATION_PLAN.md`** for the plann
 | **`PROJECT_OVERVIEW.md`** | Feature & technical overview |
 | **`docs/FILE_MAP_AND_PIPELINE.md`** | This file |
 | **`Project_plan.md`** | Planning notes |
-| **`doc/*.pdf`** | Reference PDFs; **not** wired into `Rag_Gen` unless you convert and point `DATA_PATH` |
+| **`doc/`** | Deprecated — PDFs moved to `data/raw/documents/`; see `doc/README.md` |
+| **`docs/`** | Developer documentation only (not ingested by RAG) |
+| **`docs/GENERAL_RAG_CORPUS.md`** | General RAG corpus list and rebuild steps |
 | **`TM_Logo.png`** | Branding for README; **not** served to UI |
 | **`TM_Logo_o.png`** | Old logo backup — **UNUSED** |
 | **`app.py`** | Empty — **UNUSED** |
@@ -210,7 +213,9 @@ app.py                          (empty)
 src/*                           (entire Phase 1 package)
 scripts/01 … 05                 (CLI pipeline)
 src/safety.py                   (never wired)
-doc/*.pdf                       (not ingested unless you add conversion)
+data/raw/documents/*.pdf        → general_rag Chroma index
+doc/                            (deprecated; use data/raw/documents/)
+docs/                           (developer docs only)
 FrontPage GET /api/history      (log only; UI uses localStorage for sessions)
 Direct LLM providers in rag_service  (only if RAG_SERVICE_URL unset + LLM_PROVIDER set)
 TM_Logo.png at repo root        (UI uses public/TM_Logo.png only)

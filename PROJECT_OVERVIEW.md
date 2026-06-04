@@ -4,6 +4,8 @@ This document describes how the TerraMind agriculture assistant works end-to-end
 
 For local setup, see [FrontPage/RUN_LOCALLY.md](FrontPage/RUN_LOCALLY.md). Commands use **`<repo-root>`** for your clone path (not a fixed machine path).
 
+For **system architecture only** (topology, services, RAG boundaries, API contracts), see **[docs/SYSTEM_ARCHITECTURE.md](docs/SYSTEM_ARCHITECTURE.md)**.
+
 ---
 
 ## 1. What the user gets
@@ -90,7 +92,7 @@ Vite proxies `/api/*` to `http://localhost:8000`, so the frontend only talks to 
 | Location | Content |
 |----------|---------|
 | `data/raw/text/ProductCatalog(En).xlsx` | Client product catalog (RAG mode 1) |
-| `data/raw/text/Pest_Management_FAO.md` | General agriculture text (RAG mode 2) |
+| `data/raw/documents/` | General agriculture PDFs (RAG mode 2) — see [docs/GENERAL_RAG_CORPUS.md](docs/GENERAL_RAG_CORPUS.md) |
 | `vectorstore/chroma/` | General document embeddings |
 | `vectorstore/chroma_products/` | Product catalog embeddings |
 | `FrontPage/frontend-react/public/TM_Logo.png` | Logo served to the UI (not repo root copy) |
@@ -104,7 +106,7 @@ All modes share the same **response shape** (`answer`, `sources`, `confidence`, 
 | UI name | ID | Module | Knowledge | LLM |
 |---------|-----|--------|-----------|-----|
 | **Product Catalog RAG** | `product_rag` | `models/product_rag.py` → `Rag_Pc.py` | Excel rows embedded in Chroma | `gpt-4o-mini` |
-| **Agriculture Knowledge RAG** | `general_rag` | `models/general_rag.py` → `Rag_Gen.py` | FAO / IPM markdown in Chroma | `gpt-4o-mini` |
+| **Agriculture Knowledge RAG** | `general_rag` | `models/general_rag.py` → `terramind/rag/general/` | Public PDFs in `data/raw/documents/` → Chroma | `gpt-4o-mini` |
 | **Base LLM** | `base_llm` | `models/base_llm.py` | None (no retrieval) | `gpt-4o-mini` |
 
 ### Product Catalog RAG (`product_rag`)
@@ -118,9 +120,11 @@ Best for: *“How do I use product X?”*, *“What crops is Y registered for?�
 
 ### Agriculture Knowledge RAG (`general_rag`)
 
-Same pipeline as above, but documents are **general IPM / pest management** text (e.g. FAO markdown), index at `vectorstore/chroma/`.
+The General Agriculture RAG is built from **trusted public agriculture references** covering good agricultural practices (GAP), soil health, cover crops, crop rotation, integrated pest management (IPM), and pesticide stewardship. This gives TerraMind a **broader knowledge layer**; **Product RAG** stays responsible for **company-specific** product labels and catalog data.
 
-Best for: *integrated pest management*, *disease principles*, content **not** in the product sheet.
+Sources live in **`data/raw/documents/`** (PDFs; optional `.md`/`.txt`). The index is at `vectorstore/chroma/`. See **[docs/GENERAL_RAG_CORPUS.md](docs/GENERAL_RAG_CORPUS.md)**.
+
+Best for: *IPM*, *soil and rotation*, *disease principles*, *GAP*, content **not** in the product sheet.
 
 ### Base LLM (`base_llm`)
 
@@ -145,7 +149,7 @@ Prompt rules explicitly state there is **no product catalog** in this mode.
 | Index path | Built by | Source data |
 |------------|----------|-------------|
 | `vectorstore/chroma_products/` | `python Rag_Pc.py --reset` | Product Excel |
-| `vectorstore/chroma/` | `python Rag_Gen.py --reset` | `Pest_Management_FAO.md` (and paths in `Rag_Gen.py`) |
+| `vectorstore/chroma/` | `python -m terramind.rag.general.cli --reset` | `data/raw/documents/*.pdf` (+ optional text) |
 
 Indexes are **persistent on disk**. Rebuild when Excel or documents change. At runtime, `get_product_db()` / `get_general_db()` load existing Chroma collections if present.
 

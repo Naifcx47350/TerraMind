@@ -80,7 +80,7 @@ uvicorn terramind.api.app:app --reload --port 8001
 | Model id      | Backend                                | Data                       |
 | ------------- | -------------------------------------- | -------------------------- |
 | `product_rag` | `terramind/models/product_rag.py` → `terramind/rag/product/` → `Rag_Pc.py` | Client product Excel |
-| `general_rag` | `terramind/models/general_rag.py` → `terramind/rag/general/` | FAO / IPM documents |
+| `general_rag` | `terramind/models/general_rag.py` → `terramind/rag/general/` | PDFs in `data/raw/documents/` (IPM, GAP, soil, etc.) |
 | `base_llm`    | `models/base_llm.py`                   | OpenAI only (no retrieval) |
 
 Check:

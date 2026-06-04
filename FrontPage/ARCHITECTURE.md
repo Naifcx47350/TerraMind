@@ -1,6 +1,9 @@
 # TerraMind — System Architecture
 
 Compact architecture reference for the **web MVP** (React + FrontPage API + Model API).  
+
+**Canonical system architecture (current state):** **[../docs/SYSTEM_ARCHITECTURE.md](../docs/SYSTEM_ARCHITECTURE.md)** — prefer that file for stakeholder / architecture requests; edit it when the stack changes.
+
 For full narrative documentation (models, storage, compare, images, history), see **[../PROJECT_OVERVIEW.md](../PROJECT_OVERVIEW.md)**.  
 For every file’s role and legacy vs active paths, see **[../docs/FILE_MAP_AND_PIPELINE.md](../docs/FILE_MAP_AND_PIPELINE.md)**.
 
@@ -40,7 +43,7 @@ For every file’s role and legacy vs active paths, see **[../docs/FILE_MAP_AND_
 | `model` id | Data store | Retrieval |
 |------------|------------|-----------|
 | `product_rag` | `vectorstore/chroma_products/` | Excel catalog chunks |
-| `general_rag` | `vectorstore/chroma/` | IPM / FAO markdown chunks |
+| `general_rag` | `vectorstore/chroma/` | Public PDFs from `data/raw/documents/` |
 | `base_llm` | — | None |
 
 All generation uses **OpenAI `gpt-4o-mini`** unless you change `CHAT_MODEL` in the RAG scripts / `models/base_llm.py`.

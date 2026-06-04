@@ -62,12 +62,18 @@ const DEFAULT_MODELS = [
   {
     id: "general_rag",
     name: "Agriculture Knowledge RAG",
-    description: "General IPM and crop guidance",
+    description:
+      "Public refs: GAP, soil health, rotation, IPM — not product catalog",
   },
   {
     id: "base_llm",
     name: "Base LLM",
     description: "OpenAI only — no retrieval",
+  },
+  {
+    id: "advisory",
+    name: "Advisory (General + Product)",
+    description: "IPM guidance from public refs, then catalog products",
   },
 ];
 
@@ -710,7 +716,9 @@ export default function App() {
     }
 
     try {
-      const r = await fetch(`${API}/ask`, {
+      const askPath =
+        selectedModel === "advisory" ? `${API}/ask/advisory` : `${API}/ask`;
+      const r = await fetch(askPath, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),

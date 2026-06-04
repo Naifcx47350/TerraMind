@@ -14,7 +14,10 @@ MODEL_REGISTRY = {
     "general_rag": {
         "id": "general_rag",
         "name": "Agriculture Knowledge RAG",
-        "description": "General IPM and crop guidance documents (e.g. FAO)",
+        "description": (
+            "Trusted public references: GAP, soil health, crop rotation, IPM, and "
+            "pesticide stewardship (not company product labels)"
+        ),
         "answer_fn": general_rag_answer,
     },
     "base_llm": {
@@ -85,3 +88,55 @@ def all_model_ids() -> list[str]:
 
 def model_display_name(model_id: str) -> str:
     return MODEL_REGISTRY.get(model_id, {}).get("name", model_id)
+
+
+def run_advisory(
+    question: str,
+    history: list | None = None,
+    image_analysis: str | None = None,
+    image_base64: str | None = None,
+    image_mime: str | None = None,
+    language: str | None = None,
+) -> dict:
+    """
+    General RAG (field/IPM guidance) then product RAG (catalog), one vision pass.
+    Returns general + product payloads and a merged answer for the UI.
+    """
+    analysis = resolve_image_analysis(
+        question, image_analysis, image_base64, image_mime, language
+    )
+    general = run_model(
+        "general_rag",
+        question,
+        history=history,
+        image_analysis=analysis,
+    )
+    product_question = (
+        f"{question.strip()}\n\n"
+        "Use the following agriculture reference summary when recommending "
+        "a catalog product (if any):\n"
+        f"{(general.get('answer') or '')[:2000]}"
+    )
+    product = run_model(
+        "product_rag",
+        product_question,
+        history=history,
+        image_analysis=analysis,
+    )
+    merged = (
+        "### Public agriculture guidance\n\n"
+        f"{general.get('answer', '').strip()}\n\n"
+        "### Company product catalog\n\n"
+        f"{product.get('answer', '').strip()}"
+    )
+    sources = list(general.get("sources") or []) + list(product.get("sources") or [])
+    return {
+        "answer": merged,
+        "sources": sources,
+        "confidence": general.get("confidence", "medium"),
+        "retrieved_chunks": (general.get("retrieved_chunks") or 0)
+        + (product.get("retrieved_chunks") or 0),
+        "system": "advisory",
+        "general": general,
+        "product": product,
+    }
