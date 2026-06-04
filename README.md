@@ -10,23 +10,22 @@ Agriculture support assistant with **Auto RAG** (default), manual product/genera
 
 ## Documentation
 
-| Document | Description |
-|----------|-------------|
-| **[docs/README.md](docs/README.md)** | Index of all `docs/` files |
-| **[docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md)** | **Status & history** — shipped work, remaining tasks, legacy/removed artifacts |
-| **[PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md)** | **Main guide** — features, models, storage, compare, images, APIs |
-| **[docs/SYSTEM_ARCHITECTURE.md](docs/SYSTEM_ARCHITECTURE.md)** | Runtime topology and RAG boundaries |
-| **[docs/FILE_MAP_AND_PIPELINE.md](docs/FILE_MAP_AND_PIPELINE.md)** | File-by-file map and request pipelines |
-| **[docs/GENERAL_RAG_CORPUS.md](docs/GENERAL_RAG_CORPUS.md)** | General RAG PDF corpus and rebuild |
-| **[docs/GENERAL_RAG_EVAL.md](docs/GENERAL_RAG_EVAL.md)** | Retrieval eval runbook |
-| **[docs/GENERAL_RAG_VALIDATION_REPORT.md](docs/GENERAL_RAG_VALIDATION_REPORT.md)** | May 2026 validation baseline (20/20) |
-| **[data/README.md](data/README.md)** | Data folders — tracked vs gitignored |
-| **[terramind/README.md](terramind/README.md)** | Backend package layout |
-| **[FrontPage/RUN_LOCALLY.md](FrontPage/RUN_LOCALLY.md)** | Run all three services (ports, env) |
-| **[FrontPage/README.md](FrontPage/README.md)** | FrontPage API quick reference |
+| Document                                                                           | Description                                                                    |
+| ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| **[docs/README.md](docs/README.md)**                                               | Index of all `docs/` files                                                     |
+| **[docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md)**                               | **Status & history** — shipped work, remaining tasks, legacy/removed artifacts |
+| **[PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md)**                                     | **Main guide** — features, models, storage, compare, images, APIs              |
+| **[docs/SYSTEM_ARCHITECTURE.md](docs/SYSTEM_ARCHITECTURE.md)**                     | Runtime topology and RAG boundaries                                            |
+| **[docs/FILE_MAP_AND_PIPELINE.md](docs/FILE_MAP_AND_PIPELINE.md)**                 | File-by-file map and request pipelines                                         |
+| **[docs/GENERAL_RAG_CORPUS.md](docs/GENERAL_RAG_CORPUS.md)**                       | General RAG PDF corpus and rebuild                                             |
+| **[docs/GENERAL_RAG_EVAL.md](docs/GENERAL_RAG_EVAL.md)**                           | Retrieval eval runbook                                                         |
+| **[docs/GENERAL_RAG_VALIDATION_REPORT.md](docs/GENERAL_RAG_VALIDATION_REPORT.md)** | May 2026 validation baseline (20/20)                                           |
+| **[data/README.md](data/README.md)**                                               | Data folders — tracked vs gitignored                                           |
+| **[terramind/README.md](terramind/README.md)**                                     | Backend package layout                                                         |
+| **[FrontPage/RUN_LOCALLY.md](FrontPage/RUN_LOCALLY.md)**                           | Run all three services (ports, env)                                            |
+| **[FrontPage/README.md](FrontPage/README.md)**                                     | FrontPage API quick reference                                                  |
 
 ---
-
 
 ---
 
@@ -82,13 +81,13 @@ Open **http://localhost:3000**.
 
 ## Models (picker order)
 
-| Mode | ID | Knowledge source |
-|------|-----|------------------|
-| Auto (recommended) | `auto_rag` | Router picks **product RAG**, **general RAG**, or **base LLM** (meta/conversational questions skip retrieval) |
-| Agriculture Knowledge RAG | `general_rag` | Public refs in `data/raw/documents/` (IPM, GAP, soil health, pesticides) |
-| Product Catalog RAG | `product_rag` | Client Excel (`ProductCatalog(En).xlsx`) |
-| Base LLM | `base_llm` | No retrieval — OpenAI only |
-| Advisory (hidden UI) | `advisory` | General then product in one answer — unlock via logo easter egg; see [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) |
+| Mode                      | ID            | Knowledge source                                                                                                |
+| ------------------------- | ------------- | --------------------------------------------------------------------------------------------------------------- |
+| Auto (recommended)        | `auto_rag`    | Router picks **product RAG**, **general RAG**, or **base LLM** (meta/conversational questions skip retrieval)   |
+| Agriculture Knowledge RAG | `general_rag` | Public refs in `data/raw/documents/` (IPM, GAP, soil health, pesticides)                                        |
+| Product Catalog RAG       | `product_rag` | Client Excel (`ProductCatalog(En).xlsx`)                                                                        |
+| Base LLM                  | `base_llm`    | No retrieval — OpenAI only                                                                                      |
+| Advisory (hidden UI)      | `advisory`    | General then product in one answer — unlock via logo easter egg; see [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) |
 
 **General vs product:** The General Agriculture RAG uses trusted public references (good agricultural practices, soil health, cover crops, crop rotation, integrated pest management). The Product RAG handles **company-specific** catalog information only. Details: [docs/GENERAL_RAG_CORPUS.md](docs/GENERAL_RAG_CORPUS.md).
 
@@ -124,6 +123,18 @@ TerraMind/
 - Plant **image upload** (vision → all modes)
 - **Conversation history** in-thread + **localStorage** session restore
 - English / Arabic (RTL)
+
+---
+
+## Tests (from repo root)
+
+```powershell
+conda activate terramind
+cd <repo-root>
+pytest tests/ -v
+```
+
+`pytest.ini` adds the repo root to `PYTHONPATH` so `import terramind` works. Routing battery: `pytest tests/test_auto_question_battery.py -v`.
 
 ---
 
