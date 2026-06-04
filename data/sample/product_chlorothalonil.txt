@@ -1,0 +1,18 @@
+Product: AgroShield 720 SC (example)
+Active ingredient: Chlorothalonil 720 g/L
+Type: Fungicide
+
+Registered crops: Tomato, potato, cucurbits (check local label)
+
+Target: Early blight, late blight, anthracnose (label-dependent)
+
+Application (example label guidance):
+- Tomato early blight: 1.5 L per hectare in 200-400 L water.
+- Interval: 7-10 days; maximum 4 applications per season unless label states otherwise.
+
+Safety:
+- Harmful if swallowed. Avoid drift to water bodies.
+- REI (re-entry): follow label (often 12-24 hours).
+- Store locked away from food and feed.
+
+Note: Always use the official product label for your country and registration.

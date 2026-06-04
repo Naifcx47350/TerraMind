@@ -1,0 +1,15 @@
+Title: Wheat Yellow Rust (Puccinia striiformis)
+
+Crop: Wheat
+Category: Disease management
+
+Symptoms:
+Bright yellow stripes on leaves, reduced photosynthesis, yield loss if untreated early.
+
+Treatment:
+- Spray propiconazole or tebuconazole at early infection stages.
+- Use locally approved resistant varieties where available.
+- Monitor fields weekly during cool, wet spring weather.
+
+Safety:
+Follow label rates and pre-harvest intervals. Do not exceed maximum applications per season.

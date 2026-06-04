@@ -1,0 +1,122 @@
+[
+  {
+    "id": "ipm-01",
+    "topic": "ipm",
+    "question": "What are the main steps of integrated pest management before using chemical sprays?",
+    "expected_filename": "2020-Guide-to-Integrated-Pest-Management.pdf"
+  },
+  {
+    "id": "ipm-02",
+    "topic": "ipm",
+    "question": "How should a farmer monitor pest populations and set action thresholds?",
+    "expected_filename": "2020-Guide-to-Integrated-Pest-Management.pdf"
+  },
+  {
+    "id": "fao-01",
+    "topic": "ipm",
+    "question": "What integrated disease management steps are recommended for potato late blight?",
+    "expected_filename": "Pest_Mangment_FAO.pdf"
+  },
+  {
+    "id": "fao-02",
+    "topic": "ipm",
+    "question": "How can crop rotation help reduce pest and disease pressure?",
+    "expected_filename": "Pest_Mangment_FAO.pdf"
+  },
+  {
+    "id": "fao-03",
+    "topic": "ipm",
+    "question": "What cultural practices reduce reliance on pesticides for field crops?",
+    "expected_filename": "Pest_Mangment_FAO.pdf"
+  },
+  {
+    "id": "soil-01",
+    "topic": "soil",
+    "question": "How does increasing soil organic matter improve crop resilience?",
+    "expected_filename": "Building-Soils-for-Better-Crops.pdf"
+  },
+  {
+    "id": "soil-02",
+    "topic": "soil",
+    "question": "What is ecological soil management for better crop yields?",
+    "expected_filename": "Building-Soils-for-Better-Crops.pdf"
+  },
+  {
+    "id": "soil-03",
+    "topic": "soil",
+    "question": "How do cover crops and reduced tillage affect soil health?",
+    "expected_filename": "Building-Soils-for-Better-Crops.pdf"
+  },
+  {
+    "id": "gap-01",
+    "topic": "gap",
+    "question": "What are good agricultural practices for safe food production?",
+    "expected_filename": "Training manual(GAP).pdf"
+  },
+  {
+    "id": "gap-02",
+    "topic": "gap",
+    "question": "How should farmers record inputs and activities under GAP?",
+    "expected_filename": "Training manual(GAP).pdf"
+  },
+  {
+    "id": "fung-01",
+    "topic": "fungicide",
+    "question": "When is the best timing to apply fungicides on fruit trees?",
+    "expected_filename": "fungicideefficacytiming.pdf"
+  },
+  {
+    "id": "fung-02",
+    "topic": "fungicide",
+    "question": "How do fungicide efficacy tables help choose products for deciduous crops?",
+    "expected_filename": "fungicideefficacytiming.pdf"
+  },
+  {
+    "id": "policy-01",
+    "topic": "pesticide_policy",
+    "question": "What does the international code of conduct say about pesticide risk reduction?",
+    "expected_filename": "Managing pesticides in agriculture and public health.pdf"
+  },
+  {
+    "id": "policy-02",
+    "topic": "pesticide_policy",
+    "question": "How should pesticides be managed to protect public health and the environment?",
+    "expected_filename": "Managing pesticides in agriculture and public health.pdf"
+  },
+  {
+    "id": "safety-01",
+    "topic": "safety",
+    "question": "What PPE and label rules apply before mixing and spraying pesticides?",
+    "expected_filename": "pesticide_safety_general.txt"
+  },
+  {
+    "id": "safety-02",
+    "topic": "safety",
+    "question": "What should a farmer do if product label dosage information is missing?",
+    "expected_filename": "pesticide_safety_general.txt"
+  },
+  {
+    "id": "photo-01",
+    "topic": "ipm",
+    "question": "Potato leaves show dark water-soaked lesions and browning edges. Is this serious and what IPM steps should I take first?",
+    "expected_filename": "Pest_Mangment_FAO.pdf"
+  },
+  {
+    "id": "ipm-03",
+    "topic": "ipm",
+    "question": "What is biological control in an IPM program?",
+    "expected_filename": "2020-Guide-to-Integrated-Pest-Management.pdf"
+  },
+  {
+    "id": "fao-04",
+    "topic": "ipm",
+    "question": "What sanitation practices help prevent pest outbreaks in storage and fields?",
+    "expected_filename": "Pest_Mangment_FAO.pdf"
+  },
+  {
+    "id": "soil-04",
+    "topic": "soil",
+    "question": "How can poor soil structure affect plant disease susceptibility?",
+    "expected_filename": "Building-Soils-for-Better-Crops.pdf"
+  }
+]
