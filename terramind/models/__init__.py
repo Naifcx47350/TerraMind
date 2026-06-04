@@ -120,6 +120,47 @@ def run_advisory(
     General RAG (field/IPM guidance) then product RAG (catalog), one vision pass.
     Returns general + product payloads and a merged answer for the UI.
     """
+    from terramind.meta_questions import advisory_meta_answer, is_meta_question
+
+    q = question.strip()
+    if is_meta_question(q):
+        intro = advisory_meta_answer()
+        catalog_note = (
+            "No catalog search was needed for this question. "
+            "Ask about a crop, pest, or product when you want a recommendation "
+            "from the company catalog."
+        )
+        merged = (
+            "### Public agriculture guidance\n\n"
+            f"{intro}\n\n"
+            "### Company product catalog\n\n"
+            f"{catalog_note}"
+        )
+        return {
+            "answer": merged,
+            "sources": [],
+            "confidence": "high",
+            "retrieval_score": None,
+            "retrieved_chunks": 0,
+            "system": "advisory",
+            "general": {
+                "answer": intro,
+                "sources": [],
+                "confidence": "high",
+                "retrieval_score": None,
+                "retrieved_chunks": 0,
+                "system": "general_rag",
+            },
+            "product": {
+                "answer": catalog_note,
+                "sources": [],
+                "confidence": "high",
+                "retrieval_score": None,
+                "retrieved_chunks": 0,
+                "system": "product_rag",
+            },
+        }
+
     analysis = resolve_image_analysis(
         question, image_analysis, image_base64, image_mime, language
     )
@@ -130,10 +171,13 @@ def run_advisory(
         image_analysis=analysis,
     )
     product_question = (
-        f"{question.strip()}\n\n"
+        f"{q}\n\n"
         "Use the following agriculture reference summary when recommending "
         "a catalog product (if any):\n"
-        f"{(general.get('answer') or '')[:2000]}"
+        f"{(general.get('answer') or '')[:2000]}\n\n"
+        "Only recommend a catalog product if the user asked about a crop problem, "
+        "pest, disease, weed, or product need. Otherwise say in one or two sentences "
+        "that the catalog does not apply — do not invent a product match."
     )
     product = run_model(
         "product_rag",

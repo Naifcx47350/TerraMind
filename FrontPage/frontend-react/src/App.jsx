@@ -53,6 +53,16 @@ const LIGHT = {
 
 const F = "Arial, sans-serif";
 
+const ADVISORY_MODEL = {
+  id: "advisory",
+  name: "Advisory (General + Product)",
+  description: "IPM guidance from public refs, then catalog products",
+};
+
+const ADVISORY_UNLOCK_KEY = "terramind_advisory_unlocked_v1";
+const LOGO_CLICKS_NEEDED = 7;
+const LOGO_CLICK_RESET_MS = 2500;
+
 const DEFAULT_MODELS = [
   {
     id: "auto_rag",
@@ -76,15 +86,24 @@ const DEFAULT_MODELS = [
     name: "Base LLM",
     description: "OpenAI only — no retrieval",
   },
-  {
-    id: "advisory",
-    name: "Advisory (General + Product)",
-    description: "IPM guidance from public refs, then catalog products",
-  },
 ];
 
-function TerraLogo({ size = 1000, style = {} }) {
-  return (
+function withAdvisoryOption(modelList, unlocked) {
+  if (!unlocked) return modelList;
+  if (modelList.some((m) => m.id === "advisory")) return modelList;
+  return [...modelList, ADVISORY_MODEL];
+}
+
+function readAdvisoryUnlocked() {
+  try {
+    return sessionStorage.getItem(ADVISORY_UNLOCK_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function TerraLogo({ size = 1000, style = {}, onSecretClick }) {
+  const img = (
     <img
       src={logoSrc}
       alt="TerraMind"
@@ -92,6 +111,25 @@ function TerraLogo({ size = 1000, style = {} }) {
       height={size}
       style={{ objectFit: "contain", display: "block", ...style }}
     />
+  );
+  if (!onSecretClick) return img;
+  return (
+    <button
+      type="button"
+      onClick={onSecretClick}
+      aria-label="TerraMind"
+      style={{
+        background: "none",
+        border: "none",
+        padding: 0,
+        margin: 0,
+        cursor: "default",
+        lineHeight: 0,
+        display: "block",
+      }}
+    >
+      {img}
+    </button>
   );
 }
 
@@ -134,7 +172,14 @@ function AutoRouteHint({ label, reason, t, fading }) {
   );
 }
 
-function RagScores({ confidence, retrievalScore, retrievedChunks, modelId, t, ar }) {
+function RagScores({
+  confidence,
+  retrievalScore,
+  retrievedChunks,
+  modelId,
+  t,
+  ar,
+}) {
   const isRag = modelId && modelId !== "base_llm";
   const pct = formatRetrievalPct(retrievalScore);
   if (!confidence && !isRag) return null;
@@ -581,25 +626,55 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [hover, setHover] = useState(null);
-  const [models, setModels] = useState(DEFAULT_MODELS);
-  const [selectedModel, setSelectedModel] = useState("auto_rag");
+  const initialAdvisoryUnlocked = readAdvisoryUnlocked();
+  const [models, setModels] = useState(() =>
+    withAdvisoryOption(DEFAULT_MODELS, initialAdvisoryUnlocked),
+  );
+  const [selectedModel, setSelectedModel] = useState(() =>
+    initialAdvisoryUnlocked ? "advisory" : "auto_rag",
+  );
+  const [advisoryUnlocked, setAdvisoryUnlocked] = useState(
+    initialAdvisoryUnlocked,
+  );
   const [modelOpen, setModelOpen] = useState(false);
   const [autoRouteHint, setAutoRouteHint] = useState(null);
   const [autoRouteFading, setAutoRouteFading] = useState(false);
   const autoRouteTimerRef = useRef(null);
+  const logoClickRef = useRef({ count: 0, lastAt: 0 });
   const [compareMode, setCompareMode] = useState(false);
   const bottomRef = useRef(null);
   const fileRef = useRef(null);
   const taRef = useRef(null);
   const modelRef = useRef(null);
 
+  const handleLogoSecretClick = () => {
+    if (advisoryUnlocked) return;
+    const now = Date.now();
+    const ref = logoClickRef.current;
+    if (now - ref.lastAt > LOGO_CLICK_RESET_MS) ref.count = 0;
+    ref.lastAt = now;
+    ref.count += 1;
+    if (ref.count < LOGO_CLICKS_NEEDED) return;
+    ref.count = 0;
+    try {
+      sessionStorage.setItem(ADVISORY_UNLOCK_KEY, "1");
+    } catch {
+      /* private mode */
+    }
+    setAdvisoryUnlocked(true);
+    setModels((prev) => withAdvisoryOption(prev, true));
+    setSelectedModel("advisory");
+    setModelOpen(true);
+  };
+
   useEffect(() => {
     fetch(`${API}/models`)
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (d?.models?.length) {
-          setModels(d.models);
-          if (d.default) setSelectedModel(d.default);
+          const unlocked = readAdvisoryUnlocked();
+          setModels(withAdvisoryOption(d.models, unlocked));
+          if (d.default && !unlocked) setSelectedModel(d.default);
         }
       })
       .catch(() => {});
@@ -789,7 +864,8 @@ export default function App() {
     }
 
     if (compareMode) {
-      const placeholderPanels = models.map((m) => ({
+      const compareModels = models.filter((m) => m.id !== "advisory");
+      const placeholderPanels = compareModels.map((m) => ({
         modelId: m.id,
         modelName: m.name,
         answer: "",
@@ -931,7 +1007,10 @@ export default function App() {
 
   const canSend = (text.trim() || image) && !loading;
   const isAr = (txt) => /[\u0600-\u06ff]/.test(txt || "");
-  const activeModel = models.find((m) => m.id === selectedModel) || models[0];
+  const activeModel =
+    models.find((m) => m.id === selectedModel) ||
+    (selectedModel === "advisory" ? ADVISORY_MODEL : null) ||
+    models[0];
   const hasCompareMessages = all.messages.some((m) => m.role === "compare");
   const showBottomLoader =
     loading &&
@@ -984,7 +1063,7 @@ export default function App() {
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <TerraLogo size={30} />
+              <TerraLogo size={30} onSecretClick={handleLogoSecretClick} />
               <span style={{ fontSize: 15, fontWeight: 700, color: t.text1 }}>
                 TerraMind
               </span>
@@ -1168,7 +1247,10 @@ export default function App() {
               onChange={(e) => {
                 const on = e.target.checked;
                 setShowScores(on);
-                localStorage.setItem("terramind_show_scores_v1", on ? "1" : "0");
+                localStorage.setItem(
+                  "terramind_show_scores_v1",
+                  on ? "1" : "0",
+                );
               }}
               style={{ accentColor: t.accent, width: 14, height: 14 }}
             />
@@ -1249,7 +1331,7 @@ export default function App() {
           >
             <I.sidebar />
           </button>
-          <TerraLogo size={40} />
+          <TerraLogo size={40} onSecretClick={handleLogoSecretClick} />
           <span style={{ fontSize: 14, fontWeight: 600, color: t.text1 }}>
             TerraMind
           </span>
@@ -1408,7 +1490,7 @@ export default function App() {
                 textAlign: "center",
               }}
             >
-              <TerraLogo size={100} />
+              <TerraLogo size={100} onSecretClick={handleLogoSecretClick} />
               <div
                 style={{
                   fontSize: 28,
