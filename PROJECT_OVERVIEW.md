@@ -140,6 +140,8 @@ Prompt rules explicitly state there is **no product catalog** in this mode.
 - `run_model(model_id, question, history, …)` — dispatches to the correct backend  
 - `resolve_image_analysis()` — one vision call shared across modes when an image is uploaded  
 
+**Auto RAG (default):** routes each question to product or general RAG (`routed_to` chip in UI). **Show scores** toggle for confidence + retrieval match. See **[docs/PLANNED_FEATURES.md](docs/PLANNED_FEATURES.md)**.
+
 ---
 
 ## 5. How information is stored

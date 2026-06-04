@@ -43,7 +43,14 @@ def rerank_with_lexical(
 
     scored: list[tuple[float, int, Document]] = []
     for rank, doc in enumerate(candidates):
-        vector_prior = 1.0 - (rank / max(len(candidates), 1))
+        stored = doc.metadata.get("relevance_score")
+        if stored is not None:
+            try:
+                vector_prior = float(stored)
+            except (TypeError, ValueError):
+                vector_prior = 1.0 - (rank / max(len(candidates), 1))
+        else:
+            vector_prior = 1.0 - (rank / max(len(candidates), 1))
         lex = lexical_score(query, doc)
         combined = (1.0 - HYBRID_LEXICAL_WEIGHT) * vector_prior + HYBRID_LEXICAL_WEIGHT * lex
         scored.append((combined, rank, doc))

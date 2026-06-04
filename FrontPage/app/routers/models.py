@@ -7,9 +7,11 @@ router = APIRouter()
 
 FALLBACK_MODELS = [
     {
-        "id": "product_rag",
-        "name": "Product Catalog RAG",
-        "description": "Client Excel product sheets — usage, dosage, manuals",
+        "id": "auto_rag",
+        "name": "Auto (recommended)",
+        "description": (
+            "Picks Product Catalog or Agriculture Knowledge RAG from your question"
+        ),
     },
     {
         "id": "general_rag",
@@ -18,6 +20,11 @@ FALLBACK_MODELS = [
             "Trusted public agriculture references: GAP, soil health, "
             "crop rotation, IPM, pesticide stewardship"
         ),
+    },
+    {
+        "id": "product_rag",
+        "name": "Product Catalog RAG",
+        "description": "Client Excel product sheets — usage, dosage, manuals",
     },
     {
         "id": "base_llm",
@@ -48,8 +55,8 @@ async def list_models():
                 data = resp.json()
                 return {
                     "models": data.get("models", FALLBACK_MODELS),
-                    "default": data.get("default", "product_rag"),
+                    "default": data.get("default", "auto_rag"),
                 }
         except Exception:
             pass
-    return {"models": FALLBACK_MODELS, "default": "product_rag"}
+    return {"models": FALLBACK_MODELS, "default": "auto_rag"}

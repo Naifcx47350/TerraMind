@@ -10,8 +10,8 @@ class ChatMessage(BaseModel):
 class AskRequest(BaseModel):
     question: str = Field(..., min_length=1, max_length=2000)
     model: Optional[str] = Field(
-        default="product_rag",
-        description="product_rag | general_rag | base_llm",
+        default="auto_rag",
+        description="auto_rag | product_rag | general_rag | base_llm",
     )
     crop_type: Optional[str] = "all"
     question_type: Optional[str] = "all"
@@ -24,16 +24,21 @@ class SourceDoc(BaseModel):
     title: str
     source: str
     section: Optional[str] = None
+    relevance_score: Optional[float] = None
+    chunk_count: Optional[int] = None
 
 
 class AskResponse(BaseModel):
     answer: str
     sources: List[SourceDoc]
     confidence: str
+    retrieval_score: Optional[float] = None
     retrieved_chunks: int
     latency_ms: int
     system: str = "rag"
-    model: str = "product_rag"
+    model: str = "auto_rag"
+    routed_to: Optional[str] = None
+    router_reason: Optional[str] = None
     detected_language: str = "en"
     image_analysis: Optional[str] = None
 
@@ -44,6 +49,7 @@ class ModelCompareResult(BaseModel):
     answer: str
     sources: List[SourceDoc] = []
     confidence: str = "medium"
+    retrieval_score: Optional[float] = None
     retrieved_chunks: int = 0
     latency_ms: int = 0
     error: Optional[str] = None

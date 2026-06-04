@@ -355,25 +355,20 @@ async def call_rag(request: AskRequest) -> AskResponse:
             sources = rag_data.get("sources", rag_data.get("references", []))
             confidence = rag_data.get("confidence", "medium")
 
-            parsed_sources = []
-            for s in sources:
-                if isinstance(s, str):
-                    parsed_sources.append(SourceDoc(title=s, source=s))
-                elif isinstance(s, dict):
-                    parsed_sources.append(SourceDoc(
-                        title=s.get("title", s.get("name", "Unknown")),
-                        source=s.get("source", s.get("url", s.get("path", ""))),
-                        section=s.get("section", s.get("page", None)),
-                    ))
-
             return AskResponse(
                 answer=answer,
-                sources=parsed_sources,
+                sources=_parse_sources(sources),
                 confidence=confidence,
-                retrieved_chunks=rag_data.get("retrieved_chunks", rag_data.get("num_sources", len(parsed_sources))),
+                retrieval_score=_parse_retrieval_score(rag_data),
+                retrieved_chunks=rag_data.get(
+                    "retrieved_chunks",
+                    rag_data.get("num_sources", len(sources)),
+                ),
                 latency_ms=int((time.time() - start) * 1000),
                 system=rag_data.get("system", "rag"),
-                model=rag_data.get("model", request.model or "product_rag"),
+                model=rag_data.get("model", request.model or "auto_rag"),
+                routed_to=rag_data.get("routed_to"),
+                router_reason=rag_data.get("router_reason"),
                 detected_language=lang,
                 image_analysis=image_analysis,
             )
@@ -507,6 +502,7 @@ async def call_rag_advisory(request: AskRequest) -> AskResponse:
             answer=data.get("answer", ""),
             sources=_parse_sources(data.get("sources", [])),
             confidence=data.get("confidence", "medium"),
+            retrieval_score=_parse_retrieval_score(data),
             retrieved_chunks=data.get("retrieved_chunks", 0),
             latency_ms=data.get("latency_ms", int((time.time() - start) * 1000)),
             system="advisory",
@@ -539,8 +535,20 @@ def _parse_sources(sources: list) -> list[SourceDoc]:
                 title=s.get("title", s.get("name", "Unknown")),
                 source=s.get("source", s.get("url", s.get("path", ""))),
                 section=s.get("section", s.get("page", None)),
+                relevance_score=s.get("relevance_score"),
+                chunk_count=s.get("chunk_count"),
             ))
     return parsed
+
+
+def _parse_retrieval_score(data: dict) -> float | None:
+    raw = data.get("retrieval_score")
+    if raw is None:
+        return None
+    try:
+        return float(raw)
+    except (TypeError, ValueError):
+        return None
 
 
 async def call_rag_compare(request: AskRequest) -> AskCompareResponse:
@@ -622,6 +630,7 @@ async def call_rag_compare(request: AskRequest) -> AskCompareResponse:
                     answer=answer,
                     sources=_parse_sources(row.get("sources", [])),
                     confidence=row.get("confidence", "medium"),
+                    retrieval_score=_parse_retrieval_score(row),
                     retrieved_chunks=row.get("retrieved_chunks", 0),
                     latency_ms=row.get("latency_ms", 0),
                     error=row.get("error"),
@@ -680,6 +689,7 @@ async def call_rag_compare(request: AskRequest) -> AskCompareResponse:
                 answer=res.answer,
                 sources=res.sources,
                 confidence=res.confidence,
+                retrieval_score=res.retrieval_score,
                 retrieved_chunks=res.retrieved_chunks,
                 latency_ms=int((time.time() - t0) * 1000),
             )

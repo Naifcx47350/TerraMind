@@ -114,10 +114,13 @@ Registry: `terramind/models/__init__.py` (`MODEL_REGISTRY`, `run_model`, `run_ad
 
 | UI / API `model` | Backend module | Retrieval | Vector store |
 |------------------|----------------|-----------|--------------|
+| `auto_rag` (**default**) | `terramind.models.auto_rag` → `router.py` | One of product or general | Probed both; answers one |
 | `product_rag` | `terramind.models.product_rag` | Yes — catalog rows | `vectorstore/chroma_products/` |
 | `general_rag` | `terramind.models.general_rag` | Yes — public PDFs + sample text | `vectorstore/chroma/` |
 | `base_llm` | `terramind.models.base_llm` | No | — |
 | `advisory` (UI only) | `run_advisory` in `__init__.py` | Both chains above | Both stores |
+
+**Auto routing:** `route_question()` uses top-1 relevance on each index plus keyword hints; response includes `routed_to` and `router_reason`. Compare mode still runs only the three fixed backends (not Auto).
 
 **Shared cross-cutting:**
 
@@ -255,11 +258,15 @@ Secrets: `.env` / environment (`OPENAI_API_KEY`, optional `RAG_SERVICE_URL`).
 
 ## 10. Planned evolution (not current)
 
-Tracked elsewhere; listed here so architecture readers know direction:
+**Detailed specs:** [PLANNED_FEATURES.md](./PLANNED_FEATURES.md)
 
-- Full product RAG migration off root `Rag_Pc.py` (teammate scope).
-- Deployment topology (single host vs split services) — not defined in repo yet.
-- Optional stronger PDF extraction or hybrid retrieval upgrades — see general RAG eval runbook.
+| Feature | Summary |
+|---------|---------|
+| **Auto RAG mode** | **Shipped** — `auto_rag` default; dual-index probe + keywords → `routed_to` in API/UI |
+| **Scores in UI** | **Shipped** — “Show scores” toggle; `retrieval_score` + `confidence` |
+| Product RAG migration | Full move off root `Rag_Pc.py` (teammate scope) |
+| Deployment | Single host vs split services — not defined yet |
+| PDF extraction | Optional `pymupdf` / stronger extractors — see general RAG eval runbook |
 
 ---
 

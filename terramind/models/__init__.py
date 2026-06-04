@@ -1,15 +1,19 @@
 """TerraMind model backends — one module per mode, same response shape."""
 
+from terramind.models.auto_rag import answer as auto_rag_answer
 from terramind.models.base_llm import answer as base_llm_answer
 from terramind.models.general_rag import answer as general_rag_answer
 from terramind.models.product_rag import answer as product_rag_answer
 
 MODEL_REGISTRY = {
-    "product_rag": {
-        "id": "product_rag",
-        "name": "Product Catalog RAG",
-        "description": "Client Excel product sheets — usage, dosage, manuals",
-        "answer_fn": product_rag_answer,
+    "auto_rag": {
+        "id": "auto_rag",
+        "name": "Auto (recommended)",
+        "description": (
+            "Picks Product Catalog or Agriculture Knowledge RAG from your question "
+            "(catalog vs field guidance)"
+        ),
+        "answer_fn": auto_rag_answer,
     },
     "general_rag": {
         "id": "general_rag",
@@ -20,6 +24,12 @@ MODEL_REGISTRY = {
         ),
         "answer_fn": general_rag_answer,
     },
+    "product_rag": {
+        "id": "product_rag",
+        "name": "Product Catalog RAG",
+        "description": "Client Excel product sheets — usage, dosage, manuals",
+        "answer_fn": product_rag_answer,
+    },
     "base_llm": {
         "id": "base_llm",
         "name": "Base LLM",
@@ -28,17 +38,21 @@ MODEL_REGISTRY = {
     },
 }
 
-DEFAULT_MODEL_ID = "product_rag"
+# Picker order on the website (Advisory is UI-only on port 8000).
+MODEL_LIST_ORDER = ("auto_rag", "general_rag", "product_rag", "base_llm")
+
+DEFAULT_MODEL_ID = "auto_rag"
 
 
 def list_models() -> list[dict]:
     return [
         {
-            "id": m["id"],
-            "name": m["name"],
-            "description": m["description"],
+            "id": MODEL_REGISTRY[mid]["id"],
+            "name": MODEL_REGISTRY[mid]["name"],
+            "description": MODEL_REGISTRY[mid]["description"],
         }
-        for m in MODEL_REGISTRY.values()
+        for mid in MODEL_LIST_ORDER
+        if mid in MODEL_REGISTRY
     ]
 
 
@@ -82,8 +96,12 @@ def run_model(
     )
 
 
+COMPARE_MODEL_IDS = ("product_rag", "general_rag", "base_llm")
+
+
 def all_model_ids() -> list[str]:
-    return list(MODEL_REGISTRY.keys())
+    """Models run in parallel for /query/compare (excludes auto_rag)."""
+    return list(COMPARE_MODEL_IDS)
 
 
 def model_display_name(model_id: str) -> str:
@@ -130,12 +148,23 @@ def run_advisory(
         f"{product.get('answer', '').strip()}"
     )
     sources = list(general.get("sources") or []) + list(product.get("sources") or [])
+    g_score = general.get("retrieval_score")
+    p_score = product.get("retrieval_score")
+    scores = [s for s in (g_score, p_score) if s is not None]
+    retrieval_score = max(scores) if scores else None
+    from terramind.rag.scoring import confidence_from_score
+
+    total_chunks = (general.get("retrieved_chunks") or 0) + (
+        product.get("retrieved_chunks") or 0
+    )
     return {
         "answer": merged,
         "sources": sources,
-        "confidence": general.get("confidence", "medium"),
-        "retrieved_chunks": (general.get("retrieved_chunks") or 0)
-        + (product.get("retrieved_chunks") or 0),
+        "confidence": confidence_from_score(
+            retrieval_score, has_chunks=total_chunks > 0
+        ),
+        "retrieval_score": retrieval_score,
+        "retrieved_chunks": total_chunks,
         "system": "advisory",
         "general": general,
         "product": product,
