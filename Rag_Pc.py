@@ -23,7 +23,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent
 CATALOG_PATH = PROJECT_ROOT / "data/raw/text/ProductCatalog(En).xlsx"
 CATEGORY_PATH = PROJECT_ROOT / "data/raw/text/Product_catagorys(En).xlsx"
 
-# Separate store so product vectors don't mix with the document RAG (Rag_Gen.py)
+# Separate store so product vectors don't mix with general RAG (vectorstore/chroma/)
 CHROMA_PATH = PROJECT_ROOT / "vectorstore" / "chroma_products"
 
 EMBEDDING_MODEL = "text-embedding-3-small"

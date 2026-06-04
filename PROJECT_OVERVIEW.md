@@ -32,15 +32,15 @@ Three processes run in development:
 |-------|------|------------|------|
 | **React UI** | 3000 | Vite + React (`App.jsx`) | Chat UI, sessions, model picker, compare layout |
 | **FrontPage API** | 8000 | FastAPI (`FrontPage/app/`) | Auth-less BFF: vision pre-processing, proxy to model API, mock fallback |
-| **Model API** | 8001 | FastAPI (`rag_api.py`) | Routes to `models/` → `Rag_Pc.py` / `Rag_Gen.py` / `base_llm` |
+| **Model API** | 8001 | FastAPI (`terramind.api.app` / `rag_api.py`) | `terramind.models` → auto / product / general / base LLM |
 
 ```mermaid
 flowchart LR
   User[Browser :3000]
   FP[FrontPage API :8000]
   RAG[Model API :8001]
-  PC[Rag_Pc Chroma]
-  GEN[Rag_Gen Chroma]
+  PC[chroma_products]
+  GEN[chroma general]
   LLM[OpenAI gpt-4o-mini]
 
   User -->|POST /api/ask| FP
@@ -99,15 +99,17 @@ Vite proxies `/api/*` to `http://localhost:8000`, so the frontend only talks to 
 
 ---
 
-## 4. The three models (modes)
+## 4. Models (modes)
 
-All modes share the same **response shape** (`answer`, `sources`, `confidence`, `retrieved_chunks`) so the UI and APIs stay uniform. Implementation lives under `models/` — **one Python file per mode**.
+All modes share the same **response shape** (`answer`, `sources`, `confidence`, `retrieval_score`, `retrieved_chunks`, …). Implementation lives under **`terramind/models/`**.
 
 | UI name | ID | Module | Knowledge | LLM |
 |---------|-----|--------|-----------|-----|
-| **Product Catalog RAG** | `product_rag` | `models/product_rag.py` → `Rag_Pc.py` | Excel rows embedded in Chroma | `gpt-4o-mini` |
-| **Agriculture Knowledge RAG** | `general_rag` | `models/general_rag.py` → `terramind/rag/general/` | Public PDFs in `data/raw/documents/` → Chroma | `gpt-4o-mini` |
-| **Base LLM** | `base_llm` | `models/base_llm.py` | None (no retrieval) | `gpt-4o-mini` |
+| **Auto (recommended)** | `auto_rag` | `auto_rag.py` + `router.py` | Routes to product or general | `gpt-4o-mini` |
+| **Agriculture Knowledge RAG** | `general_rag` | `general_rag.py` → `terramind/rag/general/` | Public PDFs in `data/raw/documents/` | `gpt-4o-mini` |
+| **Product Catalog RAG** | `product_rag` | `product_rag.py` → `Rag_Pc.py` / `terramind/rag/product/` | Excel catalog in Chroma | `gpt-4o-mini` |
+| **Base LLM** | `base_llm` | `base_llm.py` | None (no retrieval) | `gpt-4o-mini` |
+| **Advisory** (UI only) | `advisory` | `run_advisory()` in `__init__.py` | General then product | `gpt-4o-mini` |
 
 ### Product Catalog RAG (`product_rag`)
 
@@ -134,13 +136,13 @@ Prompt rules explicitly state there is **no product catalog** in this mode.
 
 ### Model registry
 
-`models/__init__.py` exposes:
+`terramind/models/__init__.py` exposes:
 
 - `list_models()` — for `GET /models` and the UI dropdown  
 - `run_model(model_id, question, history, …)` — dispatches to the correct backend  
 - `resolve_image_analysis()` — one vision call shared across modes when an image is uploaded  
 
-**Auto RAG (default):** routes each question to product or general RAG (`routed_to` chip in UI). **Show scores** toggle for confidence + retrieval match. See **[docs/PLANNED_FEATURES.md](docs/PLANNED_FEATURES.md)**.
+**Auto RAG (default):** routes each question to product or general RAG (hint under picker). **Show scores** for confidence + retrieval match. History: **[docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md)**.
 
 ---
 
@@ -267,34 +269,20 @@ Referenced in `App.jsx` as `/TM_Logo.png?v=2` (version query busts browser cache
 
 ```text
 TerraMind/
-├── docs/
-│   └── PROJECT_OVERVIEW.md      ← this file
-├── models/                      # Unified model adapters
-│   ├── __init__.py              # Registry + run_model()
-│   ├── product_rag.py
-│   ├── general_rag.py
-│   ├── base_llm.py
-│   ├── vision.py                # gpt-4o-mini image analysis
-│   ├── conversation.py          # History → prompt text
-│   └── image_context.py
-├── Rag_Pc.py                    # Product Excel → Chroma + RAG
-├── Rag_Gen.py                   # General docs → Chroma + RAG
-├── rag_api.py                   # Model API :8001
-├── data/raw/text/               # Source documents
-├── vectorstore/                 # Chroma persistence (gitignored)
-├── FrontPage/
-│   ├── app/                     # FastAPI :8000
-│   │   ├── routers/ask.py       # /api/ask, /api/ask/compare
-│   │   ├── routers/models.py    # /api/models
-│   │   ├── services/rag_service.py
-│   │   └── schemas/ask.py
-│   ├── frontend-react/          # Vite + React :3000
-│   │   ├── src/App.jsx
-│   │   └── public/TM_Logo.png
-│   ├── ARCHITECTURE.md          # Shorter architecture summary
-│   └── RUN_LOCALLY.md
-├── src/                         # Earlier bootcamp scripts (Phase 1)
-└── scripts/                     # Ingestion CLI utilities
+├── PROJECT_OVERVIEW.md          ← this file
+├── docs/                        # Developer docs (not RAG corpus)
+├── terramind/
+│   ├── api/app.py               # Model API :8001
+│   ├── models/                  # auto, product, general, base, vision, router
+│   └── rag/general|product/     # General complete; product re-exports Rag_Pc
+├── Rag_Pc.py                    # Product RAG implementation
+├── rag_api.py                   # Shim → terramind.api.app
+├── run_dev.py                   # Dev launcher (3 services)
+├── data/                        # See data/README.md
+├── vectorstore/                 # Chroma (gitignored)
+├── FrontPage/                   # :8000 API + :3000 React
+├── scripts/eval_general_rag.py
+└── tests/
 ```
 
 ---
@@ -306,7 +294,8 @@ TerraMind/
 | Method | Path | Description |
 |--------|------|-------------|
 | POST | `/api/ask` | Single model; body includes `model`, `history`, optional image |
-| POST | `/api/ask/compare` | All three models in parallel |
+| POST | `/api/ask/advisory` | General + product sequence |
+| POST | `/api/ask/compare` | Product, general, base LLM in parallel |
 | GET | `/api/models` | List modes for dropdown (proxies 8001 or fallback list) |
 | GET | `/api/health` | Backend mode (mock / RAG / error) |
 | GET | `/api/history` | Global question log (in-memory) |
@@ -316,8 +305,9 @@ TerraMind/
 
 | Method | Path | Description |
 |--------|------|-------------|
-| POST | `/query` | Single model |
-| POST | `/query/compare` | Parallel compare |
+| POST | `/query` | Single model (`routed_to` when `auto_rag`) |
+| POST | `/query/advisory` | General then product |
+| POST | `/query/compare` | Parallel compare (3 fixed backends) |
 | GET | `/models` | Registry metadata |
 | GET | `/health` | Vector counts per index |
 
@@ -332,7 +322,7 @@ TerraMind/
 | `RAG_SERVICE_URL` | `FrontPage/.env` | Default `http://localhost:8001/query` |
 | `REQUEST_TIMEOUT` | `FrontPage/.env` | HTTP timeout to model API |
 
-Default chat/vision model: **`gpt-4o-mini`** in `Rag_Pc.py`, `Rag_Gen.py`, `models/base_llm.py`, `models/vision.py`.
+Default chat/vision model: **`gpt-4o-mini`** in `Rag_Pc.py`, `terramind/rag/general/`, `terramind/models/base_llm.py`, `terramind/models/vision.py`.
 
 ---
 
@@ -351,7 +341,7 @@ Default chat/vision model: **`gpt-4o-mini`** in `Rag_Pc.py`, `Rag_Gen.py`, `mode
 | Document | Audience |
 |----------|----------|
 | [FrontPage/RUN_LOCALLY.md](../FrontPage/RUN_LOCALLY.md) | Step-by-step terminals and ports |
-| [FrontPage/ARCHITECTURE.md](../FrontPage/ARCHITECTURE.md) | Compact architecture + diagrams |
+| [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) | Shipped work, legacy artifacts, remaining tasks |
 | [FrontPage/README.md](../FrontPage/README.md) | FrontPage quick start and API examples |
 | [README.md](../README.md) | Repo root index and index build commands |
 

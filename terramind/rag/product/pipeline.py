@@ -7,5 +7,5 @@ TODO: Move from Rag_Pc.py and wire submodules:
   - answer_with_rag(db, question) -> {answer, retrieved, context, ...}
   - sources_from_retrieved(retrieved) -> list[dict] for UI sources
 When done: terramind.rag.product.__init__ imports from HERE, not from Rag_Pc.
-See docs/RAG_MIGRATION_PLAN.md step 6 (product).
+See docs/PROJECT_STATUS.md (product migration).
 """

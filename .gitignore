@@ -1,31 +1,52 @@
-# === Data, Outputs, and Results ===
-!data/sample/
-!data/sample/**
+# TerraMind — local/generated paths (see data/README.md for corpus layout)
+
+# === Vector indexes (rebuild with Rag_Pc / terramind.rag.general.cli) ===
+vectorstore/
+
+# === Generated outputs ===
+data/eval/runs/
+data/processed/
+
+# === Large / non-RAG datasets (not used by web MVP indexes) ===
+data/raw/PlantVillage/
+data/raw/Fine tuning data/
+
+# === Eval fixtures & sample text (tracked in git) ===
+# Negations apply only if a parent rule ignores `data/`; corpus PDFs live under
+# `data/raw/documents/` and are tracked normally.
 !data/eval/
 !data/eval/**
-data/eval/runs/
-data/raw/PlantVillage
-vectorstore/
-# === Environment Variables ===
+!data/sample/
+!data/sample/**
+
+# === Office / editor temp files ===
+~$*
+.DS_Store
+
+# === Secrets & local IDE ===
 .env
 .cursorignore
 
-# === Python Cache and Artifacts ===
+# === Python ===
 __pycache__/
 *.pyc
 .pytest_cache/
 *.egg-info/
 .venv/
 
-# === VSCode & Editor Files ===
+# === VS Code ===
 .vscode/
 
-# === Node & JavaScript Build Artifacts ===
+# === Node (FrontPage + frontend-react) ===
 node_modules/
 dist/
 .vite/
 
-# === Miscellaneous ===
+# === Local scratch (not part of the app) ===
 check_openai_key.py
 Test.py
 catgrouse
+
+# === Dev-only notes (superseded; see docs/PROJECT_STATUS.md) ===
+**/claude prompt.md
+Project_plan.md

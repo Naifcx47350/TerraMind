@@ -2,7 +2,7 @@
 
 ## Path convention
 
-Replace **`<repo-root>`** with wherever you cloned TerraMind (the folder that contains `Rag_Pc.py`, `terramind/`, and `FrontPage/`).
+Replace **`<repo-root>`** with wherever you cloned TerraMind (the folder that contains `terramind/`, `Rag_Pc.py`, `run_dev.py`, and `FrontPage/`).
 
 Examples (not literal — use your own path):
 
@@ -41,7 +41,7 @@ Requires `npm install` once in `<repo-root>/FrontPage/frontend-react`.
 
 For mock-only demos you can skip terminal 1 and set `USE_MOCK=true` (two terminals only).
 
-Pipeline overview: [ARCHITECTURE.md](./ARCHITECTURE.md).
+Pipeline overview: [../docs/SYSTEM_ARCHITECTURE.md](../docs/SYSTEM_ARCHITECTURE.md).
 
 ---
 
@@ -67,7 +67,7 @@ Build indexes once (or after data changes):
 
 ```powershell
 python Rag_Pc.py --reset    # product catalog Excel
-python -m terramind.rag.general.cli --reset   # general agriculture docs (optional)
+python -m terramind.rag.general.cli --reset   # general agriculture PDFs (required for general/auto)
 ```
 
 Start the unified model API (routes by `model` id):
@@ -79,9 +79,11 @@ uvicorn terramind.api.app:app --reload --port 8001
 
 | Model id      | Backend                                | Data                       |
 | ------------- | -------------------------------------- | -------------------------- |
-| `product_rag` | `terramind/models/product_rag.py` → `terramind/rag/product/` → `Rag_Pc.py` | Client product Excel |
-| `general_rag` | `terramind/models/general_rag.py` → `terramind/rag/general/` | PDFs in `data/raw/documents/` (IPM, GAP, soil, etc.) |
-| `base_llm`    | `models/base_llm.py`                   | OpenAI only (no retrieval) |
+| `auto_rag` (default) | `terramind/models/auto_rag.py` + `router.py` | Picks product or general per question |
+| `general_rag` | `terramind/models/general_rag.py` → `terramind/rag/general/` | PDFs in `data/raw/documents/` |
+| `product_rag` | `terramind/models/product_rag.py` → `Rag_Pc.py` | Client product Excel |
+| `base_llm`    | `terramind/models/base_llm.py`         | OpenAI only (no retrieval) |
+| `advisory` (UI) | `run_advisory()` on model API        | General then product |
 
 Check:
 
@@ -90,8 +92,10 @@ Check:
 
 In the React UI:
 
-- **Model dropdown (top right)** — one mode per message
-- **Compare** (near the input) — same question to all three modes, side-by-side
+- **Model dropdown (top right)** — Auto (default), Agriculture Knowledge, Product Catalog, Base LLM, Advisory
+- **Auto** — small “Using …” hint under the picker after each answer
+- **Show scores** / **Show sources** in the sidebar
+- **Compare** (near the input) — product, general, and base LLM side-by-side
 - **Image attach** — vision analysis included for every mode (`gpt-4o-mini`)
 - Chats are saved in the browser (`localStorage`) and **history** is sent on each turn
 
@@ -243,7 +247,7 @@ If answers look like mock tomato/wheat text, check `USE_MOCK` is `false` and `RA
 
 ## Optional: connect your TerraMind RAG scripts later
 
-When you expose a small HTTP endpoint from `Rag_Gen.py` / `Rag_Pc.py`, set in `FrontPage/.env`:
+When pointing FrontPage at the model API, set in `FrontPage/.env`:
 
 ```env
 USE_MOCK=false

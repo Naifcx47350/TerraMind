@@ -4,7 +4,7 @@ This guide walks through **every important file**, which of the **three servers*
 
 **Paths:** **`<repo-root>`** = your TerraMind git clone. All folder names below are relative to it (`FrontPage/`, `terramind/`, `data/`, `vectorstore/`).
 
-For product features and architecture narrative, see [PROJECT_OVERVIEW.md](../PROJECT_OVERVIEW.md) or [FrontPage/ARCHITECTURE.md](../FrontPage/ARCHITECTURE.md).
+For product features and architecture, see [PROJECT_OVERVIEW.md](../PROJECT_OVERVIEW.md) and [SYSTEM_ARCHITECTURE.md](./SYSTEM_ARCHITECTURE.md). Status and removed files: [PROJECT_STATUS.md](./PROJECT_STATUS.md).
 
 ---
 
@@ -14,20 +14,21 @@ These are the **only** processes needed to run the webpage today.
 
 | # | Command (where to run) | Port | Entry file | Purpose |
 |---|------------------------|------|------------|---------|
-| **1** | `uvicorn terramind.api.app:app --reload --port 8001` | **8001** | `terramind/api/app.py` (or shim `rag_api.py`) | AI backends: 3 models, Chroma RAG, compare |
+| **1** | `uvicorn terramind.api.app:app --reload --port 8001` | **8001** | `terramind/api/app.py` (or shim `rag_api.py`) | Auto + RAG modes, compare, advisory |
 | **2** | `uvicorn app.main:app --reload --port 8000` | **8000** | `FrontPage/app/main.py` | API for UI: proxy, vision, mock |
 | **3** | `npm run dev` in `FrontPage/frontend-react/` | **3000** | `frontend-react/src/main.jsx` → `App.jsx` | React chat in the browser |
 
 ```text
 Browser :3000  ──proxy /api──►  FrontPage :8000  ──HTTP──►  rag_api :8001
                                     │                         │
-                                    │                         ├── Rag_Pc / product_rag
-                                    │                         ├── Rag_Gen / general_rag
-                                    │                         └── models/base_llm
+                                    │                         ├── auto_rag → router
+                                    │                         ├── product_rag → Rag_Pc
+                                    │                         ├── general_rag → terramind.rag.general
+                                    │                         └── base_llm
                                     └── models/vision.py (optional, from FrontPage too)
 ```
 
-**Not used for the web app:** `scripts/`, `src/`, empty `app.py`, Phase 1 CLI flows.
+**Not used for the web app:** Phase 1 `scripts/01_*` … `05_*` (removed), `data/processed/` JSONL, fine-tuning JSONL under `data/raw/Fine tuning data/`.
 
 ---
 
@@ -56,9 +57,10 @@ terramind.api.app  →  query()
     ▼
 terramind.models  →  run_model(model_id, ...)
     │
+    ├── auto_rag     →  terramind.models.router  →  product_rag | general_rag
     ├── product_rag  →  terramind.rag.product  →  Rag_Pc.answer_with_rag()
-    ├── general_rag  →  terramind.rag.general  →  Rag_Gen.answer_with_rag()
-    └── base_llm     →  terramind.models.base_llm  →  ChatOpenAI only
+    ├── general_rag  →  terramind.rag.general  →  pipeline.answer_with_rag()
+    └── base_llm     →  terramind.models.base_llm
     │
     ▼
 JSON answer + sources  →  back to UI  →  localStorage session update
@@ -96,17 +98,17 @@ App.jsx  POST /api/ask/compare
 | File / folder | What it does | Called by |
 |---------------|--------------|-----------|
 | **`terramind/api/app.py`** | Model API: `/query`, `/query/compare`, `/models`, `/health` | FrontPage `rag_service.py` via HTTP |
-| **`terramind/models/`** | Registry + 3 mode adapters + vision + conversation | `terramind.api.app` |
-| **`terramind/rag/product/`** | Product RAG package (templates); **`__init__` re-exports `Rag_Pc.py`** | `terramind.models.product_rag` |
-| **`terramind/rag/general/`** | General RAG package (config → load → chunk → store → retrieve → generate → pipeline) | `terramind.models.general_rag` |
-| **`Rag_Pc.py`** | **Current** product RAG implementation (Excel → Chroma) | `terramind.rag.product` |
-| **`Rag_Gen.py`** | Legacy general RAG (remove when ready; use `terramind.rag.general`) | — |
-| **`rag_api.py`** | Shim → `terramind.api.app` | Same as above (legacy command) |
-| **`models/`** (root) | Shim → `terramind.models` | Backward-compatible imports only |
+| **`terramind/models/`** | Registry: `auto_rag`, `product_rag`, `general_rag`, `base_llm`, `router`, vision | `terramind.api.app` |
+| **`terramind/rag/general/`** | Full general pipeline + CLI + eval | `terramind.models.general_rag` |
+| **`terramind/rag/product/`** | Re-exports **`Rag_Pc.py`** (migration in progress) | `terramind.models.product_rag` |
+| **`terramind/rag/scoring.py`** | Retrieval scores + confidence | RAG answer dicts |
+| **`Rag_Pc.py`** | Product RAG implementation (Excel → Chroma) | `terramind.rag.product` |
+| **`rag_api.py`** | Shim → `terramind.api.app` | Legacy uvicorn target |
+| **`run_dev.py`** | Starts :8001, :8000, :3000 | Local dev |
 | **`requirements.txt`** | Python deps (full stack) | `pip install -r requirements.txt` at repo root |
 | **`requirements-dev.txt`** | Dev extras (pytest) | `pip install -r requirements-dev.txt` |
 
-See **`terramind/README.md`** and **`docs/RAG_MIGRATION_PLAN.md`** for the planned RAG file split (`config`, `load`, `store`, …). Each template file has a short TODO in its docstring.
+Product RAG migration: **`docs/PROJECT_STATUS.md`** §2. General RAG is complete under **`terramind/rag/general/`**.
 
 ### BUILD (one-off commands)
 
@@ -123,26 +125,24 @@ See **`terramind/README.md`** and **`docs/RAG_MIGRATION_PLAN.md`** for the plann
 |------|----------------|
 | **`data/raw/text/ProductCatalog(En).xlsx`** | Product catalog source (`Rag_Pc.py` `CATALOG_PATH`) |
 | **`data/raw/documents/`** | General RAG PDFs (IPM, GAP, soil, pesticides) — see `docs/GENERAL_RAG_CORPUS.md` |
-| **`data/raw/text/`** | Product Excel; optional extra `.md`/`.txt` for general RAG |
+| **`data/raw/text/`** | Product Excel; optional extra text for general RAG |
+| **`data/sample/`** | Allowlisted sample `.txt` (e.g. pesticide safety) |
+| **`data/eval/`** | Golden questions; `runs/` gitignored |
+| **`data/README.md`** | What is tracked vs ignored |
 | **`vectorstore/chroma_products/`** | Persisted embeddings for products (gitignored) |
 | **`vectorstore/chroma/`** | Persisted embeddings for general docs (gitignored) |
 | **`.env`** (root) | `OPENAI_API_KEY`, etc. |
 
-### LEGACY (not in web path)
+### LEGACY / removed (not in web path)
 
-| File / folder | What it was for | Web uses instead |
-|---------------|-----------------|------------------|
-| **`src/`** (removed) | Phase 1 modular RAG pipeline | `terramind/`, `Rag_Pc.py`, `Rag_Gen.py` |
-| **`src/rag_pipeline.py`** | Old `answer_with_rag()` | `Rag_Pc` / `Rag_Gen` |
-| **`src/base_llm.py`** | Old baseline LLM | `models/base_llm.py` |
-| **`src/config.py`** | Old paths/models | Constants inside `Rag_*.py` |
-| **`src/document_loader.py`**, **`chunking.py`**, **`embeddings.py`**, **`vector_store.py`**, **`retriever.py`**, **`prompts.py`**, **`text_cleaner.py`**, **`utils.py`**, **`safety.py`** | Ingestion/retrieval building blocks | Logic duplicated in `Rag_Pc` / `Rag_Gen` |
-| **`scripts/01_ingest_documents.py`** | Ingest sample docs | Not used if you use `Rag_Gen` / Excel path |
-| **`scripts/02_create_chunks.py`** | Chunk step | — |
-| **`scripts/03_build_vectorstore.py`** | Build Chroma from `src/` | — |
-| **`scripts/04_run_base_llm.py`** | CLI base LLM | `models/base_llm` via API |
-| **`scripts/05_run_rag.py`** | CLI RAG + `--compare` | Web compare + `rag_api` |
-| **`scripts/_bootstrap.py`** | Path hack for scripts | — |
+| Item | Notes |
+|------|--------|
+| **`src/`** | Phase 1 package — **removed** from repo |
+| **`Rag_Gen.py`** | General RAG — **removed**; use `terramind/rag/general/` |
+| **`doc/`** | Old PDF folder — **removed**; use `data/raw/documents/` |
+| **`scripts/01_*` … `05_*`** | Phase 1 CLI — **removed** |
+| **`scripts/eval_general_rag.py`** | Optional full-answer eval export (still present) |
+| **`data/processed/`** | Generated JSONL — gitignored |
 
 ### OPTIONAL / docs / assets
 
@@ -151,8 +151,9 @@ See **`terramind/README.md`** and **`docs/RAG_MIGRATION_PLAN.md`** for the plann
 | **`README.md`** | Repo index |
 | **`PROJECT_OVERVIEW.md`** | Feature & technical overview |
 | **`docs/FILE_MAP_AND_PIPELINE.md`** | This file |
-| **`Project_plan.md`** | Planning notes |
-| **`doc/`** | Deprecated — PDFs moved to `data/raw/documents/`; see `doc/README.md` |
+| **`data/README.md`** | Data layout + gitignore |
+| **`docs/SYSTEM_ARCHITECTURE.md`** | Canonical architecture |
+| **`assets/`** | Logo, architecture diagram |
 | **`docs/`** | Developer documentation only (not ingested by RAG) |
 | **`docs/GENERAL_RAG_CORPUS.md`** | General RAG corpus list and rebuild steps |
 | **`TM_Logo.png`** | Branding for README; **not** served to UI |
@@ -169,7 +170,7 @@ See **`terramind/README.md`** and **`docs/RAG_MIGRATION_PLAN.md`** for the plann
 |------|--------------|-----------|
 | **`app/main.py`** | FastAPI app, CORS, routers, loads root `.env`, adds repo to `sys.path` | `uvicorn app.main:app` |
 | **`app/config.py`** | Settings: `RAG_SERVICE_URL`, `USE_MOCK`, vision defaults | All services |
-| **`app/routers/ask.py`** | `POST /api/ask`, `POST /api/ask/compare` | Browser via Vite proxy |
+| **`app/routers/ask.py`** | `POST /api/ask`, `/api/ask/compare`, `/api/ask/advisory` | Browser via Vite proxy |
 | **`app/routers/models.py`** | `GET /api/models` (proxy or fallback list) | `App.jsx` on load |
 | **`app/routers/health.py`** | `GET /api/health` — shows mock vs RAG mode | Debugging |
 | **`app/routers/history.py`** | `GET/DELETE /api/history` — global in-memory log | Optional; **not** per-session storage |
@@ -184,7 +185,7 @@ See **`terramind/README.md`** and **`docs/RAG_MIGRATION_PLAN.md`** for the plann
 | File | What it does |
 |------|--------------|
 | **`frontend-react/src/main.jsx`** | React mount → `App` |
-| **`frontend-react/src/App.jsx`** | Full UI: chat, sessions, model picker, compare, images, `localStorage` |
+| **`frontend-react/src/App.jsx`** | Chat, Auto picker, compare, scores, routed hint, `MarkdownMessage.jsx` |
 | **`frontend-react/index.html`** | HTML shell |
 | **`frontend-react/vite.config.js`** | Dev server port 3000; proxy `/api` → 8000 |
 | **`frontend-react/package.json`** | npm deps & `dev` script |
@@ -198,7 +199,6 @@ See **`terramind/README.md`** and **`docs/RAG_MIGRATION_PLAN.md`** for the plann
 | **`env.rag.snippet`** | Template env lines |
 | **`Dockerfile`** | API container only; still needs :8001 + indexes for full RAG |
 | **`tests/test_api.py`** | API smoke tests |
-| **`claude prompt.md`** | Prompt notes for UI generation — not executed |
 | **`pyrightconfig.json`** | IDE typing |
 | **`package-lock.json`** (under `FrontPage/`) | Orphan lockfile if no `package.json` there — **likely UNUSED** |
 
@@ -209,16 +209,13 @@ See **`terramind/README.md`** and **`docs/RAG_MIGRATION_PLAN.md`** for the plann
 These exist in the repo but are **not** on the path from browser → answer:
 
 ```text
-app.py                          (empty)
-src/*                           (entire Phase 1 package)
-scripts/01 … 05                 (CLI pipeline)
-src/safety.py                   (never wired)
-data/raw/documents/*.pdf        → general_rag Chroma index
-doc/                            (deprecated; use data/raw/documents/)
-docs/                           (developer docs only)
-FrontPage GET /api/history      (log only; UI uses localStorage for sessions)
-Direct LLM providers in rag_service  (only if RAG_SERVICE_URL unset + LLM_PROVIDER set)
-TM_Logo.png at repo root        (UI uses public/TM_Logo.png only)
+data/processed/                 (generated JSONL — gitignored)
+data/raw/Fine tuning data/      (training JSONL — gitignored)
+data/eval/runs/                 (eval exports — gitignored)
+vectorstore/                    (rebuild locally — gitignored)
+docs/                           (developer docs only — not ingested)
+FrontPage GET /api/history      (global log; UI uses localStorage)
+TM_Logo at repo root assets/    (UI uses FrontPage/frontend-react/public/TM_Logo.png)
 ```
 
 ---
@@ -227,7 +224,7 @@ TM_Logo.png at repo root        (UI uses public/TM_Logo.png only)
 
 | Issue | Detail |
 |-------|--------|
-| **Two `base_llm` files** | `src/base_llm.py` = legacy CLI. **`models/base_llm.py`** = web. |
+| **`terramind/models` vs old root `models/`** | Use **`terramind/models/`** only; root `models/` shim removed. |
 | **Two logo paths** | Update **`FrontPage/frontend-react/public/TM_Logo.png`** for the site; bump `LOGO_SRC ?v=` in `App.jsx`. |
 | **Two Chroma folders** | `chroma_products` = products; `chroma` = general docs. |
 | **`docs/` vs root docs** | Overview may live as `PROJECT_OVERVIEW.md` at root; this file is under `docs/`. |
@@ -241,13 +238,12 @@ Only remove after confirming nobody uses CLI demos:
 | Remove candidate | Reason |
 |------------------|--------|
 | `app.py` | Empty |
-| `src/` entire folder | Replaced by `Rag_Pc`, `Rag_Gen`, `models/` |
-| `scripts/` | Replaced by `Rag_*.py` + web |
+| `app.py` (root) | Empty if present |
+| Phase 1 `scripts/01_*` … `05_*` | Already removed |
 | `TM_Logo_o.png` | Backup |
-| `FrontPage/claude prompt.md` | Dev notes only |
 | `FrontPage/package-lock.json` | If no `FrontPage/package.json` |
 
-**Do not remove:** `rag_api.py`, `Rag_Pc.py`, `Rag_Gen.py`, `models/`, `FrontPage/app/`, `FrontPage/frontend-react/`, `vectorstore/` (your indexes), `data/raw/text/` sources.
+**Do not remove:** `terramind/`, `rag_api.py`, `Rag_Pc.py`, `run_dev.py`, `FrontPage/`, corpus under `data/raw/`, local `vectorstore/` (rebuild if deleted).
 
 ---
 
@@ -259,7 +255,8 @@ App.jsx → ask.py (via /api/ask)
 ask.py → rag_service.call_rag | call_rag_compare
 rag_service → rag_api (/query | /query/compare)
 rag_api → models.run_model
-run_model → product_rag | general_rag | base_llm
+run_model → auto_rag | product_rag | general_rag | base_llm
+auto_rag → router.route_question → one RAG backend
 product_rag → Rag_Pc.get_product_db + answer_with_rag
 general_rag → terramind.rag.general.get_general_db + answer_with_rag
 run_model → resolve_image_analysis → vision.analyze_image (if image)

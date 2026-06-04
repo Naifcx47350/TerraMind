@@ -15,8 +15,6 @@
 | **`data/sample/`** | Short reference `.txt` (e.g. pesticide safety) |
 | **`data/eval/`** | Golden questions + eval run outputs |
 | **`docs/`** | Developer documentation (not ingested) |
-| **`doc/`** | Deprecated — see [`doc/README.md`](../doc/README.md) |
-
 ## Indexed files and UI source labels
 
 | File | Website source label |
@@ -36,7 +34,7 @@ Labels: `terramind/rag/general/config.py` → `DOCUMENT_DISPLAY_NAMES` and `FILE
 ## Pipeline features
 
 - PDF ingest via `pypdf` ([`load.py`](../terramind/rag/general/load.py))
-- Markdown-aware chunking + MMR + topic boost + lexical rerank ([`retrieve.py`](../terramind/rag/general/retrieve.py), [`hybrid.py`](../terramind/rag/general/hybrid.py))
+- Scored vector retrieval + topic boost + lexical rerank ([`retrieve.py`](../terramind/rag/general/retrieve.py), [`hybrid.py`](../terramind/rag/general/hybrid.py))
 - Retrieval eval: [GENERAL_RAG_EVAL.md](./GENERAL_RAG_EVAL.md)
 
 ## Build or rebuild

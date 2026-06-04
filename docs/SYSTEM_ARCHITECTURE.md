@@ -258,15 +258,15 @@ Secrets: `.env` / environment (`OPENAI_API_KEY`, optional `RAG_SERVICE_URL`).
 
 ## 10. Planned evolution (not current)
 
-**Detailed specs:** [PLANNED_FEATURES.md](./PLANNED_FEATURES.md)
+**Status, legacy, and roadmap:** [PROJECT_STATUS.md](./PROJECT_STATUS.md)
 
 | Feature | Summary |
 |---------|---------|
 | **Auto RAG mode** | **Shipped** — `auto_rag` default; dual-index probe + keywords → `routed_to` in API/UI |
 | **Scores in UI** | **Shipped** — “Show scores” toggle; `retrieval_score` + `confidence` |
-| Product RAG migration | Full move off root `Rag_Pc.py` (teammate scope) |
-| Deployment | Single host vs split services — not defined yet |
-| PDF extraction | Optional `pymupdf` / stronger extractors — see general RAG eval runbook |
+| Product RAG migration | Full move off root `Rag_Pc.py` — see PROJECT_STATUS §2 |
+| Deployment | Not defined in repo yet |
+| PDF extraction | Optional `pymupdf` — see GENERAL_RAG_EVAL runbook |
 
 ---
 
