@@ -369,3 +369,27 @@ async def query_advisory_stream(request: QueryRequest):
             yield json.dumps({"event": "error", "message": f"Advisory failed: {e}"}) + "\n"
 
     return StreamingResponse(generate(), media_type="application/x-ndjson")
+
+
+class OpenAIKeyIn(BaseModel):
+    api_key: str = Field(..., min_length=20, max_length=512)
+
+
+@app.get("/config/openai-status")
+def openai_status():
+    import os
+
+    key = os.getenv("OPENAI_API_KEY", "").strip()
+    return {"openai_configured": bool(key)}
+
+
+@app.post("/internal/openai-key")
+def set_openai_key(body: OpenAIKeyIn):
+    """Local dev: apply key for this Model API process (called by FrontPage BFF)."""
+    import os
+
+    key = body.api_key.strip()
+    if not key.startswith(("sk-", "sk-proj-")):
+        raise HTTPException(status_code=400, detail="Invalid OpenAI API key format")
+    os.environ["OPENAI_API_KEY"] = key
+    return {"ok": True, "openai_configured": True}

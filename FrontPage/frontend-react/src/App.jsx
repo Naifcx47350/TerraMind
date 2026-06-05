@@ -419,6 +419,7 @@ function sanitize(str) {
 }
 
 const SESSIONS_STORAGE_KEY = "terramind_sessions_v1";
+const OPENAI_KEY_SESSION = "terramind_openai_key_session_v1";
 
 function newSession() {
   return {
@@ -681,6 +682,278 @@ async function consumeNdjsonStream(response, onEvent) {
   }
 }
 
+function ApiKeyGate({
+  t,
+  open,
+  reason,
+  value,
+  onChange,
+  onSubmit,
+  submitting,
+  error,
+}) {
+  const [privacyOpen, setPrivacyOpen] = useState(false);
+
+  if (!open) return null;
+
+  const isReauth = reason === "reauth";
+  const lead = isReauth
+    ? "The key you entered earlier no longer works — it may have expired or been turned off in your OpenAI account. Enter a new key below to keep using TerraMind."
+    : "TerraMind is your agriculture assistant for questions, document search, and crop photo analysis. To use it, paste your OpenAI API key below.";
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 10000,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 24,
+        background: "rgba(0,0,0,0.72)",
+        backdropFilter: "blur(4px)",
+      }}
+    >
+      <div
+        role="dialog"
+        aria-labelledby="api-key-title"
+        style={{
+          width: "min(100%, 440px)",
+          background: t.bgCard,
+          border: `1px solid ${t.border1}`,
+          borderRadius: 16,
+          padding: "28px 28px 24px",
+          boxShadow: "0 24px 48px rgba(0,0,0,0.35)",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 18 }}>
+          <TerraLogo size={36} />
+          <div>
+            <div
+              id="api-key-title"
+              style={{ fontSize: 18, fontWeight: 700, color: t.text1 }}
+            >
+              {isReauth ? "Please update your API key" : "Welcome to TerraMind"}
+            </div>
+            <div style={{ fontSize: 13, color: t.text3, marginTop: 4 }}>
+              {isReauth
+                ? "A new key is needed to continue."
+                : "One quick step before you can start chatting."}
+            </div>
+          </div>
+        </div>
+
+        <p style={{ fontSize: 13, color: t.text2, lineHeight: 1.65, marginBottom: 14 }}>
+          {lead}
+        </p>
+
+        <div
+          style={{
+            fontSize: 12,
+            color: t.text3,
+            lineHeight: 1.65,
+            marginBottom: 18,
+            padding: "10px 12px",
+            borderRadius: 8,
+            background: t.bgInput,
+            border: `1px solid ${t.border1}`,
+          }}
+        >
+          {isReauth ? (
+            <>
+              <div style={{ fontWeight: 600, color: t.text2, marginBottom: 4 }}>
+                What happened?
+              </div>
+              <p style={{ margin: 0 }}>
+                OpenAI did not accept your previous key. Create or copy a new one from your
+                OpenAI account and paste it below.
+              </p>
+            </>
+          ) : (
+            <>
+              <div style={{ fontWeight: 600, color: t.text2, marginBottom: 4 }}>
+                Don&apos;t have a key yet?
+              </div>
+              <p style={{ margin: 0 }}>
+                Sign in at{" "}
+                <a
+                  href="https://platform.openai.com/api-keys"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: t.accent, textDecoration: "none" }}
+                >
+                  platform.openai.com
+                </a>
+                , create an API key, and paste it here. TerraMind uses it to connect to OpenAI
+                on your behalf.
+              </p>
+            </>
+          )}
+        </div>
+
+        <div
+          style={{
+            marginBottom: 18,
+            borderRadius: 10,
+            background: t.accentDim,
+            border: `1px solid ${t.accent}`,
+            borderLeftWidth: 4,
+            overflow: "hidden",
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setPrivacyOpen((v) => !v)}
+            aria-expanded={privacyOpen}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              width: "100%",
+              padding: "11px 14px",
+              border: "none",
+              background: "transparent",
+              cursor: "pointer",
+              textAlign: "left",
+              color: t.text1,
+            }}
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke={t.accent}
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{ flexShrink: 0 }}
+              aria-hidden
+            >
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+            <span style={{ flex: 1, fontSize: 13, fontWeight: 600 }}>
+              Don&apos;t worry — your key is private
+            </span>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke={t.text3}
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{
+                flexShrink: 0,
+                transform: privacyOpen ? "rotate(180deg)" : "rotate(0deg)",
+                transition: "transform 0.2s ease",
+              }}
+              aria-hidden
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+          {privacyOpen && (
+            <div
+              style={{
+                padding: "0 14px 12px 42px",
+                fontSize: 12,
+                color: t.text2,
+                lineHeight: 1.65,
+              }}
+            >
+              Your API key is kept only in this browser tab while you use TerraMind. It is not
+              saved to our servers, shared with other users, or written to files on your computer.
+              Close this tab and it is cleared.
+            </div>
+          )}
+        </div>
+
+        <label style={{ display: "block", fontSize: 12, color: t.text3, marginBottom: 6 }}>
+          OpenAI API key
+        </label>
+        <input
+          type="password"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="sk-…"
+          autoComplete="off"
+          spellCheck={false}
+          style={{
+            width: "100%",
+            boxSizing: "border-box",
+            padding: "10px 12px",
+            borderRadius: 8,
+            border: `1px solid ${error ? t.err.b : t.border1}`,
+            background: t.bgInput,
+            color: t.text1,
+            fontFamily: "Consolas, monospace",
+            fontSize: 13,
+            marginBottom: error ? 8 : 16,
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") onSubmit();
+          }}
+        />
+        {error && (
+          <div
+            style={{
+              fontSize: 12,
+              color: t.err.color,
+              marginBottom: 12,
+              lineHeight: 1.5,
+            }}
+          >
+            {error}
+          </div>
+        )}
+        <button
+          type="button"
+          onClick={onSubmit}
+          disabled={submitting || !value.trim()}
+          style={{
+            width: "100%",
+            padding: "11px 16px",
+            borderRadius: 8,
+            border: "none",
+            background: submitting ? t.text4 : t.accent,
+            color: t.btnText,
+            fontWeight: 600,
+            fontSize: 14,
+            cursor: submitting || !value.trim() ? "not-allowed" : "pointer",
+            opacity: submitting || !value.trim() ? 0.7 : 1,
+          }}
+        >
+          {submitting ? "Connecting…" : isReauth ? "Update key and continue" : "Continue"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+async function applyOpenAIKeyToServer(apiKey) {
+  const r = await fetch(`${API}/config/openai-key`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ api_key: apiKey.trim() }),
+  });
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) {
+    const detail = data.detail;
+    throw new Error(
+      typeof detail === "string"
+        ? detail
+        : Array.isArray(detail)
+          ? detail.map((x) => x.msg || x).join(", ")
+          : `Server error ${r.status}`,
+    );
+  }
+  return data;
+}
+
 export default function App() {
   const stored = loadStoredSessions();
   const [dark, setDark] = useState(true);
@@ -717,6 +990,12 @@ export default function App() {
   const logoClickRef = useRef({ count: 0, lastAt: 0 });
   const [compareMode, setCompareMode] = useState(false);
   const [convSearch, setConvSearch] = useState("");
+  const [apiKeyReady, setApiKeyReady] = useState(false);
+  const [showApiKeyGate, setShowApiKeyGate] = useState(false);
+  const [apiKeyInput, setApiKeyInput] = useState("");
+  const [apiKeyError, setApiKeyError] = useState("");
+  const [apiKeySubmitting, setApiKeySubmitting] = useState(false);
+  const [apiKeyGateReason, setApiKeyGateReason] = useState("initial");
   const bottomRef = useRef(null);
   const fileRef = useRef(null);
   const taRef = useRef(null);
@@ -741,6 +1020,50 @@ export default function App() {
     setSelectedModel("advisory");
     setModelOpen(true);
   };
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = await fetch(`${API}/config`);
+        if (!r.ok) throw new Error("config unavailable");
+        const d = await r.json();
+        if (cancelled) return;
+        if (d.use_mock || d.openai_configured) {
+          setApiKeyReady(true);
+          setShowApiKeyGate(false);
+          return;
+        }
+        const stored = sessionStorage.getItem(OPENAI_KEY_SESSION);
+        if (stored) {
+          try {
+            await applyOpenAIKeyToServer(stored);
+            if (!cancelled) {
+              setApiKeyReady(true);
+              setShowApiKeyGate(false);
+            }
+            return;
+          } catch {
+            sessionStorage.removeItem(OPENAI_KEY_SESSION);
+            if (!cancelled) setApiKeyGateReason("reauth");
+          }
+        }
+        if (!cancelled) {
+          setApiKeyReady(false);
+          setShowApiKeyGate(true);
+        }
+      } catch {
+        if (!cancelled) {
+          setApiKeyReady(false);
+          setApiKeyGateReason("initial");
+          setShowApiKeyGate(true);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     fetch(`${API}/models`)
@@ -913,7 +1236,7 @@ export default function App() {
       .filter((m) => (m.content || "").trim());
 
   const handleSubmit = async () => {
-    if ((!text.trim() && !image) || loading) return;
+    if ((!text.trim() && !image) || loading || !apiKeyReady) return;
     const q = text.trim() || "Analyze this image";
     const img = image;
     const timeStr = new Date().toLocaleTimeString([], {
@@ -1180,7 +1503,7 @@ export default function App() {
     }
   };
 
-  const canSend = (text.trim() || image) && !loading;
+  const canSend = (text.trim() || image) && !loading && apiKeyReady;
   const isAr = (txt) => /[\u0600-\u06ff]/.test(txt || "");
   const activeModel =
     models.find((m) => m.id === selectedModel) ||
@@ -1197,6 +1520,22 @@ export default function App() {
       all.messages[all.messages.length - 1]?.role === "compare" &&
       all.messages[all.messages.length - 1]?.panels?.[0]?.loading
     );
+
+  const handleApiKeySubmit = async () => {
+    setApiKeyError("");
+    setApiKeySubmitting(true);
+    try {
+      await applyOpenAIKeyToServer(apiKeyInput);
+      sessionStorage.setItem(OPENAI_KEY_SESSION, apiKeyInput.trim());
+      setApiKeyReady(true);
+      setShowApiKeyGate(false);
+      setApiKeyInput("");
+    } catch (e) {
+      setApiKeyError(e.message || "Could not save API key");
+    } finally {
+      setApiKeySubmitting(false);
+    }
+  };
 
   return (
     <div
@@ -2331,6 +2670,16 @@ export default function App() {
         textarea{scrollbar-width:none}
         textarea::-webkit-scrollbar{display:none}
       `}</style>
+      <ApiKeyGate
+        t={t}
+        open={showApiKeyGate}
+        reason={apiKeyGateReason}
+        value={apiKeyInput}
+        onChange={setApiKeyInput}
+        onSubmit={handleApiKeySubmit}
+        submitting={apiKeySubmitting}
+        error={apiKeyError}
+      />
     </div>
   );
 }

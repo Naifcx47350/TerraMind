@@ -18,7 +18,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.middleware.error_handler import add_error_handler
 from app.middleware.logger import add_logger
-from app.routers import ask, health, history, models
+from app.routers import ask, config, health, history, models
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +39,7 @@ app.add_middleware(
 add_error_handler(app)
 add_logger(app)
 
+app.include_router(config.router, prefix="/api", tags=["Config"])
 app.include_router(ask.router, prefix="/api", tags=["Ask"])
 app.include_router(models.router, prefix="/api", tags=["Models"])
 app.include_router(health.router, prefix="/api", tags=["Health"])
