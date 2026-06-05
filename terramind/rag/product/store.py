@@ -8,6 +8,19 @@ TODO: Move from Rag_Pc.py:
 See docs/PROJECT_STATUS.md (product migration).
 """
 
+# Product Vector Store
+# 
+# Responsible for converting Product RAG chunks into embeddings and
+# storing them inside a dedicated Chroma vector database.
+#
+# Pipeline:
+# Product Documents
+# → Chunks
+# → OpenAI Embeddings
+# → Chroma Vector Store
+#
+# The Product RAG index is kept separate from the General RAG index
+# to avoid cross-domain retrieval contamination.
 
 from pathlib import Path
 import shutil
@@ -22,6 +35,8 @@ from terramind.rag.product.config import (
 )
 
 
+# Check whether a Product RAG Chroma index already exists.
+# Used to determine whether to load an existing index or build a new one.
 def chroma_exists() -> bool:
     """
     Check whether a Chroma index already exists.
@@ -31,7 +46,8 @@ def chroma_exists() -> bool:
         CHROMA_PATH / "chroma.sqlite3"
     ).exists()
 
-
+# Create the embedding model used to transform text chunks
+# into vector representations for semantic search.
 def create_embedding_model() -> OpenAIEmbeddings:
     """
     Create the embedding model used
@@ -42,7 +58,8 @@ def create_embedding_model() -> OpenAIEmbeddings:
         model=EMBEDDING_MODEL
     )
 
-
+# Load an existing Product RAG vector store.
+# This is used during retrieval to avoid rebuilding embeddings.
 def load_vector_store() -> Chroma:
     """
     Load an existing Chroma vector store.
@@ -57,7 +74,15 @@ def load_vector_store() -> Chroma:
         embedding_function=embeddings,
     )
 
-
+# Vector Store Builder
+# 
+# Create or load the Product RAG Chroma index.
+#
+# Behavior:
+# - Load an existing index if available
+# - Optionally rebuild from scratch when reset=True
+# - Generate embeddings for all chunks
+# - Persist vectors to disk for future retrieval
 def build_vector_store(
     chunks: list[Document],
     reset: bool = False,
@@ -65,16 +90,20 @@ def build_vector_store(
     """
     Build a Chroma vector store from chunks.
     """
-
+    
+    # Initialize embedding model
     embeddings = (
         create_embedding_model()
     )
-
+    
+    # Ensure vector store directory exists
     CHROMA_PATH.parent.mkdir(
         parents=True,
         exist_ok=True,
     )
 
+    # Rebuild mode:
+    # remove the existing index before creating a new one
     if reset and chroma_exists():
 
         shutil.rmtree(
@@ -85,7 +114,8 @@ def build_vector_store(
             f"Removed existing index: "
             f"{CHROMA_PATH}"
         )
-
+    
+    # Reuse an existing vector store if available
     if chroma_exists():
 
         db = load_vector_store()
@@ -97,6 +127,8 @@ def build_vector_store(
 
         return db
 
+
+    # Generate embeddings and create a new Chroma index
     db = Chroma.from_documents(
         documents=chunks,
         embedding=embeddings,
@@ -126,13 +158,24 @@ from terramind.rag.product.config import (
     CATALOG_PATH,
 )
 
-
+# Development Test
+# 
+# End-to-end validation of the Product RAG indexing pipeline.
+#
+# Flow:
+# Catalog
+# → Products
+# → Chunks
+# → Embeddings
+# → Chroma Vector Store
 if __name__ == "__main__":
-
+    
+    # Load product catalog
     products = load_products(
         CATALOG_PATH
     )
-
+    
+    # Generate retrieval-ready chunks
     chunks = build_all_chunks(
         products
     )
@@ -144,7 +187,8 @@ if __name__ == "__main__":
     print(
         f"Chunks: {len(chunks)}"
     )
-
+    
+    # Build Product RAG vector database
     db = build_vector_store(
         chunks,
         reset=True,
