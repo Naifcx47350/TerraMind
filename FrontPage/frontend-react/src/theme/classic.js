@@ -107,8 +107,7 @@ export const CLASSIC_TM_CSS = `
 .tm-composer{transition:border-color .25s ease,box-shadow .25s ease,transform .25s ease}
 .tm-composer:focus-within{border-color:var(--tm-accent)!important;box-shadow:0 0 0 3px var(--tm-accent-dim),0 6px 24px rgba(0,0,0,.12)!important}
 
-.tm-conv-item{transition:background .18s ease,transform .18s ease}
-.tm-conv-item:hover{transform:translateX(3px)}
+.tm-conv-item{transition:background .18s ease,border-color .15s,box-shadow .15s}
 
 .tm-model-menu{animation:tm-scale-in .22s cubic-bezier(.22,1,.36,1) both;transform-origin:top right}
 [dir=rtl] .tm-model-menu{transform-origin:top left}

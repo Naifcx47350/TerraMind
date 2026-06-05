@@ -9,6 +9,7 @@ Start here: **[PROJECT_STATUS.md](./PROJECT_STATUS.md)** â€” what shipped, whatâ
 | File map                  | [FILE_MAP_AND_PIPELINE.md](./FILE_MAP_AND_PIPELINE.md)     |
 | Full product guide        | [../PROJECT_OVERVIEW.md](../PROJECT_OVERVIEW.md)           |
 | Shipped features / status | [PROJECT_STATUS.md](./PROJECT_STATUS.md)                   |
+| UI theming & assets       | [UI_CUSTOMIZATION.md](./UI_CUSTOMIZATION.md)               |
 | General RAG corpus        | [GENERAL_RAG_CORPUS.md](./GENERAL_RAG_CORPUS.md)           |
 
 Repo entry: [../README.md](../README.md).
