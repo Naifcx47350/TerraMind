@@ -13,7 +13,9 @@ from langchain_text_splitters import (
     RecursiveCharacterTextSplitter,
 )
 
-from load import load_products
+from terramind.rag.product.load import (
+    load_products,
+)
 
 
 # Only the User Manual is recursively split because it is
