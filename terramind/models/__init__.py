@@ -121,95 +121,62 @@ def run_advisory(
     Returns general + product payloads and a merged answer for the UI.
     """
     from terramind.meta_questions import advisory_meta_answer, is_meta_question
+    from terramind.models.base_llm import answer as base_llm_answer
+    from terramind.models.router import skips_document_retrieval
 
     q = question.strip()
-    if is_meta_question(q):
-        intro = advisory_meta_answer()
-        catalog_note = (
-            "No catalog search was needed for this question. "
-            "Ask about a crop, pest, or product when you want a recommendation "
-            "from the company catalog."
-        )
-        merged = (
-            "### Public agriculture guidance\n\n"
-            f"{intro}\n\n"
-            "### Company product catalog\n\n"
-            f"{catalog_note}"
+    if skips_document_retrieval(q, image_analysis):
+        if is_meta_question(q):
+            return {
+                "answer": advisory_meta_answer(),
+                "sources": [],
+                "confidence": "",
+                "retrieval_score": None,
+                "retrieved_chunks": 0,
+                "system": "advisory",
+                "general": {
+                    "answer": advisory_meta_answer(),
+                    "sources": [],
+                    "confidence": "",
+                    "retrieval_score": None,
+                    "retrieved_chunks": 0,
+                    "system": "general_rag",
+                },
+                "product": {
+                    "answer": "",
+                    "sources": [],
+                    "confidence": "",
+                    "retrieval_score": None,
+                    "retrieved_chunks": 0,
+                    "system": "product_rag",
+                },
+            }
+        plain = base_llm_answer(
+            question,
+            history=history,
+            image_analysis=image_analysis,
         )
         return {
-            "answer": merged,
+            "answer": plain.get("answer", ""),
             "sources": [],
-            "confidence": "high",
+            "confidence": "",
             "retrieval_score": None,
             "retrieved_chunks": 0,
             "system": "advisory",
-            "general": {
-                "answer": intro,
-                "sources": [],
-                "confidence": "high",
-                "retrieval_score": None,
-                "retrieved_chunks": 0,
-                "system": "general_rag",
-            },
+            "general": {**plain, "system": "general_rag"},
             "product": {
-                "answer": catalog_note,
+                "answer": "",
                 "sources": [],
-                "confidence": "high",
+                "confidence": "",
                 "retrieval_score": None,
                 "retrieved_chunks": 0,
                 "system": "product_rag",
             },
         }
 
+    from terramind.models.advisory import answer_advisory
+
     analysis = resolve_image_analysis(
         question, image_analysis, image_base64, image_mime, language
     )
-    general = run_model(
-        "general_rag",
-        question,
-        history=history,
-        image_analysis=analysis,
-    )
-    product_question = (
-        f"{q}\n\n"
-        "Use the following agriculture reference summary when recommending "
-        "a catalog product (if any):\n"
-        f"{(general.get('answer') or '')[:2000]}\n\n"
-        "Only recommend a catalog product if the user asked about a crop problem, "
-        "pest, disease, weed, or product need. Otherwise say in one or two sentences "
-        "that the catalog does not apply — do not invent a product match."
-    )
-    product = run_model(
-        "product_rag",
-        product_question,
-        history=history,
-        image_analysis=analysis,
-    )
-    merged = (
-        "### Public agriculture guidance\n\n"
-        f"{general.get('answer', '').strip()}\n\n"
-        "### Company product catalog\n\n"
-        f"{product.get('answer', '').strip()}"
-    )
-    sources = list(general.get("sources") or []) + list(product.get("sources") or [])
-    g_score = general.get("retrieval_score")
-    p_score = product.get("retrieval_score")
-    scores = [s for s in (g_score, p_score) if s is not None]
-    retrieval_score = max(scores) if scores else None
-    from terramind.rag.scoring import confidence_from_score
-
-    total_chunks = (general.get("retrieved_chunks") or 0) + (
-        product.get("retrieved_chunks") or 0
-    )
-    return {
-        "answer": merged,
-        "sources": sources,
-        "confidence": confidence_from_score(
-            retrieval_score, has_chunks=total_chunks > 0
-        ),
-        "retrieval_score": retrieval_score,
-        "retrieved_chunks": total_chunks,
-        "system": "advisory",
-        "general": general,
-        "product": product,
-    }
+    return answer_advisory(question, history=history, image_analysis=analysis)

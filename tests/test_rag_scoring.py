@@ -19,9 +19,16 @@ def test_distance_to_relevance_monotonic():
 def test_confidence_from_retrieval_bands():
     high = [Document(page_content="x", metadata={"relevance_score": 0.7})]
     low = [Document(page_content="x", metadata={"relevance_score": 0.2})]
+    medium = [Document(page_content="x", metadata={"relevance_score": 0.45})]
     assert confidence_from_retrieval(high) == "high"
     assert confidence_from_retrieval(low) == "low"
+    assert confidence_from_retrieval(medium) == "medium"
     assert confidence_from_retrieval([]) == "low"
+
+
+def test_confidence_without_relevance_scores_is_low():
+    docs = [Document(page_content="x", metadata={"filename": "a.pdf"})]
+    assert confidence_from_retrieval(docs) == "low"
 
 
 def test_sources_from_retrieved_dedupes_best_score():

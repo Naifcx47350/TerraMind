@@ -11,8 +11,9 @@ from terramind.rag.source_display import dedupe_key, source_entry_from_chunk
 PipelineKind = Literal["general", "product"]
 
 # Chroma returns L2 distance (lower = closer). Map to (0, 1], higher = better match.
-CONFIDENCE_HIGH = 0.55
-CONFIDENCE_MEDIUM = 0.35
+# Bands tuned for typical embedding distances (~0.5–2.0 → relevance ~0.67–0.33).
+CONFIDENCE_HIGH = 0.52
+CONFIDENCE_MEDIUM = 0.38
 
 
 def distance_to_relevance(distance: float) -> float:
@@ -40,7 +41,7 @@ def confidence_from_retrieval(retrieved: list[Document]) -> str:
         return "low"
     score = aggregate_retrieval_score(retrieved)
     if score is None:
-        return "low" if len(retrieved) == 0 else "medium"
+        return "low"
     if score >= CONFIDENCE_HIGH:
         return "high"
     if score >= CONFIDENCE_MEDIUM:
@@ -53,7 +54,7 @@ def confidence_from_score(score: float | None, *, has_chunks: bool = True) -> st
     if not has_chunks:
         return "low"
     if score is None:
-        return "medium"
+        return "low"
     if score >= CONFIDENCE_HIGH:
         return "high"
     if score >= CONFIDENCE_MEDIUM:

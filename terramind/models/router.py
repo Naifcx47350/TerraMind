@@ -96,6 +96,24 @@ def _probe_top_score(db, query: str) -> float | None:
     return distance_to_relevance(distance)
 
 
+def skips_document_retrieval(
+    question: str,
+    image_analysis: str | None = None,
+) -> bool:
+    """True when the reply should not use vector search (base LLM only)."""
+    if is_meta_question(question):
+        return True
+    if is_clarification_question(question):
+        return True
+    if is_translation_request(question):
+        return True
+    if is_off_topic_question(question):
+        return True
+    if (image_analysis or "").strip() and is_image_describe_question(question):
+        return True
+    return False
+
+
 def route_question(
     question: str,
     retrieval_query: str | None = None,
@@ -108,19 +126,15 @@ def route_question(
     Photo-describe questions (with vision text) use base_llm, not document RAG.
     Explicit "what product…" requests prefer product_rag over general IPM docs.
     """
-    if is_meta_question(question):
-        return "base_llm", "conversational question — no agriculture retrieval"
-
-    if is_clarification_question(question):
-        return "base_llm", "unclear or vague question — no agriculture retrieval"
-
-    if is_translation_request(question):
-        return "base_llm", "translation request — use conversation context, no retrieval"
-
-    if is_off_topic_question(question):
-        return "base_llm", "off-topic question — no agriculture retrieval"
-
-    if (image_analysis or "").strip() and is_image_describe_question(question):
+    if skips_document_retrieval(question, image_analysis):
+        if is_meta_question(question):
+            return "base_llm", "conversational question — no agriculture retrieval"
+        if is_clarification_question(question):
+            return "base_llm", "unclear or vague question — no agriculture retrieval"
+        if is_translation_request(question):
+            return "base_llm", "translation request — use conversation context, no retrieval"
+        if is_off_topic_question(question):
+            return "base_llm", "off-topic question — no agriculture retrieval"
         return "base_llm", "photo description — vision context, no document retrieval"
 
     if has_strong_product_intent(question):
