@@ -152,17 +152,16 @@ const DEFAULT_MODELS = [
 ];
 
 function withAdvisoryOption(modelList, unlocked) {
-  if (!unlocked) return modelList;
+  if (!unlocked) return modelList.filter((m) => m.id !== "advisory");
   if (modelList.some((m) => m.id === "advisory")) return modelList;
   return [...modelList, ADVISORY_MODEL];
 }
 
-function readAdvisoryUnlocked() {
-  try {
-    return sessionStorage.getItem(ADVISORY_UNLOCK_KEY) === "1";
-  } catch {
-    return false;
+function resolveRequestModel(selectedModel, advisoryUnlocked) {
+  if (selectedModel === "advisory") {
+    return advisoryUnlocked ? "advisory" : "auto_rag";
   }
+  return selectedModel || "auto_rag";
 }
 
 function TerraLogo({ size = 1000, style = {}, onSecretClick }) {
@@ -207,6 +206,93 @@ function formatRetrievalPct(score) {
   return `${Math.round(Number(score) * 100)}%`;
 }
 
+/** Show confidence only when vector retrieval actually ran. */
+function shouldShowRetrievalConfidence({
+  routedTo,
+  modelId,
+  retrievedChunks,
+  retrievalScore,
+  confidence,
+}) {
+  if (!confidence || String(confidence).trim() === "") return false;
+  const backend = routedTo || modelId;
+  if (backend === "base_llm") return false;
+  if (modelId === "advisory" && (retrievedChunks ?? 0) === 0 && retrievalScore == null) {
+    return false;
+  }
+  if ((retrievedChunks ?? 0) > 0) return true;
+  return retrievalScore != null && !Number.isNaN(Number(retrievalScore));
+}
+
+function RetrievalConfidence({
+  confidence,
+  retrievalScore,
+  retrievedChunks,
+  routedTo,
+  modelId,
+  t,
+  ar,
+}) {
+  if (
+    !shouldShowRetrievalConfidence({
+      routedTo,
+      modelId,
+      retrievedChunks,
+      retrievalScore,
+      confidence,
+    })
+  ) {
+    return null;
+  }
+
+  const isRag =
+    modelId &&
+    modelId !== "base_llm" &&
+    (routedTo || modelId) !== "base_llm";
+  const pct = formatRetrievalPct(retrievalScore);
+
+  const label = ar ? "ثقة الإجابة" : "Confidence";
+  const matchLabel = ar ? "تطابق الاسترجاع" : "Retrieval match";
+  const chunksLabel = ar ? "مقاطع" : "chunks";
+
+  return (
+    <div
+      style={{
+        marginTop: 10,
+        fontSize: 12,
+        color: t.text3,
+        lineHeight: 1.5,
+        direction: ar ? "rtl" : "ltr",
+        textAlign: ar ? "right" : "left",
+      }}
+      title={
+        ar
+          ? "أعلى = تطابق أقوى بين سؤالك ومقاطع قاعدة المعرفة"
+          : "How well retrieved documents match your question (High / Medium / Low)"
+      }
+    >
+      <span style={{ color: t.text2 }}>
+        {label}: <strong>{formatConfidence(confidence)}</strong>
+      </span>
+      {isRag && pct && (
+        <span>
+          {" "}
+          · {matchLabel}: <strong>{pct}</strong>
+          {retrievedChunks != null && retrievedChunks > 0
+            ? ` · ${retrievedChunks} ${chunksLabel}`
+            : ""}
+        </span>
+      )}
+      {isRag && !pct && retrievedChunks > 0 && (
+        <span>
+          {" "}
+          · {retrievedChunks} {chunksLabel}
+        </span>
+      )}
+    </div>
+  );
+}
+
 const ROUTED_LABELS = {
   product_rag: "Product Catalog RAG",
   general_rag: "Agriculture Knowledge RAG",
@@ -247,60 +333,6 @@ function AutoRouteHint({ label, reason, t, fading }) {
       }}
     >
       Using {label}
-    </div>
-  );
-}
-
-function RagScores({
-  confidence,
-  retrievalScore,
-  retrievedChunks,
-  modelId,
-  t,
-  ar,
-}) {
-  const isRag = modelId && modelId !== "base_llm";
-  const pct = formatRetrievalPct(retrievalScore);
-  if (!confidence && !isRag) return null;
-
-  const label = ar ? "ثقة الإجابة" : "Confidence";
-  const matchLabel = ar ? "تطابق الاسترجاع" : "Retrieval match";
-  const chunksLabel = ar ? "مقاطع" : "chunks";
-
-  return (
-    <div
-      style={{
-        marginTop: 10,
-        fontSize: 12,
-        color: t.text3,
-        lineHeight: 1.5,
-        direction: ar ? "rtl" : "ltr",
-        textAlign: ar ? "right" : "left",
-      }}
-      title={
-        ar
-          ? "أعلى = تطابق أقوى بين سؤالك ومقاطع قاعدة المعرفة"
-          : "Higher = closer match between your question and retrieved knowledge chunks"
-      }
-    >
-      <span style={{ color: t.text2 }}>
-        {label}: <strong>{formatConfidence(confidence)}</strong>
-      </span>
-      {isRag && pct && (
-        <span>
-          {" "}
-          · {matchLabel}: <strong>{pct}</strong>
-          {retrievedChunks != null && retrievedChunks > 0
-            ? ` · ${retrievedChunks} ${chunksLabel}`
-            : ""}
-        </span>
-      )}
-      {isRag && !pct && retrievedChunks > 0 && (
-        <span>
-          {" "}
-          · {retrievedChunks} {chunksLabel}
-        </span>
-      )}
     </div>
   );
 }
@@ -421,7 +453,7 @@ function ComparePanels({ msg, models, t, showSrc, showScores, isAr }) {
                   "—"
                 )}
                 {showScores && !panel.loading && !panel.error && (
-                  <RagScores
+                  <RetrievalConfidence
                     confidence={panel.confidence}
                     retrievalScore={panel.retrieval_score}
                     retrievedChunks={panel.retrieved_chunks}
@@ -1058,16 +1090,9 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [hover, setHover] = useState(null);
-  const initialAdvisoryUnlocked = readAdvisoryUnlocked();
-  const [models, setModels] = useState(() =>
-    withAdvisoryOption(DEFAULT_MODELS, initialAdvisoryUnlocked),
-  );
-  const [selectedModel, setSelectedModel] = useState(() =>
-    initialAdvisoryUnlocked ? "advisory" : "auto_rag",
-  );
-  const [advisoryUnlocked, setAdvisoryUnlocked] = useState(
-    initialAdvisoryUnlocked,
-  );
+  const [models, setModels] = useState(DEFAULT_MODELS);
+  const [selectedModel, setSelectedModel] = useState("auto_rag");
+  const [advisoryUnlocked, setAdvisoryUnlocked] = useState(false);
   const [modelOpen, setModelOpen] = useState(false);
   const [autoRouteHint, setAutoRouteHint] = useState(null);
   const [autoRouteFading, setAutoRouteFading] = useState(false);
@@ -1096,16 +1121,24 @@ export default function App() {
     ref.count += 1;
     if (ref.count < LOGO_CLICKS_NEEDED) return;
     ref.count = 0;
+    setAdvisoryUnlocked(true);
+    setModels((prev) => withAdvisoryOption(prev, true));
+    setModelOpen(true);
+  };
+
+  useEffect(() => {
     try {
-      sessionStorage.setItem(ADVISORY_UNLOCK_KEY, "1");
+      sessionStorage.removeItem(ADVISORY_UNLOCK_KEY);
     } catch {
       /* private mode */
     }
-    setAdvisoryUnlocked(true);
-    setModels((prev) => withAdvisoryOption(prev, true));
-    setSelectedModel("advisory");
-    setModelOpen(true);
-  };
+  }, []);
+
+  useEffect(() => {
+    if (!advisoryUnlocked && selectedModel === "advisory") {
+      setSelectedModel("auto_rag");
+    }
+  }, [advisoryUnlocked, selectedModel]);
 
   useEffect(() => {
     let cancelled = false;
@@ -1156,13 +1189,13 @@ export default function App() {
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (d?.models?.length) {
-          const unlocked = readAdvisoryUnlocked();
-          setModels(withAdvisoryOption(d.models, unlocked));
-          if (d.default && !unlocked) setSelectedModel(d.default);
+          setModels((prev) =>
+            withAdvisoryOption(d.models, advisoryUnlocked),
+          );
         }
       })
       .catch(() => {});
-  }, []);
+  }, [advisoryUnlocked]);
 
   useEffect(() => {
     try {
@@ -1332,7 +1365,8 @@ export default function App() {
     setText("");
     setImage(null);
     setLoading(true);
-    if (selectedModel === "auto_rag") {
+    const modelForRequest = resolveRequestModel(selectedModel, advisoryUnlocked);
+    if (modelForRequest === "auto_rag") {
       clearAutoRouteTimer();
       setAutoRouteHint(null);
       setAutoRouteFading(false);
@@ -1357,7 +1391,7 @@ export default function App() {
     const history = buildHistory();
     const body = {
       question: q,
-      model: selectedModel,
+      model: modelForRequest,
       crop_type: "all",
       question_type: "all",
       history,
@@ -1460,7 +1494,7 @@ export default function App() {
 
     try {
       const askPath =
-        selectedModel === "advisory"
+        modelForRequest === "advisory"
           ? `${API}/ask/advisory/stream`
           : `${API}/ask/stream`;
 
@@ -1512,7 +1546,7 @@ export default function App() {
               ? { routed_to: ev.routed_to, router_reason: ev.router_reason || "" }
               : {}),
           }));
-          if (selectedModel === "auto_rag" && ev.routed_to) {
+          if (modelForRequest === "auto_rag" && ev.routed_to) {
             showAutoRouteHint(ev.routed_to, ev.router_reason);
           }
         }
@@ -1524,7 +1558,7 @@ export default function App() {
           }));
         }
         if (ev.event === "done") {
-          if (selectedModel === "auto_rag" && ev.routed_to) {
+          if (modelForRequest === "auto_rag" && ev.routed_to) {
             showAutoRouteHint(ev.routed_to, ev.router_reason);
           }
           applyStreamPatch((last) => ({
@@ -1536,7 +1570,7 @@ export default function App() {
             confidence: ev.confidence,
             retrieval_score: ev.retrieval_score,
             retrieved_chunks: ev.retrieved_chunks,
-            model: ev.model || selectedModel,
+            model: ev.model || modelForRequest,
             routed_to: ev.routed_to,
             router_reason: ev.router_reason,
             lang: ev.detected_language,
@@ -1936,7 +1970,7 @@ export default function App() {
               }}
               style={{ accentColor: t.accent, width: 14, height: 14 }}
             />
-            Show scores
+            Show confidence
           </label>
 
           <button
@@ -2089,7 +2123,7 @@ export default function App() {
                   zIndex: 50,
                 }}
               >
-                {models.map((m) => (
+                {withAdvisoryOption(models, advisoryUnlocked).map((m) => (
                   <button
                     key={m.id}
                     type="button"
@@ -2433,10 +2467,11 @@ export default function App() {
                         )}
                       </div>
                       {showScores && msg.role === "bot" && (
-                        <RagScores
+                        <RetrievalConfidence
                           confidence={msg.confidence}
                           retrievalScore={msg.retrieval_score}
                           retrievedChunks={msg.retrieved_chunks}
+                          routedTo={msg.routed_to}
                           modelId={msg.routed_to || msg.model || selectedModel}
                           t={t}
                           ar={ar}

@@ -59,7 +59,7 @@ def _stream_base_llm(
         "event": "done",
         "answer": "".join(parts),
         "sources": [],
-        "confidence": "medium",
+        "confidence": "",
         "retrieval_score": None,
         "retrieved_chunks": 0,
         "system": "base_llm",
@@ -67,11 +67,46 @@ def _stream_base_llm(
     }
 
 
+def _stream_without_retrieval(
+    question: str,
+    history: list | None,
+    image_analysis: str | None,
+    *,
+    system: str,
+    model: str,
+) -> Iterator[dict]:
+    """Stream a base-LLM reply without retrieval metrics."""
+    for event in _stream_base_llm(question, history, image_analysis):
+        if event.get("event") == "done":
+            event = {
+                **event,
+                "confidence": "",
+                "retrieval_score": None,
+                "retrieved_chunks": 0,
+                "sources": [],
+                "system": system,
+                "model": model,
+            }
+        yield event
+
+
 def _stream_general_rag(
     question: str,
     history: list | None,
     image_analysis: str | None,
 ) -> Iterator[dict]:
+    from terramind.models.router import skips_document_retrieval
+
+    if skips_document_retrieval(question, image_analysis):
+        yield from _stream_without_retrieval(
+            question,
+            history,
+            image_analysis,
+            system="general_rag",
+            model="general_rag",
+        )
+        return
+
     from terramind.rag.general import get_general_db, sources_from_retrieved
     from terramind.rag.general.generate import stream_generate_answer
     from terramind.rag.general.retrieve import format_context, retrieve_chunks
@@ -112,6 +147,18 @@ def _stream_product_rag(
     history: list | None,
     image_analysis: str | None,
 ) -> Iterator[dict]:
+    from terramind.models.router import skips_document_retrieval
+
+    if skips_document_retrieval(question, image_analysis):
+        yield from _stream_without_retrieval(
+            question,
+            history,
+            image_analysis,
+            system="product_rag",
+            model="product_rag",
+        )
+        return
+
     from terramind.rag.product import get_product_db, sources_from_retrieved, stream_answer_with_rag
     from terramind.rag.scoring import rag_metrics
 
@@ -209,6 +256,57 @@ def stream_model_events(
         yield json.dumps(event, ensure_ascii=False) + "\n"
 
 
+def _stream_advisory_plain(
+    question: str,
+    history: list | None,
+    image_analysis: str | None,
+    *,
+    start: float,
+) -> Iterator[dict]:
+    """Advisory mode without section headers or retrieval (greetings, clarifications)."""
+    from terramind.meta_questions import advisory_meta_answer, is_meta_question
+
+    q = question.strip()
+    if is_meta_question(q):
+        yield _status("Generating answer…")
+        text = advisory_meta_answer()
+        parts: list[str] = []
+        for event in _yield_text_as_tokens(text):
+            parts.append(event["content"])
+            yield event
+        yield {
+            "event": "done",
+            "answer": "".join(parts),
+            "sources": [],
+            "confidence": "",
+            "retrieval_score": None,
+            "retrieved_chunks": 0,
+            "system": "advisory",
+            "model": "advisory",
+            "latency_ms": int((time.time() - start) * 1000),
+        }
+        return
+
+    yield _status("Generating answer…")
+    parts = []
+    for event in _stream_base_llm(question, history, image_analysis):
+        if event.get("event") == "token":
+            parts.append(event["content"])
+            yield event
+        elif event.get("event") == "done":
+            yield {
+                "event": "done",
+                "answer": "".join(parts),
+                "sources": [],
+                "confidence": "",
+                "retrieval_score": None,
+                "retrieved_chunks": 0,
+                "system": "advisory",
+                "model": "advisory",
+                "latency_ms": int((time.time() - start) * 1000),
+            }
+
+
 def stream_advisory_events(
     question: str,
     history: list | None = None,
@@ -217,7 +315,7 @@ def stream_advisory_events(
     image_mime: str | None = None,
     language: str | None = None,
 ) -> Iterator[str]:
-    """Stream advisory mode: general section then product section."""
+    """Stream advisory mode: combined retrieval, single LLM answer with both sections."""
     start = time.time()
     q = question.strip()
     analysis = resolve_image_analysis(
@@ -226,110 +324,18 @@ def stream_advisory_events(
     if analysis and image_base64:
         yield json.dumps(_status("Analyzing image…"), ensure_ascii=False) + "\n"
 
-    if is_meta_question(q):
-        intro = advisory_meta_answer()
-        catalog_note = (
-            "No catalog search was needed for this question. "
-            "Ask about a crop, pest, or product when you want a recommendation "
-            "from the company catalog."
-        )
-        merged_parts: list[str] = []
-        header = "### Public agriculture guidance\n\n"
-        for event in _yield_text_as_tokens(header):
-            merged_parts.append(event["content"])
+    from terramind.models.router import skips_document_retrieval
+
+    if skips_document_retrieval(q, analysis):
+        for event in _stream_advisory_plain(q, history, analysis, start=start):
+            if event.get("event") == "done" and "latency_ms" not in event:
+                event["latency_ms"] = int((time.time() - start) * 1000)
             yield json.dumps(event, ensure_ascii=False) + "\n"
-        for event in _yield_text_as_tokens(intro + "\n\n"):
-            merged_parts.append(event["content"])
-            yield json.dumps(event, ensure_ascii=False) + "\n"
-        section2 = "### Company product catalog\n\n"
-        for event in _yield_text_as_tokens(section2):
-            merged_parts.append(event["content"])
-            yield json.dumps(event, ensure_ascii=False) + "\n"
-        for event in _yield_text_as_tokens(catalog_note):
-            merged_parts.append(event["content"])
-            yield json.dumps(event, ensure_ascii=False) + "\n"
-        yield json.dumps(
-            {
-                "event": "done",
-                "answer": "".join(merged_parts),
-                "sources": [],
-                "confidence": "high",
-                "retrieval_score": None,
-                "retrieved_chunks": 0,
-                "system": "advisory",
-                "model": "advisory",
-                "latency_ms": int((time.time() - start) * 1000),
-            },
-            ensure_ascii=False,
-        ) + "\n"
         return
 
-    yield json.dumps(_status("Public agriculture guidance…"), ensure_ascii=False) + "\n"
-    header = "### Public agriculture guidance\n\n"
-    for event in _yield_text_as_tokens(header):
+    from terramind.models.advisory import stream_advisory_rag
+
+    for event in stream_advisory_rag(q, history, analysis):
+        if event.get("event") == "done":
+            event["latency_ms"] = int((time.time() - start) * 1000)
         yield json.dumps(event, ensure_ascii=False) + "\n"
-
-    general_parts: list[str] = [header]
-    general_done: dict | None = None
-    for event in _stream_general_rag(q, history, analysis):
-        if event.get("event") == "token":
-            general_parts.append(event["content"])
-            yield json.dumps(event, ensure_ascii=False) + "\n"
-        elif event.get("event") == "done":
-            general_done = event
-
-    yield json.dumps(_status("Company product catalog…"), ensure_ascii=False) + "\n"
-    section_hdr = "\n\n### Company product catalog\n\n"
-    for event in _yield_text_as_tokens(section_hdr):
-        general_parts.append(event["content"])
-        yield json.dumps(event, ensure_ascii=False) + "\n"
-
-    product_question = (
-        f"{q}\n\n"
-        "Use the following agriculture reference summary when recommending "
-        "a catalog product (if any):\n"
-        f"{(general_done or {}).get('answer', '')[:2000]}\n\n"
-        "Only recommend a catalog product if the user asked about a crop problem, "
-        "pest, disease, weed, or product need. Otherwise say in one or two sentences "
-        "that the catalog does not apply — do not invent a product match."
-    )
-    product_parts: list[str] = []
-    product_done: dict | None = None
-    for event in _stream_product_rag(product_question, history, analysis):
-        if event.get("event") == "status":
-            continue
-        if event.get("event") == "token":
-            product_parts.append(event["content"])
-            yield json.dumps(event, ensure_ascii=False) + "\n"
-        elif event.get("event") == "done":
-            product_done = event
-
-    merged = "".join(general_parts) + "".join(product_parts)
-    sources = list((general_done or {}).get("sources") or []) + list(
-        (product_done or {}).get("sources") or []
-    )
-    g_score = (general_done or {}).get("retrieval_score")
-    p_score = (product_done or {}).get("retrieval_score")
-    scores = [s for s in (g_score, p_score) if s is not None]
-    retrieval_score = max(scores) if scores else None
-    from terramind.rag.scoring import confidence_from_score
-
-    total_chunks = (general_done or {}).get("retrieved_chunks", 0) + (
-        product_done or {}
-    ).get("retrieved_chunks", 0)
-    yield json.dumps(
-        {
-            "event": "done",
-            "answer": merged,
-            "sources": sources,
-            "confidence": confidence_from_score(
-                retrieval_score, has_chunks=total_chunks > 0
-            ),
-            "retrieval_score": retrieval_score,
-            "retrieved_chunks": total_chunks,
-            "system": "advisory",
-            "model": "advisory",
-            "latency_ms": int((time.time() - start) * 1000),
-        },
-        ensure_ascii=False,
-    ) + "\n"

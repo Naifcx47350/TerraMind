@@ -102,7 +102,7 @@ def answer(
     return {
         "answer": response.content or "",
         "sources": [],
-        "confidence": "medium",
+        "confidence": "",
         "retrieval_score": None,
         "retrieved_chunks": 0,
         "system": "base_llm",

@@ -8,6 +8,8 @@ def test_is_meta_question_identity():
     assert is_meta_question("Who are you?")
     assert is_meta_question("hello")
     assert is_meta_question("what can you do")
+    assert is_meta_question("what can u do for me")
+    assert is_meta_question("what do u do")
 
 
 def test_is_meta_question_not_field_task():
