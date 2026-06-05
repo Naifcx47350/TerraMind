@@ -121,7 +121,8 @@ TerraMind/
 - **Hidden Advisory** — click the TerraMind logo **6 times** (within 2.5s) to unlock **Advisory (General + Product)** in the picker (persists for the browser tab session)
 - **Show sources** and **Show scores** (confidence + retrieval match)
 - Plant **image upload** (vision → all modes)
-- **Conversation history** in-thread + **localStorage** session restore
+- **Conversation history** in-thread + **localStorage** session restore + sidebar search
+- **OpenAI key prompt** on first launch if `OPENAI_API_KEY` is missing (local dev; syncs FrontPage + Model API)
 - English / Arabic (RTL)
 
 ---

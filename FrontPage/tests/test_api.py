@@ -11,6 +11,15 @@ def test_health():
     assert r.json()["status"] == "ok"
 
 
+def test_config_endpoint():
+    r = client.get("/api/config")
+    assert r.status_code == 200
+    data = r.json()
+    assert "openai_configured" in data
+    assert "requires_openai_key" in data
+    assert "use_mock" in data
+
+
 def test_ask_basic():
     r = client.post("/api/ask", json={"question": "What causes brown spots on tomato leaves?"})
     assert r.status_code == 200
