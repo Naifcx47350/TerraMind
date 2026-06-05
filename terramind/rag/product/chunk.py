@@ -13,7 +13,9 @@ from langchain_text_splitters import (
     RecursiveCharacterTextSplitter,
 )
 
-from load import load_products
+from terramind.rag.product.load import (
+    load_products,
+)
 
 
 # Only the User Manual is recursively split because it is
@@ -99,9 +101,6 @@ Target Crops:
 
 Instructions:
 {sections["instructions"]}
-
-Pack Size:
-{sections["specification"]}
 """.strip()
 
     return Document(
@@ -415,5 +414,5 @@ if __name__ == "__main__":
 
     # test_manual_chunks(products)
     # test_usage_chunk(products)
-    # test_summary_chunk(products)
-    # test_identity_chunk(products)
+    test_summary_chunk(products)
+    test_identity_chunk(products)
