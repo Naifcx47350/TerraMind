@@ -5,7 +5,7 @@ export function AdvisoryPanels({
   answer,
   t,
   ar = false,
-  appearance = "classic",
+  appearance = "field",
   streaming = false,
 }) {
   const { general, product, bothNonEmpty } = splitAdvisorySections(answer);

@@ -1,15 +1,28 @@
 import { useState, useRef, useEffect } from "react";
-import logoSrc from "@assets/logo/TM_Logo.png";
 import { MarkdownMessage } from "./MarkdownMessage";
 import { resolveTheme } from "./theme/index.js";
-import { loadUiSettings, saveUiSettings } from "./settings/uiSettings.js";
-import { getModelDisplay, getRoutedDisplay } from "./settings/modelLabels.js";
-import { SettingsPanel } from "./components/SettingsPanel.jsx";
+import { loadUiSettings, saveUiSettings, getDecorTuningForAppearance } from "./settings/uiSettings.js";
+import {
+  getModelDisplay,
+  getRoutedDisplay,
+  getModelDescription,
+} from "./settings/modelLabels.js";
+import { tr, isRtlUi } from "./i18n/strings.js";
+import { UserProfileMenu } from "./components/UserProfileMenu.jsx";
+import { NewChatButton } from "./components/NewChatButton.jsx";
 import { SourceList } from "./components/SourceList.jsx";
 import { ConfidenceBadge } from "./components/ConfidenceBadge.jsx";
 import { AdvisoryPanels, shouldUseAdvisoryPanels } from "./components/AdvisoryPanels.jsx";
 import { RoutePill } from "./components/RoutePill.jsx";
 import { BotAvatar } from "./components/BotAvatar.jsx";
+import { TerraLogo } from "./components/TerraLogo.jsx";
+import { SidebarWelcomeCard } from "./components/SidebarWelcomeCard.jsx";
+import {
+  resolveAppearanceAsset,
+  resolveThemeBackground,
+  decorImageStyle,
+} from "./theme/backgroundAssets.js";
+import { DEFAULT_BACKGROUND_LAYOUT } from "./theme/decorDefaults/index.js";
 
 const API = "/api";
 
@@ -61,75 +74,65 @@ function resolveRequestModel(selectedModel, advisoryUnlocked) {
   return selectedModel || "auto_rag";
 }
 
-function TerraLogo({ size = 1000, style = {}, onSecretClick }) {
-  const img = (
-    <img
-      src={logoSrc}
-      alt="TerraMind"
-      width={size}
-      height={size}
-      style={{ objectFit: "contain", display: "block", ...style }}
-    />
-  );
-  if (!onSecretClick) return img;
-  return (
-    <button
-      type="button"
-      onClick={onSecretClick}
-      aria-label="TerraMind"
-      style={{
-        background: "none",
-        border: "none",
-        padding: 0,
-        margin: 0,
-        cursor: "default",
-        lineHeight: 0,
-        display: "block",
-      }}
-    >
-      {img}
-    </button>
-  );
+function hexToRgb(hex) {
+  const h = String(hex || "").replace("#", "");
+  if (h.length !== 3 && h.length !== 6) return "16,163,127";
+  const full =
+    h.length === 3
+      ? h
+          .split("")
+          .map((c) => c + c)
+          .join("")
+      : h;
+  const n = parseInt(full, 16);
+  return `${(n >> 16) & 255},${(n >> 8) & 255},${n & 255}`;
 }
 
 /** Same three backends as terramind.models.COMPARE_MODEL_IDS (Auto excluded). */
 const COMPARE_MODEL_IDS = ["product_rag", "general_rag", "base_llm"];
 
-function compareModelList(modelList, developerLabels = false) {
+function compareModelList(modelList, developerLabels = false, language = "en") {
   const byId = Object.fromEntries(modelList.map((m) => [m.id, m]));
   return COMPARE_MODEL_IDS.map((id) => {
     const fromApi = byId[id];
-    const labels = getModelDisplay(id, { developerLabels });
+    const labels = getModelDisplay(id, { developerLabels, language });
     return {
       id,
       name: labels.friendly,
       technical: labels.technical,
-      description: fromApi?.description || labels.description || "",
+      description: getModelDescription(id, language, fromApi?.description || ""),
     };
   });
 }
 
 const AUTO_ROUTE_HINT_MS = 10000;
 
-function AutoRouteHint({ label, technical, reason, t, fading, developerLabels }) {
+function AutoRouteHint({ label, technical, reason, t, fading, developerLabels, rtl, usingPrefix }) {
   if (!label) return null;
   return (
     <div
-      title={reason || ""}
+      className="tm-auto-route-hint"
+      title={reason || technical || ""}
       style={{
-        fontSize: 10,
-        color: t.text4,
-        lineHeight: 1.3,
-        maxWidth: 220,
-        textAlign: "right",
+        color: t.text3,
         opacity: fading ? 0 : 1,
         transition: "opacity 0.6s ease",
         pointerEvents: "none",
+        direction: rtl ? "rtl" : "ltr",
+        unicodeBidi: "isolate",
+        textAlign: rtl ? "left" : "right",
       }}
     >
-      Using {label}
+      <span className="tm-auto-route-hint-main">
+        <span>{usingPrefix} </span>
+        <bdi style={{ fontWeight: 600, unicodeBidi: "isolate" }} dir="auto">
+          {label}
+        </bdi>
+      </span>
       {developerLabels && technical && (
-        <div style={{ fontSize: 9, color: t.text4, marginTop: 1 }}>{technical}</div>
+        <div className="tm-auto-route-hint-tech" style={{ color: t.text3 }}>
+          {technical}
+        </div>
       )}
     </div>
   );
@@ -143,7 +146,11 @@ function ComparePanels({
   isAr,
   appearance,
 }) {
-  const compareModels = compareModelList(models, uiSettings.developerLabels);
+  const compareModels = compareModelList(
+    models,
+    uiSettings.developerLabels,
+    uiSettings.language,
+  );
   const showSrc = uiSettings.showSources;
   const showScores = uiSettings.showConfidence;
   const panels =
@@ -163,7 +170,7 @@ function ComparePanels({
       <div
         style={{
           fontSize: 11,
-          color: t.text4,
+          color: t.text3,
           letterSpacing: "0.08em",
           textTransform: "uppercase",
           marginBottom: 10,
@@ -214,12 +221,12 @@ function ComparePanels({
                   {panel.modelName}
                 </div>
                 {compareModels.find((m) => m.id === panel.modelId)?.technical && (
-                  <div style={{ fontSize: 10, color: t.text4, marginTop: 2, lineHeight: 1.3 }}>
+                  <div style={{ fontSize: 10, color: t.text3, marginTop: 2, lineHeight: 1.3 }}>
                     {compareModels.find((m) => m.id === panel.modelId).technical}
                   </div>
                 )}
                 {panel.latency != null && !panel.loading && (
-                  <div style={{ fontSize: 11, color: t.text4, marginTop: 2 }}>
+                  <div style={{ fontSize: 11, color: t.text3, marginTop: 2 }}>
                     {panel.latency}ms
                   </div>
                 )}
@@ -580,6 +587,9 @@ function ApiKeyGate({
   onSubmit,
   submitting,
   error,
+  logoFilter = "none",
+  logoGlow,
+  logoTint,
 }) {
   const [privacyOpen, setPrivacyOpen] = useState(false);
 
@@ -623,7 +633,12 @@ function ApiKeyGate({
           style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 18 }}
         >
           <div className="tm-gate-logo">
-            <TerraLogo size={36} />
+            <TerraLogo
+              size={36}
+              logoFilter={logoFilter}
+              logoGlow={logoGlow}
+              logoTint={logoTint}
+            />
           </div>
           <div>
             <div
@@ -1011,16 +1026,66 @@ export default function App() {
     return () => document.removeEventListener("mousedown", close);
   }, [modelOpen]);
 
-  const theme = resolveTheme(uiSettings.appearance, dark);
-  const { t, css: themeCss, fontFamily, headingFont, useMonogramAvatar, composerRadius, chipRadius } =
-    theme;
+  const theme = resolveTheme(uiSettings.appearance, dark, {
+    stylized: uiSettings.stylizedLayout !== false,
+  });
+  const {
+    t,
+    css: themeCss,
+    fontFamily,
+    headingFont,
+    composerRadius,
+    chipRadius,
+    logoFilter,
+    logoGlow,
+    logoTint,
+    logoAvatarScale,
+    ambientBackground,
+  } = theme;
+  const logoFilterCss = [logoFilter !== "none" ? logoFilter : "", logoGlow ? `drop-shadow(${logoGlow})` : ""]
+    .filter(Boolean)
+    .join(" ") || "none";
+  const rtl = isRtlUi(uiSettings);
+  const copy = (key) => tr(uiSettings, key);
+  const stylized = uiSettings.stylizedLayout !== false;
+  const appearance = uiSettings.appearance;
+  const themeBackgroundUrl = stylized
+    ? resolveThemeBackground(appearance, dark)
+    : null;
+  const decorTuning = getDecorTuningForAppearance(uiSettings, appearance);
+  const welcomeDecorUrl = resolveAppearanceAsset(appearance, "welcome");
+  const welcomeDecorStyle = decorImageStyle("welcome", {}, appearance);
+  const profileDecorUrl = stylized
+    ? resolveAppearanceAsset(appearance, "profile", {
+        slot: decorTuning.profile?.slot,
+      })
+    : null;
+  const profileDecorStyle = decorImageStyle(
+    "profile",
+    decorTuning.profile,
+    appearance,
+  );
+  const composerDecorUrl = stylized
+    ? resolveAppearanceAsset(appearance, "composer", {
+        slot: decorTuning.composer?.slot,
+      })
+    : null;
+  const composerDecorStyle = decorImageStyle(
+    "composer",
+    decorTuning.composer,
+    appearance,
+  );
 
   useEffect(() => {
-    if (uiSettings.appearance !== "field") return;
     import("@fontsource/dm-sans/400.css");
     import("@fontsource/dm-sans/600.css");
     import("@fontsource/dm-sans/700.css");
-  }, [uiSettings.appearance]);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.lang = uiSettings.language === "ar" ? "ar" : "en";
+    document.documentElement.dir = rtl ? "rtl" : "ltr";
+  }, [uiSettings.language, rtl]);
 
   const handleUiSettingsChange = (next) => {
     setUiSettings(next);
@@ -1043,11 +1108,12 @@ export default function App() {
     if (!routedTo) return;
     const routed = getRoutedDisplay(routedTo, {
       developerLabels: uiSettings.developerLabels,
+      language: uiSettings.language,
     });
     clearAutoRouteTimer();
     setAutoRouteFading(false);
     setAutoRouteHint({
-      label: routed.label,
+      label: routed.friendly,
       technical: routed.technical,
       reason: reason || "",
     });
@@ -1094,9 +1160,10 @@ export default function App() {
     if (lastBot.routed_to) {
       const routed = getRoutedDisplay(lastBot.routed_to, {
         developerLabels: uiSettings.developerLabels,
+        language: uiSettings.language,
       });
       setAutoRouteHint({
-        label: routed.label,
+        label: routed.friendly,
         technical: routed.technical,
         reason: lastBot.router_reason || "",
       });
@@ -1217,7 +1284,11 @@ export default function App() {
     }
 
     if (compareMode) {
-      const compareModels = compareModelList(models, uiSettings.developerLabels);
+      const compareModels = compareModelList(
+        models,
+        uiSettings.developerLabels,
+        uiSettings.language,
+      );
       const placeholderPanels = compareModels.map((m) => ({
         modelId: m.id,
         modelName: m.name,
@@ -1442,8 +1513,10 @@ export default function App() {
   const isAr = (txt) => /[\u0600-\u06ff]/.test(txt || "");
   const activeModelLabels = getModelDisplay(selectedModel, {
     developerLabels: uiSettings.developerLabels,
+    language: uiSettings.language,
   });
   const hasCompareMessages = all.messages.some((m) => m.role === "compare");
+  const contentWide = compareMode || hasCompareMessages;
   const showBottomLoader =
     loading &&
     !(
@@ -1477,6 +1550,8 @@ export default function App() {
 
   const rootClass = [
     "tm-root",
+    dark ? "" : "tm-light",
+    stylized ? "tm-stylized" : "",
     showApiKeyGate || gateExiting ? "tm-gate-open" : "",
     apiKeyReady && !showApiKeyGate && !gateExiting ? "tm-app-ready" : "",
   ]
@@ -1486,34 +1561,66 @@ export default function App() {
   return (
     <div
       className={rootClass}
+      dir={rtl ? "rtl" : "ltr"}
       style={{
         display: "flex",
         height: "100vh",
         overflow: "hidden",
+        position: "relative",
         background: t.bg,
         color: t.text1,
         fontFamily: fontFamily,
         fontSize: 14,
         "--tm-accent": t.accent,
         "--tm-accent-dim": t.accentDim,
+        "--tm-accent-rgb": hexToRgb(t.accent),
+        "--tm-bg": t.bg,
+        "--tm-bg-input": t.bgInput,
+        "--tm-border1": t.border1,
+        "--tm-text3": t.text3,
+        "--tm-text4": t.text4,
+        "--tm-logo-filter": logoFilterCss,
         "--tm-panel-general": t.panelGeneral || t.accent,
         "--tm-panel-product": t.panelProduct || t.accentWheat || "#c4a35a",
         "--tm-confidence-bg": t.confidenceBg || t.bgHover,
       }}
     >
-      <div className="tm-shell">
+      <div
+        className="tm-ambient-layer"
+        style={{
+          background: themeBackgroundUrl
+            ? `${ambientBackground}, url("${themeBackgroundUrl}")`
+            : ambientBackground,
+          ...(themeBackgroundUrl
+            ? {
+                backgroundSize: `cover, ${DEFAULT_BACKGROUND_LAYOUT.size}`,
+                backgroundPosition: `center center, ${DEFAULT_BACKGROUND_LAYOUT.imagePosition}`,
+                backgroundRepeat: "no-repeat, no-repeat",
+              }
+            : {}),
+        }}
+        aria-hidden
+      />
+      <div
+        className="tm-shell"
+        style={{ display: "flex", flex: 1, minHeight: 0, minWidth: 0, width: "100%" }}
+      >
       {/* Sidebar */}
       <aside
+        className="tm-sidebar-glass"
         style={{
           width: sideOpen ? 260 : 0,
           minWidth: sideOpen ? 260 : 0,
           overflow: "hidden",
           background: t.bgSide,
-          borderRight: `1px solid ${t.border1}`,
+          ...(rtl
+            ? { borderLeft: `1px solid ${t.border1}` }
+            : { borderRight: `1px solid ${t.border1}` }),
           display: "flex",
           flexDirection: "column",
           transition: "width .22s ease, min-width .22s ease",
           flexShrink: 0,
+          direction: rtl ? "rtl" : "ltr",
         }}
       >
         <div
@@ -1530,73 +1637,65 @@ export default function App() {
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              marginBottom: 12,
+              marginBottom: 8,
+              flexDirection: rtl ? "row-reverse" : "row",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <TerraLogo size={30} onSecretClick={handleLogoSecretClick} />
-              <span style={{ fontSize: 15, fontWeight: 700, color: t.text1 }}>
-                TerraMind
-              </span>
-            </div>
-            <button
-              onClick={addSession}
-              title="New conversation"
+            <div
               style={{
-                background: "transparent",
-                border: `1px solid ${t.border1}`,
-                borderRadius: 8,
-                color: t.text3,
-                width: 32,
-                height: 32,
-                cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
-                transition: "background .15s",
+                gap: 8,
+                flexDirection: rtl ? "row-reverse" : "row",
               }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.background = t.bgHover)
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.background = "transparent")
-              }
             >
-              <I.plus />
-            </button>
+              <TerraLogo
+                size={30}
+                onSecretClick={handleLogoSecretClick}
+                logoFilter={logoFilter}
+                logoGlow={logoGlow}
+                logoTint={logoTint}
+              />
+              <span style={{ fontSize: 15, fontWeight: 700, color: t.text1 }}>
+                {copy("appName")}
+              </span>
+            </div>
           </div>
 
           <div
             style={{
               fontSize: 11,
-              color: t.text4,
+              color: t.text3,
               letterSpacing: "0.1em",
               textTransform: "uppercase",
               marginBottom: 6,
-              paddingLeft: 4,
+              paddingInlineStart: 4,
+              textAlign: "start",
             }}
           >
-            Conversations
+            {copy("conversations")}
           </div>
           <div
+            className="tm-search-wrap"
             style={{
               display: "flex",
               alignItems: "center",
               gap: 6,
-              marginBottom: 8,
+              marginBottom: 10,
               padding: "6px 10px",
               background: t.bgInput,
               border: `1px solid ${t.border1}`,
               borderRadius: 8,
+              flexDirection: rtl ? "row-reverse" : "row",
             }}
           >
             <I.search c={t.text4} />
             <input
-              type="search"
+              type="text"
               value={convSearch}
               onChange={(e) => setConvSearch(e.target.value)}
-              placeholder="Search conversations…"
-              aria-label="Search conversations"
+              placeholder={copy("searchPlaceholder")}
+              aria-label={copy("searchPlaceholder")}
               style={{
                 flex: 1,
                 minWidth: 0,
@@ -1606,28 +1705,41 @@ export default function App() {
                 fontFamily: fontFamily,
                 fontSize: 13,
                 color: t.text1,
+                direction: rtl ? "rtl" : "ltr",
+                textAlign: rtl ? "right" : "left",
               }}
             />
-            {convSearch.trim() && (
+            {convSearch.trim() ? (
               <button
                 type="button"
                 onClick={() => setConvSearch("")}
-                title="Clear search"
-                aria-label="Clear search"
+                title={copy("searchClear")}
+                aria-label={copy("searchClear")}
                 style={{
                   background: "transparent",
                   border: "none",
                   cursor: "pointer",
-                  padding: 0,
-                  fontSize: 16,
+                  padding: "0 2px",
+                  fontSize: 18,
                   lineHeight: 1,
-                  color: t.text4,
+                  color: t.text3,
+                  display: "flex",
+                  alignItems: "center",
                 }}
               >
                 ×
               </button>
-            )}
+            ) : null}
           </div>
+
+          <NewChatButton
+            onClick={addSession}
+            t={t}
+            label={copy("newChat")}
+            fontFamily={fontFamily}
+            rtl={rtl}
+          />
+
           <div
             style={{
               flex: 1,
@@ -1635,18 +1747,19 @@ export default function App() {
               display: "flex",
               flexDirection: "column",
               gap: 1,
+              marginTop: 8,
             }}
           >
             {filteredSessions.length === 0 ? (
               <div
                 style={{
                   fontSize: 12,
-                  color: t.text4,
+                  color: t.text3,
                   padding: "12px 8px",
                   textAlign: "center",
                 }}
               >
-                No conversations match
+                {copy("noConversationsMatch")}
               </div>
             ) : (
               filteredSessions.map((s) => (
@@ -1674,7 +1787,7 @@ export default function App() {
                   onClick={() => setActiveId(s.id)}
                   style={{
                     flex: 1,
-                    textAlign: "left",
+                    textAlign: rtl ? "right" : "left",
                     background: "transparent",
                     border: "none",
                     padding: "8px 8px",
@@ -1684,6 +1797,7 @@ export default function App() {
                     alignItems: "center",
                     gap: 8,
                     minWidth: 0,
+                    flexDirection: rtl ? "row-reverse" : "row",
                   }}
                 >
                   <I.chat c={s.id === activeId ? t.accent : t.text4} />
@@ -1711,7 +1825,7 @@ export default function App() {
                       e.stopPropagation();
                       deleteSession(s.id);
                     }}
-                    title="Delete"
+                    title={copy("delete")}
                     style={{
                       background: "transparent",
                       border: "none",
@@ -1721,7 +1835,7 @@ export default function App() {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      color: t.text4,
+                      color: t.text3,
                       transition: "color .15s",
                     }}
                     onMouseEnter={(e) =>
@@ -1740,16 +1854,32 @@ export default function App() {
           </div>
 
           <div
-            style={{ borderTop: `1px solid ${t.border1}`, margin: "10px 0" }}
-          />
-
-          <SettingsPanel
-            t={t}
-            uiSettings={uiSettings}
-            onChange={handleUiSettingsChange}
-            dark={dark}
-            onToggleDark={() => setDark((d) => !d)}
-          />
+            style={{
+              marginTop: "auto",
+              flexShrink: 0,
+              paddingTop: 8,
+              borderTop: `1px solid ${t.border1}`,
+            }}
+          >
+            <SidebarWelcomeCard
+              t={t}
+              uiSettings={uiSettings}
+              rtl={rtl}
+              decorUrl={welcomeDecorUrl}
+              decorStyle={welcomeDecorStyle}
+            />
+            <UserProfileMenu
+              t={t}
+              uiSettings={uiSettings}
+              onChange={handleUiSettingsChange}
+              dark={dark}
+              onToggleDark={() => setDark((d) => !d)}
+              rtl={rtl}
+              stylized={stylized}
+              profileDecorUrl={profileDecorUrl}
+              profileDecorStyle={profileDecorStyle}
+            />
+          </div>
         </div>
       </aside>
 
@@ -1759,27 +1889,28 @@ export default function App() {
           flex: 1,
           display: "flex",
           flexDirection: "column",
-          overflow: "hidden",
           minWidth: 0,
+          minHeight: 0,
         }}
       >
         {/* Topbar */}
         <div
+          className={`tm-topbar-glass tm-topbar${stylized ? " tm-topbar--stylized" : ""}`}
           style={{
-            height: 50,
             borderBottom: `1px solid ${t.border1}`,
-            display: "flex",
-            alignItems: "center",
-            padding: "0 16px",
-            gap: 12,
             flexShrink: 0,
-            background: t.bg,
+            ...(stylized ? {} : { background: t.bg }),
+            minWidth: 0,
+            position: "relative",
+            zIndex: 20,
+            overflow: "visible",
           }}
         >
+          <div className="tm-topbar-start">
           <button
             className="tm-icon-btn"
             onClick={() => setSideOpen((o) => !o)}
-            title="Toggle sidebar"
+            title={copy("toggleSidebar")}
             style={{
               background: "transparent",
               border: "none",
@@ -1792,6 +1923,7 @@ export default function App() {
               alignItems: "center",
               justifyContent: "center",
               transition: "background .15s",
+              flexShrink: 0,
             }}
             onMouseEnter={(e) => (e.currentTarget.style.background = t.bgHover)}
             onMouseLeave={(e) =>
@@ -1800,53 +1932,44 @@ export default function App() {
           >
             <I.sidebar />
           </button>
-          <TerraLogo size={40} onSecretClick={handleLogoSecretClick} />
-          <span style={{ fontSize: 14, fontWeight: 600, color: t.text1 }}>
+          <TerraLogo
+            size={36}
+            onSecretClick={handleLogoSecretClick}
+            logoFilter={logoFilter}
+            logoGlow={logoGlow}
+            logoTint={logoTint}
+          />
+          <span
+            className="tm-topbar-brand-text"
+            style={{ fontSize: 14, fontWeight: 600, color: t.text1 }}
+          >
             TerraMind
           </span>
+          </div>
 
           <div
             ref={modelRef}
+            className="tm-topbar-end"
             style={{
-              marginLeft: "auto",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "flex-end",
-              gap: 3,
-              position: "relative",
               opacity: compareMode ? 0.45 : 1,
               pointerEvents: compareMode ? "none" : "auto",
             }}
           >
             <button
               type="button"
+              className="tm-model-trigger"
               onClick={() => setModelOpen((o) => !o)}
-              title={compareMode ? "Disabled in compare mode" : "Choose model"}
+              title={compareMode ? copy("compareDisabled") : copy("chooseModel")}
               disabled={compareMode}
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
                 background: modelOpen ? t.bgActive : t.bgCard,
                 border: `1px solid ${modelOpen ? t.accent : t.border1}`,
-                borderRadius: 10,
-                padding: "6px 12px",
                 cursor: "pointer",
                 fontFamily: fontFamily,
                 color: t.text1,
-                transition: "border-color .15s, background .15s",
               }}
             >
-              <span
-                style={{
-                  fontSize: 13,
-                  fontWeight: 600,
-                  maxWidth: 200,
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
-              >
+              <span className="tm-model-trigger-label">
                 {activeModelLabels.friendly}
               </span>
               <I.chevron c={t.text3} />
@@ -1859,32 +1982,34 @@ export default function App() {
                 t={t}
                 fading={autoRouteFading}
                 developerLabels={uiSettings.developerLabels}
+                rtl={rtl}
+                usingPrefix={copy("usingMode")}
               />
             )}
             {modelOpen && (
               <div
                 className="tm-model-menu"
                 style={{
-                  position: "absolute",
-                  top: "calc(100% + 6px)",
-                  right: 0,
-                  minWidth: 280,
                   background: t.bgCard,
                   border: `1px solid ${t.border1}`,
-                  borderRadius: 12,
                   boxShadow: `0 8px 24px rgba(0,0,0,${dark ? 0.45 : 0.12})`,
-                  padding: 6,
-                  zIndex: 50,
                 }}
               >
-                {withAdvisoryOption(models, advisoryUnlocked).map((m) => {
+                {withAdvisoryOption(models, advisoryUnlocked).map((m, idx, arr) => {
                   const labels = getModelDisplay(m.id, {
                     developerLabels: uiSettings.developerLabels,
+                    language: uiSettings.language,
                   });
+                  const desc = getModelDescription(
+                    m.id,
+                    uiSettings.language,
+                    m.description,
+                  );
                   return (
                   <button
                     key={m.id}
                     type="button"
+                    className="tm-model-menu-item"
                     onClick={() => {
                       setSelectedModel(m.id);
                       setModelOpen(false);
@@ -1892,15 +2017,17 @@ export default function App() {
                     style={{
                       display: "block",
                       width: "100%",
-                      textAlign: "left",
+                      textAlign: "start",
                       background:
                         m.id === selectedModel ? t.accentDim : "transparent",
                       border: "none",
                       borderRadius: 8,
-                      padding: "10px 12px",
+                      padding: "8px 10px",
                       cursor: "pointer",
                       fontFamily: fontFamily,
                       transition: "background .15s",
+                      borderBottom:
+                        idx < arr.length - 1 ? `1px solid ${t.border1}` : "none",
                     }}
                     onMouseEnter={(e) => {
                       if (m.id !== selectedModel)
@@ -1922,17 +2049,14 @@ export default function App() {
                       {labels.friendly}
                     </div>
                     <div
-                      style={{
-                        fontSize: 10,
-                        color: t.text4,
-                        marginTop: 2,
-                        lineHeight: 1.35,
-                      }}
+                      className="tm-model-menu-item-tech"
+                      style={{ color: t.text4 }}
                     >
                       {labels.technical}
                     </div>
-                    {(m.description || labels.description) && (
+                    {(desc) && (
                       <div
+                        className="tm-model-menu-item-desc"
                         style={{
                           fontSize: 11,
                           color: t.text3,
@@ -1940,7 +2064,7 @@ export default function App() {
                           lineHeight: 1.4,
                         }}
                       >
-                        {m.description || labels.description}
+                        {desc}
                       </div>
                     )}
                   </button>
@@ -1953,13 +2077,18 @@ export default function App() {
 
         {/* Messages */}
         <div
-          style={{ flex: 1, overflowY: "auto", padding: "8px 0" }}
+          style={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: "8px 0", minHeight: 0 }}
           onDragOver={(e) => {
+            if (compareMode) return;
             e.preventDefault();
             setDragOver(true);
           }}
-          onDragLeave={() => setDragOver(false)}
+          onDragLeave={(e) => {
+            if (e.currentTarget.contains(e.relatedTarget)) return;
+            setDragOver(false);
+          }}
           onDrop={(e) => {
+            if (compareMode) return;
             e.preventDefault();
             setDragOver(false);
             if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
@@ -1977,8 +2106,14 @@ export default function App() {
                 textAlign: "center",
               }}
             >
-              <div className="tm-empty-logo">
-                <TerraLogo size={100} onSecretClick={handleLogoSecretClick} />
+              <div className="tm-empty-logo-wrap">
+                <TerraLogo
+                  size={100}
+                  onSecretClick={handleLogoSecretClick}
+                  logoFilter={logoFilter}
+                  logoGlow={logoGlow}
+                  logoTint={logoTint}
+                />
               </div>
               <div
                 className="tm-empty-title"
@@ -1991,7 +2126,7 @@ export default function App() {
                   fontFamily: headingFont,
                 }}
               >
-                Ask the field.
+                {copy("emptyTitle")}
               </div>
               <div
                 className="tm-empty-sub"
@@ -2001,11 +2136,10 @@ export default function App() {
                   lineHeight: 1.7,
                   maxWidth: 400,
                   marginBottom: 24,
+                  whiteSpace: "pre-line",
                 }}
               >
-                Crop diseases · Pesticide guidance · Agronomy
-                <br />
-                Type in any language or upload a plant photo.
+                {copy("emptySub")}
               </div>
               <div
                 className="tm-empty-chips"
@@ -2016,14 +2150,10 @@ export default function App() {
                   justifyContent: "center",
                 }}
               >
-                {[
-                  "Brown spots on tomato leaves?",
-                  "ما علاج الصدأ في القمح؟",
-                  "Best irrigation for corn?",
-                ].map((s) => (
+                {[copy("emptyChip1"), copy("emptyChip2"), copy("emptyChip3")].map((s) => (
                   <button
                     key={s}
-                    className="tm-chip"
+                    className="tm-chip tm-chip-dot"
                     onClick={() => {
                       setText(s);
                       taRef.current?.focus();
@@ -2053,12 +2183,10 @@ export default function App() {
             </div>
           ) : (
             <div
+              className={`tm-content-width${contentWide ? " tm-content-width--wide" : ""}`}
               style={{
-                maxWidth:
-                  hasCompareMessages || compareMode ? "min(100%, 1280px)" : 720,
                 margin: "0 auto",
                 padding: "20px 24px 8px",
-                width: "100%",
               }}
             >
               {all.messages.map((msg, i) => {
@@ -2099,7 +2227,7 @@ export default function App() {
                                 border: `1px solid ${t.border1}`,
                                 objectFit: "cover",
                                 display: "block",
-                                marginLeft: "auto",
+                                marginInlineStart: "auto",
                               }}
                             />
                           </div>
@@ -2162,8 +2290,11 @@ export default function App() {
                     >
                       <BotAvatar
                         t={t}
-                        useMonogram={useMonogramAvatar}
                         size={28}
+                        logoFilter={logoFilter}
+                        logoGlow={logoGlow}
+                        logoTint={logoTint}
+                        logoAvatarScale={logoAvatarScale}
                       />
                       <span
                         style={{
@@ -2175,11 +2306,12 @@ export default function App() {
                         TerraMind
                       </span>
                       <span
+                        className="tm-msg-meta"
                         style={{
                           fontSize: 11,
-                          color: t.text4,
-                          marginLeft: ar ? 0 : "auto",
-                          marginRight: ar ? "auto" : 0,
+                          color: t.text3,
+                          marginInlineStart: ar ? 0 : "auto",
+                          marginInlineEnd: ar ? "auto" : 0,
                         }}
                       >
                         {msg.time}
@@ -2204,28 +2336,38 @@ export default function App() {
                             routerReason={msg.router_reason}
                             t={t}
                             developerLabels={uiSettings.developerLabels}
+                            language={uiSettings.language}
                             ar={ar}
+                            answeredUsingLabel={copy("answeredUsing")}
                           />
                         )}
                       {uiSettings.developerLabels &&
+                        !msg.streaming &&
+                        !msg.routed_to &&
                         msg.model &&
-                        msg.model !== "auto_rag" &&
-                        !msg.streaming && (
+                        msg.model !== "auto_rag" && (
                           <div
+                            className="tm-msg-meta"
                             style={{
                               fontSize: 10,
-                              color: t.text4,
+                              color: t.text3,
                               marginBottom: 6,
+                              direction: "ltr",
+                              unicodeBidi: "isolate",
                             }}
                           >
-                            {getModelDisplay(msg.model).technical}
+                            {getModelDisplay(msg.model, {
+                              developerLabels: true,
+                              language: uiSettings.language,
+                            }).technical}
                           </div>
                         )}
                       {msg.streaming && msg.status && (
                         <div
+                          className="tm-msg-meta"
                           style={{
                             fontSize: 12,
-                            color: t.text4,
+                            color: t.text3,
                             marginBottom: 8,
                             fontStyle: "italic",
                           }}
@@ -2299,7 +2441,14 @@ export default function App() {
                     marginBottom: 16,
                   }}
                 >
-                  <BotAvatar t={t} useMonogram={useMonogramAvatar} size={28} />
+                  <BotAvatar
+                    t={t}
+                    size={28}
+                    logoFilter={logoFilter}
+                    logoGlow={logoGlow}
+                    logoTint={logoTint}
+                    logoAvatarScale={logoAvatarScale}
+                  />
                   <div style={{ display: "flex", gap: 4 }}>
                     {[0, 1, 2].map((i) => (
                       <div
@@ -2323,108 +2472,86 @@ export default function App() {
 
         {/* Input */}
         <div
-          style={{ padding: "12px 16px 16px", background: t.bg, flexShrink: 0 }}
+          className={stylized ? "tm-input-footer tm-input-footer--stylized" : "tm-input-footer"}
+          style={{ padding: "12px 16px 16px", flexShrink: 0 }}
         >
           <div
-            style={{
-              maxWidth:
-                compareMode || hasCompareMessages ? "min(100%, 1280px)" : 720,
-              margin: "0 auto",
-              width: "100%",
-            }}
+            className={`tm-content-width${contentWide ? " tm-content-width--wide" : ""}`}
+            style={{ margin: "0 auto" }}
           >
-            {image && (
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  marginBottom: 8,
-                  padding: "8px 10px",
-                  background: t.bgCard,
-                  border: `1px solid ${t.border1}`,
-                  borderRadius: 10,
-                }}
-              >
+            <div className="tm-composer-wrap">
+              {composerDecorUrl ? (
                 <img
-                  src={image.preview}
+                  src={composerDecorUrl}
                   alt=""
-                  style={{
-                    width: 44,
-                    height: 44,
-                    objectFit: "cover",
-                    borderRadius: 8,
-                    border: `1px solid ${t.border1}`,
-                  }}
+                  aria-hidden
+                  className="tm-composer-decor tm-decor-img tm-decor-fixed"
+                  style={composerDecorStyle}
                 />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div
-                    style={{
-                      fontSize: 13,
-                      color: t.text2,
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
-                  >
-                    {image.file.name}
-                  </div>
-                  <div style={{ fontSize: 11, color: t.text4 }}>
-                    {(image.file.size / 1024).toFixed(0)} KB
-                  </div>
-                </div>
-                <button
-                  onClick={() => setImage(null)}
-                  style={{
-                    background: "transparent",
-                    border: "none",
-                    cursor: "pointer",
-                    color: t.text4,
-                    padding: 4,
-                    fontSize: 16,
-                    lineHeight: 1,
-                  }}
-                >
-                  ✕
-                </button>
-              </div>
-            )}
-            {dragOver && (
-              <div
-                style={{
-                  textAlign: "center",
-                  padding: 12,
-                  marginBottom: 8,
-                  border: `2px dashed ${t.accent}`,
-                  borderRadius: 10,
-                  color: t.accent,
-                  fontSize: 13,
-                }}
-              >
-                Drop image here
-              </div>
-            )}
-
+              ) : null}
             <div
-              className="tm-composer"
+              className={`tm-composer${compareMode ? " tm-composer--compare" : ""}${dragOver ? " tm-composer--drag" : ""}${stylized ? " tm-composer--stylized" : ""}`}
               style={{
-                background: t.bgInput,
-                border: `2px solid ${t.inputBorder}`,
+                ...(stylized ? {} : { background: t.bgInput }),
+                border: `2px solid ${compareMode || dragOver ? t.accent : t.inputBorder}`,
                 borderRadius: composerRadius,
                 padding: "12px 14px 10px",
                 display: "flex",
                 flexDirection: "column",
                 gap: 10,
-                boxShadow: `0 1px 6px rgba(0,0,0,${dark ? 0.15 : 0.06})`,
               }}
             >
+              {dragOver && (
+                <div className="tm-composer-drop-overlay" aria-live="polite">
+                  {copy("dropImage")}
+                </div>
+              )}
+              {image && (
+                <div
+                  className="tm-composer-attachment"
+                  style={{
+                    background: `color-mix(in srgb, ${t.bg} 55%, transparent)`,
+                    borderColor: t.border1,
+                  }}
+                >
+                  <img
+                    src={image.preview}
+                    alt=""
+                    className="tm-composer-attachment-thumb"
+                    style={{ borderColor: t.border1 }}
+                  />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div
+                      className="tm-composer-attachment-name"
+                      style={{ color: t.text2 }}
+                    >
+                      {image.file.name}
+                    </div>
+                    <div
+                      className="tm-composer-attachment-meta"
+                      style={{ color: t.text4 }}
+                    >
+                      {(image.file.size / 1024).toFixed(0)} KB
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="tm-composer-attachment-remove"
+                    onClick={() => setImage(null)}
+                    style={{ color: t.text4 }}
+                    aria-label={copy("delete")}
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
               <textarea
                 ref={taRef}
                 rows={3}
                 placeholder={
                   compareMode
-                    ? "Same question to all 3 models…"
-                    : "Ask in any language • اسأل بأي لغة…"
+                    ? copy("composerCompare")
+                    : copy("composerPlaceholder")
                 }
                 value={text}
                 onChange={(e) => setText(e.target.value)}
@@ -2445,7 +2572,8 @@ export default function App() {
                   resize: "none",
                   width: "100%",
                   padding: 0,
-                  direction: isAr(text) ? "rtl" : "ltr",
+                  direction:
+                    isAr(text) || rtl ? "rtl" : "ltr",
                 }}
               />
               <div
@@ -2455,29 +2583,20 @@ export default function App() {
                   justifyContent: "space-between",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <button
                     type="button"
+                    className={`tm-composer-btn tm-composer-btn--compare${compareMode ? " tm-composer-btn--active" : ""}`}
                     onClick={() => setCompareMode((c) => !c)}
-                    title="Compare all 3 models side by side"
+                    title={copy("compare")}
+                    aria-pressed={compareMode}
                     style={{
-                      height: 34,
-                      borderRadius: 8,
-                      cursor: "pointer",
-                      background: compareMode ? t.accentDim : "transparent",
-                      border: `1px solid ${compareMode ? t.accent : t.border1}`,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6,
-                      padding: "0 10px",
                       fontFamily: fontFamily,
-                      fontSize: 12,
                       color: compareMode ? t.accent : t.text3,
-                      transition: "all .15s",
                     }}
                   >
                     <I.columns c={compareMode ? t.accent : t.text3} />
-                    Compare
+                    <span className="tm-composer-btn-label">{copy("compare")}</span>
                   </button>
                   <input
                     ref={fileRef}
@@ -2490,55 +2609,46 @@ export default function App() {
                     }}
                   />
                   <button
+                    type="button"
+                    className={`tm-composer-btn tm-composer-btn--icon${image ? " tm-composer-btn--active" : ""}`}
                     onClick={() => fileRef.current?.click()}
-                    title="Add image"
+                    title={copy("addImage")}
+                    aria-pressed={!!image}
                     style={{
-                      width: 34,
-                      height: 34,
-                      borderRadius: 8,
-                      cursor: "pointer",
-                      background: image ? t.accentDim : "transparent",
-                      border: `1px solid ${image ? t.accent : t.border1}`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      transition: "all .15s",
+                      color: image ? t.accent : t.text3,
                     }}
                   >
                     <I.img c={image ? t.accent : t.text3} />
                   </button>
                 </div>
                 <button
+                  type="button"
+                  className={`tm-composer-send${canSend ? " tm-composer-send--ready" : ""}`}
                   onClick={handleSubmit}
                   disabled={!canSend}
+                  title={copy("sendHint")}
                   style={{
-                    width: 34,
-                    height: 34,
-                    borderRadius: 8,
                     cursor: canSend ? "pointer" : "not-allowed",
                     background: canSend ? t.accent : t.bgHover,
-                    border: "none",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    transition: "background .15s",
+                    color: canSend ? "#fff" : t.text4,
                   }}
                 >
                   <I.send on={!!canSend} c={canSend ? "#fff" : t.text4} />
                 </button>
               </div>
             </div>
+            </div>
             <div
               style={{
                 fontSize: 11,
-                color: t.text4,
+                color: t.text3,
                 textAlign: "center",
                 marginTop: 6,
               }}
             >
               {compareMode
-                ? "Compare mode — Enter sends to all 3 models"
-                : "Enter to send · Shift+Enter for new line"}
+                ? copy("compareHint")
+                : copy("sendHint")}
             </div>
           </div>
         </div>
@@ -2555,6 +2665,8 @@ export default function App() {
         ::-webkit-scrollbar-thumb{background:rgba(128,128,128,.2);border-radius:3px}
         textarea{scrollbar-width:none}
         textarea::-webkit-scrollbar{display:none}
+        input[type="search"]::-webkit-search-cancel-button{display:none}
+        input[type="search"]::-webkit-search-decoration{display:none}
       `}</style>
       <ApiKeyGate
         t={t}
@@ -2566,6 +2678,9 @@ export default function App() {
         onSubmit={handleApiKeySubmit}
         submitting={apiKeySubmitting}
         error={apiKeyError}
+        logoFilter={logoFilter}
+        logoGlow={logoGlow}
+        logoTint={logoTint}
       />
     </div>
   );

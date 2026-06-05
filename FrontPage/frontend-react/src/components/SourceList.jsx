@@ -11,13 +11,13 @@ function groupSources(sources) {
   return { general, product };
 }
 
-function SourceRow({ src, t, ar }) {
+function SourceRow({ src, t, ar, bordered = true }) {
   const rel = relevanceLabel(src.relevance_score);
   return (
     <div
       style={{
-        padding: "8px 0",
-        borderBottom: `1px solid ${t.border2}`,
+        padding: bordered ? "8px 0" : "8px 12px",
+        borderBottom: bordered ? `1px solid ${t.border2}` : "none",
         direction: ar ? "rtl" : "ltr",
         textAlign: ar ? "right" : "left",
       }}
@@ -84,10 +84,30 @@ function SourceGroup({ title, items, t, ar }) {
   );
 }
 
-export function SourceList({ sources, t, ar = false, appearance = "classic" }) {
+export function SourceList({ sources, t, ar = false, appearance = "field" }) {
   const [open, setOpen] = useState(false);
   const list = sources || [];
   if (!list.length) return null;
+
+  const cardRadius = appearance === "forest" ? 10 : 8;
+
+  if (list.length === 1) {
+    return (
+      <div
+        style={{
+          marginTop: 12,
+          direction: ar ? "rtl" : "ltr",
+          textAlign: ar ? "right" : "left",
+          background: t.bgCard,
+          border: `1px solid ${t.border1}`,
+          borderRadius: cardRadius,
+          overflow: "hidden",
+        }}
+      >
+        <SourceRow src={list[0]} t={t} ar={ar} bordered={false} />
+      </div>
+    );
+  }
 
   const { general, product } = groupSources(list);
   const mixed = general.length > 0 && product.length > 0;
@@ -113,9 +133,9 @@ export function SourceList({ sources, t, ar = false, appearance = "classic" }) {
           alignItems: "center",
           gap: 8,
           width: "100%",
-          background: appearance === "field" ? t.confidenceBg || t.bgHover : t.bgCard,
+          background: t.confidenceBg || t.bgHover,
           border: `1px solid ${t.border1}`,
-          borderRadius: appearance === "field" ? 10 : 8,
+          borderRadius: cardRadius,
           padding: "8px 12px",
           cursor: "pointer",
           fontFamily: "inherit",
@@ -134,8 +154,7 @@ export function SourceList({ sources, t, ar = false, appearance = "classic" }) {
           }}
         />
         <span style={{ flex: 1 }}>
-          {list.length} {ar ? "مصدر" : "source"}
-          {list.length !== 1 ? (ar ? "" : "s") : ""}
+          {list.length} {ar ? "مصادر" : "sources"}
           {mixed && ` · ${summaryParts.join(" · ")}`}
         </span>
         <span style={{ color: t.text4, fontSize: 10 }}>{open ? "▲" : "▼"}</span>
@@ -147,7 +166,7 @@ export function SourceList({ sources, t, ar = false, appearance = "classic" }) {
             padding: "4px 12px 8px",
             background: t.bgCard,
             border: `1px solid ${t.border1}`,
-            borderRadius: appearance === "field" ? 10 : 8,
+            borderRadius: cardRadius,
           }}
         >
           {mixed ? (
@@ -159,7 +178,7 @@ export function SourceList({ sources, t, ar = false, appearance = "classic" }) {
                 ar={ar}
               />
               <SourceGroup
-                title={ar ? "\u0627\u0644\u0645\u0646\u062a\u062c\u0627\u062a" : "Product catalog"}
+                title={ar ? "المنتجات" : "Product catalog"}
                 items={product}
                 t={t}
                 ar={ar}

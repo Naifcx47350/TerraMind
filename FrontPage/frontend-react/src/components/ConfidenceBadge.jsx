@@ -16,7 +16,7 @@ export function ConfidenceBadge({
   modelId,
   t,
   ar = false,
-  appearance = "classic",
+  appearance = "field",
 }) {
   if (
     !shouldShowRetrievalConfidence({
