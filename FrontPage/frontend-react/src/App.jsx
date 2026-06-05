@@ -51,7 +51,70 @@ const LIGHT = {
   inputShadow: "rgba(16,163,127,0.18)",
 };
 
-const F = "Arial, sans-serif";
+const F = "'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif";
+
+const TM_CSS = `
+@keyframes tm-fade-in{from{opacity:0}to{opacity:1}}
+@keyframes tm-slide-up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes tm-scale-in{from{opacity:0;transform:scale(.94) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes tm-logo-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes tm-spin{to{transform:rotate(360deg)}}
+
+.tm-root{transition:background-color .3s ease}
+.tm-shell{display:flex;flex:1;min-width:0;width:100%;height:100%;overflow:hidden;transition:filter .45s ease,transform .45s ease,opacity .45s ease}
+.tm-gate-open .tm-shell{filter:blur(10px) saturate(.9);transform:scale(.982);opacity:.5;pointer-events:none}
+.tm-app-ready .tm-shell{animation:tm-fade-in .55s ease}
+
+.tm-gate-backdrop{animation:tm-fade-in .4s ease forwards}
+.tm-gate-backdrop.tm-gate-exiting{animation:tm-fade-in .3s ease reverse forwards}
+.tm-gate-modal{animation:tm-scale-in .5s cubic-bezier(.22,1,.36,1) forwards}
+.tm-gate-backdrop.tm-gate-exiting .tm-gate-modal{animation:tm-scale-in .3s ease reverse forwards}
+
+.tm-stagger-1{animation:tm-slide-up .5s cubic-bezier(.22,1,.36,1) .06s both}
+.tm-stagger-2{animation:tm-slide-up .5s cubic-bezier(.22,1,.36,1) .12s both}
+.tm-stagger-3{animation:tm-slide-up .5s cubic-bezier(.22,1,.36,1) .18s both}
+.tm-stagger-4{animation:tm-slide-up .5s cubic-bezier(.22,1,.36,1) .24s both}
+.tm-stagger-5{animation:tm-slide-up .5s cubic-bezier(.22,1,.36,1) .3s both}
+
+.tm-gate-logo{animation:tm-logo-float 3.2s ease-in-out infinite}
+
+.tm-privacy-collapse{display:grid;grid-template-rows:0fr;transition:grid-template-rows .3s cubic-bezier(.22,1,.36,1)}
+.tm-privacy-collapse.tm-privacy-open{grid-template-rows:1fr}
+.tm-privacy-inner{overflow:hidden;min-height:0}
+
+.tm-gate-input{transition:border-color .2s ease,box-shadow .2s ease}
+.tm-gate-input:focus{outline:none;border-color:#10a37f!important;box-shadow:0 0 0 3px rgba(16,163,127,.2)!important}
+
+.tm-btn-primary{transition:transform .18s ease,opacity .18s ease,background .18s ease,box-shadow .18s ease}
+.tm-btn-primary:not(:disabled):hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(16,163,127,.32)}
+.tm-btn-primary:not(:disabled):active{transform:translateY(0);box-shadow:none}
+.tm-btn-loading::after{content:"";width:14px;height:14px;margin-left:8px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;display:inline-block;vertical-align:-2px;animation:tm-spin .7s linear infinite}
+
+.tm-empty-logo{animation:tm-scale-in .65s cubic-bezier(.22,1,.36,1) both}
+.tm-empty-title{animation:tm-slide-up .55s cubic-bezier(.22,1,.36,1) .14s both}
+.tm-empty-sub{animation:tm-slide-up .55s cubic-bezier(.22,1,.36,1) .22s both}
+.tm-empty-chips{animation:tm-slide-up .55s cubic-bezier(.22,1,.36,1) .3s both}
+
+.tm-chip{transition:transform .2s ease,background .15s ease,border-color .15s ease,box-shadow .2s ease}
+.tm-chip:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.18)}
+
+.tm-msg-in{animation:tm-slide-up .38s cubic-bezier(.22,1,.36,1) both}
+
+.tm-composer{transition:border-color .25s ease,box-shadow .25s ease,transform .25s ease}
+.tm-composer:focus-within{border-color:#10a37f!important;box-shadow:0 0 0 3px rgba(16,163,127,.14),0 6px 24px rgba(0,0,0,.12)!important}
+
+.tm-conv-item{transition:background .18s ease,transform .18s ease}
+.tm-conv-item:hover{transform:translateX(3px)}
+
+.tm-model-menu{animation:tm-scale-in .22s cubic-bezier(.22,1,.36,1) both;transform-origin:top left}
+
+.tm-icon-btn{transition:background .15s ease,transform .15s ease}
+.tm-icon-btn:hover{transform:scale(1.06)}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition-duration:.01ms!important}
+}
+`;
 
 const ADVISORY_MODEL = {
   id: "advisory",
@@ -685,6 +748,7 @@ async function consumeNdjsonStream(response, onEvent) {
 function ApiKeyGate({
   t,
   open,
+  exiting,
   reason,
   value,
   onChange,
@@ -694,7 +758,7 @@ function ApiKeyGate({
 }) {
   const [privacyOpen, setPrivacyOpen] = useState(false);
 
-  if (!open) return null;
+  if (!open && !exiting) return null;
 
   const isReauth = reason === "reauth";
   const lead = isReauth
@@ -703,6 +767,7 @@ function ApiKeyGate({
 
   return (
     <div
+      className={`tm-gate-backdrop${exiting ? " tm-gate-exiting" : ""}`}
       style={{
         position: "fixed",
         inset: 0,
@@ -711,24 +776,30 @@ function ApiKeyGate({
         alignItems: "center",
         justifyContent: "center",
         padding: 24,
-        background: "rgba(0,0,0,0.72)",
-        backdropFilter: "blur(4px)",
+        background: "rgba(0,0,0,0.78)",
+        backdropFilter: "blur(8px)",
       }}
     >
       <div
         role="dialog"
         aria-labelledby="api-key-title"
+        className="tm-gate-modal"
         style={{
           width: "min(100%, 440px)",
-          background: t.bgCard,
+          background: `linear-gradient(165deg, ${t.bgCard} 0%, ${t.bgSide} 100%)`,
           border: `1px solid ${t.border1}`,
-          borderRadius: 16,
+          borderRadius: 20,
           padding: "28px 28px 24px",
-          boxShadow: "0 24px 48px rgba(0,0,0,0.35)",
+          boxShadow: `0 32px 64px rgba(0,0,0,${t.bg === "#0a0a0a" ? "0.5" : "0.14"}), 0 0 0 1px rgba(16,163,127,0.08)`,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 18 }}>
-          <TerraLogo size={36} />
+        <div
+          className="tm-stagger-1"
+          style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 18 }}
+        >
+          <div className="tm-gate-logo">
+            <TerraLogo size={36} />
+          </div>
           <div>
             <div
               id="api-key-title"
@@ -744,11 +815,15 @@ function ApiKeyGate({
           </div>
         </div>
 
-        <p style={{ fontSize: 13, color: t.text2, lineHeight: 1.65, marginBottom: 14 }}>
+        <p
+          className="tm-stagger-2"
+          style={{ fontSize: 13, color: t.text2, lineHeight: 1.65, marginBottom: 14 }}
+        >
           {lead}
         </p>
 
         <div
+          className="tm-stagger-3"
           style={{
             fontSize: 12,
             color: t.text3,
@@ -793,6 +868,7 @@ function ApiKeyGate({
         </div>
 
         <div
+          className="tm-stagger-4"
           style={{
             marginBottom: 18,
             borderRadius: 10,
@@ -849,34 +925,40 @@ function ApiKeyGate({
               style={{
                 flexShrink: 0,
                 transform: privacyOpen ? "rotate(180deg)" : "rotate(0deg)",
-                transition: "transform 0.2s ease",
+                transition: "transform 0.25s cubic-bezier(.22,1,.36,1)",
               }}
               aria-hidden
             >
               <polyline points="6 9 12 15 18 9" />
             </svg>
           </button>
-          {privacyOpen && (
-            <div
-              style={{
-                padding: "0 14px 12px 42px",
-                fontSize: 12,
-                color: t.text2,
-                lineHeight: 1.65,
-              }}
-            >
-              Your API key is kept only in this browser tab while you use TerraMind. It is not
-              saved to our servers, shared with other users, or written to files on your computer.
-              Close this tab and it is cleared.
+          <div
+            className={`tm-privacy-collapse${privacyOpen ? " tm-privacy-open" : ""}`}
+          >
+            <div className="tm-privacy-inner">
+              <div
+                style={{
+                  padding: "0 14px 12px 42px",
+                  fontSize: 12,
+                  color: t.text2,
+                  lineHeight: 1.65,
+                }}
+              >
+                Your API key is kept only in this browser tab while you use TerraMind. It is not
+                saved to our servers, shared with other users, or written to files on your computer.
+                Close this tab and it is cleared.
+              </div>
             </div>
-          )}
+          </div>
         </div>
 
+        <div className="tm-stagger-5">
         <label style={{ display: "block", fontSize: 12, color: t.text3, marginBottom: 6 }}>
           OpenAI API key
         </label>
         <input
           type="password"
+          className="tm-gate-input"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="sk-…"
@@ -886,7 +968,7 @@ function ApiKeyGate({
             width: "100%",
             boxSizing: "border-box",
             padding: "10px 12px",
-            borderRadius: 8,
+            borderRadius: 10,
             border: `1px solid ${error ? t.err.b : t.border1}`,
             background: t.bgInput,
             color: t.text1,
@@ -905,6 +987,7 @@ function ApiKeyGate({
               color: t.err.color,
               marginBottom: 12,
               lineHeight: 1.5,
+              animation: "tm-slide-up 0.3s ease both",
             }}
           >
             {error}
@@ -912,12 +995,13 @@ function ApiKeyGate({
         )}
         <button
           type="button"
+          className={`tm-btn-primary${submitting ? " tm-btn-loading" : ""}`}
           onClick={onSubmit}
           disabled={submitting || !value.trim()}
           style={{
             width: "100%",
             padding: "11px 16px",
-            borderRadius: 8,
+            borderRadius: 10,
             border: "none",
             background: submitting ? t.text4 : t.accent,
             color: t.btnText,
@@ -927,8 +1011,9 @@ function ApiKeyGate({
             opacity: submitting || !value.trim() ? 0.7 : 1,
           }}
         >
-          {submitting ? "Connecting…" : isReauth ? "Update key and continue" : "Continue"}
+          {submitting ? "Connecting" : isReauth ? "Update key and continue" : "Continue"}
         </button>
+        </div>
       </div>
     </div>
   );
@@ -996,6 +1081,7 @@ export default function App() {
   const [apiKeyError, setApiKeyError] = useState("");
   const [apiKeySubmitting, setApiKeySubmitting] = useState(false);
   const [apiKeyGateReason, setApiKeyGateReason] = useState("initial");
+  const [gateExiting, setGateExiting] = useState(false);
   const bottomRef = useRef(null);
   const fileRef = useRef(null);
   const taRef = useRef(null);
@@ -1527,9 +1613,13 @@ export default function App() {
     try {
       await applyOpenAIKeyToServer(apiKeyInput);
       sessionStorage.setItem(OPENAI_KEY_SESSION, apiKeyInput.trim());
-      setApiKeyReady(true);
-      setShowApiKeyGate(false);
-      setApiKeyInput("");
+      setGateExiting(true);
+      setTimeout(() => {
+        setApiKeyReady(true);
+        setShowApiKeyGate(false);
+        setGateExiting(false);
+        setApiKeyInput("");
+      }, 320);
     } catch (e) {
       setApiKeyError(e.message || "Could not save API key");
     } finally {
@@ -1537,8 +1627,17 @@ export default function App() {
     }
   };
 
+  const rootClass = [
+    "tm-root",
+    showApiKeyGate || gateExiting ? "tm-gate-open" : "",
+    apiKeyReady && !showApiKeyGate && !gateExiting ? "tm-app-ready" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
     <div
+      className={rootClass}
       style={{
         display: "flex",
         height: "100vh",
@@ -1549,6 +1648,7 @@ export default function App() {
         fontSize: 14,
       }}
     >
+      <div className="tm-shell">
       {/* Sidebar */}
       <aside
         style={{
@@ -1699,6 +1799,7 @@ export default function App() {
               filteredSessions.map((s) => (
               <div
                 key={s.id}
+                className="tm-conv-item"
                 onMouseEnter={() => setHover(s.id)}
                 onMouseLeave={() => setHover(null)}
                 style={{
@@ -1890,6 +1991,7 @@ export default function App() {
           }}
         >
           <button
+            className="tm-icon-btn"
             onClick={() => setSideOpen((o) => !o)}
             title="Toggle sidebar"
             style={{
@@ -1973,6 +2075,7 @@ export default function App() {
             )}
             {modelOpen && (
               <div
+                className="tm-model-menu"
                 style={{
                   position: "absolute",
                   top: "calc(100% + 6px)",
@@ -2071,8 +2174,11 @@ export default function App() {
                 textAlign: "center",
               }}
             >
-              <TerraLogo size={100} onSecretClick={handleLogoSecretClick} />
+              <div className="tm-empty-logo">
+                <TerraLogo size={100} onSecretClick={handleLogoSecretClick} />
+              </div>
               <div
+                className="tm-empty-title"
                 style={{
                   fontSize: 28,
                   fontWeight: 700,
@@ -2084,6 +2190,7 @@ export default function App() {
                 Ask the field.
               </div>
               <div
+                className="tm-empty-sub"
                 style={{
                   fontSize: 14,
                   color: t.text3,
@@ -2097,6 +2204,7 @@ export default function App() {
                 Type in any language or upload a plant photo.
               </div>
               <div
+                className="tm-empty-chips"
                 style={{
                   display: "flex",
                   gap: 8,
@@ -2111,6 +2219,7 @@ export default function App() {
                 ].map((s) => (
                   <button
                     key={s}
+                    className="tm-chip"
                     onClick={() => {
                       setText(s);
                       taRef.current?.focus();
@@ -2166,6 +2275,7 @@ export default function App() {
                   return (
                     <div
                       key={i}
+                      className="tm-msg-in"
                       style={{
                         display: "flex",
                         justifyContent: "flex-end",
@@ -2215,6 +2325,7 @@ export default function App() {
                   return (
                     <div
                       key={i}
+                      className="tm-msg-in"
                       style={{
                         background: t.err.bg,
                         border: `1px solid ${t.err.b}`,
@@ -2231,7 +2342,7 @@ export default function App() {
 
                 const ar = isAr(msg.answer);
                 return (
-                  <div key={i} style={{ marginBottom: 20 }}>
+                  <div key={i} className="tm-msg-in" style={{ marginBottom: 20 }}>
                     <div
                       style={{
                         display: "flex",
@@ -2515,6 +2626,7 @@ export default function App() {
             )}
 
             <div
+              className="tm-composer"
               style={{
                 background: t.bgInput,
                 border: `2px solid ${t.inputBorder}`,
@@ -2541,14 +2653,6 @@ export default function App() {
                     e.preventDefault();
                     handleSubmit();
                   }
-                }}
-                onFocus={(e) => {
-                  e.target.parentElement.style.borderColor = t.inputFocus;
-                  e.target.parentElement.style.boxShadow = `0 0 0 3px ${t.inputShadow}`;
-                }}
-                onBlur={(e) => {
-                  e.target.parentElement.style.borderColor = t.inputBorder;
-                  e.target.parentElement.style.boxShadow = `0 1px 6px rgba(0,0,0,${dark ? 0.15 : 0.06})`;
                 }}
                 style={{
                   background: "transparent",
@@ -2659,8 +2763,10 @@ export default function App() {
           </div>
         </div>
       </div>
+      </div>
 
       <style>{`
+        ${TM_CSS}
         @keyframes dot{0%,100%{opacity:.25;transform:scale(.75)}50%{opacity:1;transform:scale(1)}}
         @keyframes blink{50%{opacity:0}}
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -2673,6 +2779,7 @@ export default function App() {
       <ApiKeyGate
         t={t}
         open={showApiKeyGate}
+        exiting={gateExiting}
         reason={apiKeyGateReason}
         value={apiKeyInput}
         onChange={setApiKeyInput}
