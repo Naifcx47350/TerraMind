@@ -1,10 +1,23 @@
 import { getRoutedDisplay } from "../settings/modelLabels.js";
 
-export function RoutePill({ routedTo, routerReason, t, developerLabels, ar }) {
+export function RoutePill({
+  routedTo,
+  routerReason,
+  t,
+  developerLabels,
+  ar,
+  language = "en",
+  answeredUsingLabel,
+}) {
   if (!routedTo) return null;
-  const { label, friendly, technical } = getRoutedDisplay(routedTo, {
+  const { friendly, technical } = getRoutedDisplay(routedTo, {
     developerLabels,
+    language,
   });
+  const modeName = friendly;
+
+  const prefix =
+    answeredUsingLabel || (ar ? "تمت الإجابة باستخدام" : "Answered using");
 
   return (
     <div
@@ -14,12 +27,14 @@ export function RoutePill({ routedTo, routerReason, t, developerLabels, ar }) {
         gap: 2,
         marginTop: 4,
         marginBottom: 4,
-        direction: ar ? "rtl" : "ltr",
       }}
     >
       <span
         style={{
-          display: "inline-block",
+          display: "inline-flex",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: 6,
           fontSize: 11,
           color: t.text3,
           background: t.accentDim,
@@ -27,14 +42,29 @@ export function RoutePill({ routedTo, routerReason, t, developerLabels, ar }) {
           borderRadius: 999,
           padding: "3px 10px",
           lineHeight: 1.4,
+          direction: ar ? "rtl" : "ltr",
+          unicodeBidi: "isolate",
         }}
         title={routerReason || ""}
       >
-        {ar ? "تمت الإجابة باستخدام" : "Answered using"}:{" "}
-        <strong style={{ color: t.accent }}>{label}</strong>
+        <span>{prefix}</span>
+        <strong
+          style={{ color: t.accent, unicodeBidi: "isolate" }}
+          dir="auto"
+        >
+          {modeName}
+        </strong>
       </span>
-      {developerLabels && technical !== friendly && (
-        <span style={{ fontSize: 10, color: t.text4, paddingLeft: 4 }}>
+      {developerLabels && technical && (
+        <span
+          style={{
+            fontSize: 10,
+            color: t.text3,
+            direction: "ltr",
+            unicodeBidi: "isolate",
+            paddingInlineStart: 2,
+          }}
+        >
           {technical}
         </span>
       )}

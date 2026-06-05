@@ -12,8 +12,8 @@ export const FIELD_DARK = {
   accentSky: "#5a9ec4",
   text1: "#eef2ef",
   text2: "#c8d0cb",
-  text3: "#8a968f",
-  text4: "#5c665f",
+  text3: "#a3aea7",
+  text4: "#839088",
   border1: "#2a332e",
   border2: "#1f2622",
   err: {
@@ -28,6 +28,7 @@ export const FIELD_DARK = {
   panelGeneral: "#3d9b6a",
   panelProduct: "#c4a35a",
   confidenceBg: "rgba(61,155,106,0.08)",
+  avatarRing: "rgba(61,155,106,0.22)",
 };
 
 export const FIELD_LIGHT = {
@@ -45,7 +46,7 @@ export const FIELD_LIGHT = {
   text1: "#1a1f1c",
   text2: "#3d4540",
   text3: "#6b736c",
-  text4: "#9a9f9b",
+  text4: "#727872",
   border1: "#d4cfc4",
   border2: "#e8e4db",
   err: { bg: "#fdecea", color: "#8b2820", b: "#f0b4b0" },
@@ -56,6 +57,7 @@ export const FIELD_LIGHT = {
   panelGeneral: "#2d7a52",
   panelProduct: "#a8842e",
   confidenceBg: "rgba(45,122,82,0.06)",
+  avatarRing: "rgba(45,122,82,0.18)",
 };
 
 export const FIELD_FONT =

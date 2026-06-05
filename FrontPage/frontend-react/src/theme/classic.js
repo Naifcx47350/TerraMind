@@ -9,8 +9,8 @@ export const CLASSIC_DARK = {
   accentDim: "rgba(16,163,127,0.12)",
   text1: "#ececec",
   text2: "#c2c2c2",
-  text3: "#8a8a8a",
-  text4: "#555555",
+  text3: "#a8a8a8",
+  text4: "#909090",
   border1: "#2e2e2e",
   border2: "#222222",
   err: {
@@ -25,6 +25,7 @@ export const CLASSIC_DARK = {
   panelGeneral: null,
   panelProduct: null,
   confidenceBg: null,
+  avatarRing: "rgba(16,163,127,0.2)",
 };
 
 export const CLASSIC_LIGHT = {
@@ -39,7 +40,7 @@ export const CLASSIC_LIGHT = {
   text1: "#0d0d0d",
   text2: "#2d2d2d",
   text3: "#6b6b6b",
-  text4: "#aaaaaa",
+  text4: "#757575",
   border1: "#d9d9d9",
   border2: "#e8e8e8",
   err: { bg: "#fdecea", color: "#8b2820", b: "#f0b4b0" },
@@ -50,6 +51,7 @@ export const CLASSIC_LIGHT = {
   panelGeneral: null,
   panelProduct: null,
   confidenceBg: null,
+  avatarRing: "rgba(16,163,127,0.15)",
 };
 
 export const CLASSIC_FONT =
@@ -103,12 +105,13 @@ export const CLASSIC_TM_CSS = `
 .tm-msg-in{animation:tm-slide-up .38s cubic-bezier(.22,1,.36,1) both}
 
 .tm-composer{transition:border-color .25s ease,box-shadow .25s ease,transform .25s ease}
-.tm-composer:focus-within{border-color:#10a37f!important;box-shadow:0 0 0 3px rgba(16,163,127,.14),0 6px 24px rgba(0,0,0,.12)!important}
+.tm-composer:focus-within{border-color:var(--tm-accent)!important;box-shadow:0 0 0 3px var(--tm-accent-dim),0 6px 24px rgba(0,0,0,.12)!important}
 
 .tm-conv-item{transition:background .18s ease,transform .18s ease}
 .tm-conv-item:hover{transform:translateX(3px)}
 
-.tm-model-menu{animation:tm-scale-in .22s cubic-bezier(.22,1,.36,1) both;transform-origin:top left}
+.tm-model-menu{animation:tm-scale-in .22s cubic-bezier(.22,1,.36,1) both;transform-origin:top right}
+[dir=rtl] .tm-model-menu{transform-origin:top left}
 
 .tm-icon-btn{transition:background .15s ease,transform .15s ease}
 .tm-icon-btn:hover{transform:scale(1.06)}

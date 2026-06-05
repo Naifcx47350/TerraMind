@@ -1,31 +1,20 @@
-import logoSrc from "@assets/logo/TM_Logo.png";
+import logoWhiteSrc from "@assets/logo/TM_Logo_white.png";
+import { buildLogoFilter } from "./TerraLogo.jsx";
+import { DEFAULT_LOGO_AVATAR_SCALE } from "../theme/visuals.js";
 
-export function BotAvatar({ t, useMonogram, size = 28 }) {
-  if (useMonogram) {
-    return (
-      <div
-        className="tm-bot-avatar-monogram"
-        style={{
-          width: size,
-          height: size,
-          borderRadius: "50%",
-          background: t.accentDim,
-          border: `1px solid ${t.border1}`,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          flexShrink: 0,
-          color: t.accent,
-          fontSize: Math.round(size * 0.38),
-          fontWeight: 700,
-          letterSpacing: "-0.03em",
-        }}
-        aria-hidden
-      >
-        TM
-      </div>
-    );
-  }
+/** TerraMind logo avatar — white asset tinted per appearance theme. */
+export function BotAvatar({
+  t,
+  size = 28,
+  logoFilter = "none",
+  logoGlow,
+  logoTint,
+  logoAvatarScale = DEFAULT_LOGO_AVATAR_SCALE,
+}) {
+  const ring = t.avatarRing || t.accentDim;
+  const filter = buildLogoFilter(logoFilter, logoGlow);
+  const tint = logoTint || t.accent;
+  const logoSize = Math.round(size * logoAvatarScale);
 
   return (
     <div
@@ -33,21 +22,34 @@ export function BotAvatar({ t, useMonogram, size = 28 }) {
         width: size,
         height: size,
         borderRadius: "50%",
-        background: t.accentDim,
+        background: ring,
         border: `1px solid ${t.border1}`,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         flexShrink: 0,
         overflow: "hidden",
+        boxShadow: `0 0 0 1px ${t.accentDim}, 0 2px 8px rgba(0,0,0,0.15)`,
       }}
+      aria-hidden
     >
-      <img
-        src={logoSrc}
-        alt=""
-        width={size + 2}
-        height={size + 2}
-        style={{ objectFit: "contain", display: "block" }}
+      <div
+        className="tm-logo-mask"
+        style={{
+          width: logoSize,
+          height: logoSize,
+          flexShrink: 0,
+          backgroundColor: tint,
+          WebkitMaskImage: `url(${logoWhiteSrc})`,
+          maskImage: `url(${logoWhiteSrc})`,
+          WebkitMaskSize: "contain",
+          maskSize: "contain",
+          WebkitMaskRepeat: "no-repeat",
+          maskRepeat: "no-repeat",
+          WebkitMaskPosition: "center",
+          maskPosition: "center",
+          filter,
+        }}
       />
     </div>
   );
