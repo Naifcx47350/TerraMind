@@ -1,120 +1,17 @@
 import { useState, useRef, useEffect } from "react";
 import logoSrc from "@assets/logo/TM_Logo.png";
 import { MarkdownMessage } from "./MarkdownMessage";
+import { resolveTheme } from "./theme/index.js";
+import { loadUiSettings, saveUiSettings } from "./settings/uiSettings.js";
+import { getModelDisplay, getRoutedDisplay } from "./settings/modelLabels.js";
+import { SettingsPanel } from "./components/SettingsPanel.jsx";
+import { SourceList } from "./components/SourceList.jsx";
+import { ConfidenceBadge } from "./components/ConfidenceBadge.jsx";
+import { AdvisoryPanels, shouldUseAdvisoryPanels } from "./components/AdvisoryPanels.jsx";
+import { RoutePill } from "./components/RoutePill.jsx";
+import { BotAvatar } from "./components/BotAvatar.jsx";
 
 const API = "/api";
-
-const DARK = {
-  bg: "#0a0a0a",
-  bgSide: "#111111",
-  bgCard: "#1a1a1a",
-  bgInput: "#1a1a1a",
-  bgHover: "#222222",
-  bgActive: "#2a2a2a",
-  accent: "#10a37f",
-  accentDim: "rgba(16,163,127,0.12)",
-  text1: "#ececec",
-  text2: "#c2c2c2",
-  text3: "#8a8a8a",
-  text4: "#555555",
-  border1: "#2e2e2e",
-  border2: "#222222",
-  err: {
-    bg: "rgba(220,80,60,0.09)",
-    color: "#e07060",
-    b: "rgba(220,80,60,0.22)",
-  },
-  btnText: "#ffffff",
-  inputBorder: "#2e2e2e",
-  inputFocus: "#10a37f",
-  inputShadow: "rgba(16,163,127,0.15)",
-};
-const LIGHT = {
-  bg: "#ffffff",
-  bgSide: "#f7f7f8",
-  bgCard: "#ffffff",
-  bgInput: "#ffffff",
-  bgHover: "#ececec",
-  bgActive: "#e2e2e2",
-  accent: "#10a37f",
-  accentDim: "rgba(16,163,127,0.08)",
-  text1: "#0d0d0d",
-  text2: "#2d2d2d",
-  text3: "#6b6b6b",
-  text4: "#aaaaaa",
-  border1: "#d9d9d9",
-  border2: "#e8e8e8",
-  err: { bg: "#fdecea", color: "#8b2820", b: "#f0b4b0" },
-  btnText: "#ffffff",
-  inputBorder: "#c0c0c0",
-  inputFocus: "#10a37f",
-  inputShadow: "rgba(16,163,127,0.18)",
-};
-
-const F = "'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif";
-
-const TM_CSS = `
-@keyframes tm-fade-in{from{opacity:0}to{opacity:1}}
-@keyframes tm-slide-up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-@keyframes tm-scale-in{from{opacity:0;transform:scale(.94) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
-@keyframes tm-logo-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-@keyframes tm-spin{to{transform:rotate(360deg)}}
-
-.tm-root{transition:background-color .3s ease}
-.tm-shell{display:flex;flex:1;min-width:0;width:100%;height:100%;overflow:hidden;transition:filter .45s ease,transform .45s ease,opacity .45s ease}
-.tm-gate-open .tm-shell{filter:blur(10px) saturate(.9);transform:scale(.982);opacity:.5;pointer-events:none}
-.tm-app-ready .tm-shell{animation:tm-fade-in .55s ease}
-
-.tm-gate-backdrop{animation:tm-fade-in .4s ease forwards}
-.tm-gate-backdrop.tm-gate-exiting{animation:tm-fade-in .3s ease reverse forwards}
-.tm-gate-modal{animation:tm-scale-in .5s cubic-bezier(.22,1,.36,1) forwards}
-.tm-gate-backdrop.tm-gate-exiting .tm-gate-modal{animation:tm-scale-in .3s ease reverse forwards}
-
-.tm-stagger-1{animation:tm-slide-up .5s cubic-bezier(.22,1,.36,1) .06s both}
-.tm-stagger-2{animation:tm-slide-up .5s cubic-bezier(.22,1,.36,1) .12s both}
-.tm-stagger-3{animation:tm-slide-up .5s cubic-bezier(.22,1,.36,1) .18s both}
-.tm-stagger-4{animation:tm-slide-up .5s cubic-bezier(.22,1,.36,1) .24s both}
-.tm-stagger-5{animation:tm-slide-up .5s cubic-bezier(.22,1,.36,1) .3s both}
-
-.tm-gate-logo{animation:tm-logo-float 3.2s ease-in-out infinite}
-
-.tm-privacy-collapse{display:grid;grid-template-rows:0fr;transition:grid-template-rows .3s cubic-bezier(.22,1,.36,1)}
-.tm-privacy-collapse.tm-privacy-open{grid-template-rows:1fr}
-.tm-privacy-inner{overflow:hidden;min-height:0}
-
-.tm-gate-input{transition:border-color .2s ease,box-shadow .2s ease}
-.tm-gate-input:focus{outline:none;border-color:#10a37f!important;box-shadow:0 0 0 3px rgba(16,163,127,.2)!important}
-
-.tm-btn-primary{transition:transform .18s ease,opacity .18s ease,background .18s ease,box-shadow .18s ease}
-.tm-btn-primary:not(:disabled):hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(16,163,127,.32)}
-.tm-btn-primary:not(:disabled):active{transform:translateY(0);box-shadow:none}
-.tm-btn-loading::after{content:"";width:14px;height:14px;margin-left:8px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;display:inline-block;vertical-align:-2px;animation:tm-spin .7s linear infinite}
-
-.tm-empty-logo{animation:tm-scale-in .65s cubic-bezier(.22,1,.36,1) both}
-.tm-empty-title{animation:tm-slide-up .55s cubic-bezier(.22,1,.36,1) .14s both}
-.tm-empty-sub{animation:tm-slide-up .55s cubic-bezier(.22,1,.36,1) .22s both}
-.tm-empty-chips{animation:tm-slide-up .55s cubic-bezier(.22,1,.36,1) .3s both}
-
-.tm-chip{transition:transform .2s ease,background .15s ease,border-color .15s ease,box-shadow .2s ease}
-.tm-chip:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.18)}
-
-.tm-msg-in{animation:tm-slide-up .38s cubic-bezier(.22,1,.36,1) both}
-
-.tm-composer{transition:border-color .25s ease,box-shadow .25s ease,transform .25s ease}
-.tm-composer:focus-within{border-color:#10a37f!important;box-shadow:0 0 0 3px rgba(16,163,127,.14),0 6px 24px rgba(0,0,0,.12)!important}
-
-.tm-conv-item{transition:background .18s ease,transform .18s ease}
-.tm-conv-item:hover{transform:translateX(3px)}
-
-.tm-model-menu{animation:tm-scale-in .22s cubic-bezier(.22,1,.36,1) both;transform-origin:top left}
-
-.tm-icon-btn{transition:background .15s ease,transform .15s ease}
-.tm-icon-btn:hover{transform:scale(1.06)}
-
-@media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation:none!important;transition-duration:.01ms!important}
-}
-`;
 
 const ADVISORY_MODEL = {
   id: "advisory",
@@ -195,128 +92,26 @@ function TerraLogo({ size = 1000, style = {}, onSecretClick }) {
   );
 }
 
-function formatConfidence(level) {
-  if (!level) return "—";
-  const s = String(level).toLowerCase();
-  return s.charAt(0).toUpperCase() + s.slice(1);
-}
-
-function formatRetrievalPct(score) {
-  if (score == null || Number.isNaN(Number(score))) return null;
-  return `${Math.round(Number(score) * 100)}%`;
-}
-
-/** Show confidence only when vector retrieval actually ran. */
-function shouldShowRetrievalConfidence({
-  routedTo,
-  modelId,
-  retrievedChunks,
-  retrievalScore,
-  confidence,
-}) {
-  if (!confidence || String(confidence).trim() === "") return false;
-  const backend = routedTo || modelId;
-  if (backend === "base_llm") return false;
-  if (modelId === "advisory" && (retrievedChunks ?? 0) === 0 && retrievalScore == null) {
-    return false;
-  }
-  if ((retrievedChunks ?? 0) > 0) return true;
-  return retrievalScore != null && !Number.isNaN(Number(retrievalScore));
-}
-
-function RetrievalConfidence({
-  confidence,
-  retrievalScore,
-  retrievedChunks,
-  routedTo,
-  modelId,
-  t,
-  ar,
-}) {
-  if (
-    !shouldShowRetrievalConfidence({
-      routedTo,
-      modelId,
-      retrievedChunks,
-      retrievalScore,
-      confidence,
-    })
-  ) {
-    return null;
-  }
-
-  const isRag =
-    modelId &&
-    modelId !== "base_llm" &&
-    (routedTo || modelId) !== "base_llm";
-  const pct = formatRetrievalPct(retrievalScore);
-
-  const label = ar ? "ثقة الإجابة" : "Confidence";
-  const matchLabel = ar ? "تطابق الاسترجاع" : "Retrieval match";
-  const chunksLabel = ar ? "مقاطع" : "chunks";
-
-  return (
-    <div
-      style={{
-        marginTop: 10,
-        fontSize: 12,
-        color: t.text3,
-        lineHeight: 1.5,
-        direction: ar ? "rtl" : "ltr",
-        textAlign: ar ? "right" : "left",
-      }}
-      title={
-        ar
-          ? "أعلى = تطابق أقوى بين سؤالك ومقاطع قاعدة المعرفة"
-          : "How well retrieved documents match your question (High / Medium / Low)"
-      }
-    >
-      <span style={{ color: t.text2 }}>
-        {label}: <strong>{formatConfidence(confidence)}</strong>
-      </span>
-      {isRag && pct && (
-        <span>
-          {" "}
-          · {matchLabel}: <strong>{pct}</strong>
-          {retrievedChunks != null && retrievedChunks > 0
-            ? ` · ${retrievedChunks} ${chunksLabel}`
-            : ""}
-        </span>
-      )}
-      {isRag && !pct && retrievedChunks > 0 && (
-        <span>
-          {" "}
-          · {retrievedChunks} {chunksLabel}
-        </span>
-      )}
-    </div>
-  );
-}
-
-const ROUTED_LABELS = {
-  product_rag: "Product Catalog RAG",
-  general_rag: "Agriculture Knowledge RAG",
-  base_llm: "Base LLM",
-};
-
 /** Same three backends as terramind.models.COMPARE_MODEL_IDS (Auto excluded). */
 const COMPARE_MODEL_IDS = ["product_rag", "general_rag", "base_llm"];
 
-function compareModelList(modelList) {
+function compareModelList(modelList, developerLabels = false) {
   const byId = Object.fromEntries(modelList.map((m) => [m.id, m]));
-  return COMPARE_MODEL_IDS.map(
-    (id) =>
-      byId[id] || {
-        id,
-        name: ROUTED_LABELS[id] || id,
-        description: "",
-      },
-  );
+  return COMPARE_MODEL_IDS.map((id) => {
+    const fromApi = byId[id];
+    const labels = getModelDisplay(id, { developerLabels });
+    return {
+      id,
+      name: labels.friendly,
+      technical: labels.technical,
+      description: fromApi?.description || labels.description || "",
+    };
+  });
 }
 
 const AUTO_ROUTE_HINT_MS = 10000;
 
-function AutoRouteHint({ label, reason, t, fading }) {
+function AutoRouteHint({ label, technical, reason, t, fading, developerLabels }) {
   if (!label) return null;
   return (
     <div
@@ -333,12 +128,24 @@ function AutoRouteHint({ label, reason, t, fading }) {
       }}
     >
       Using {label}
+      {developerLabels && technical && (
+        <div style={{ fontSize: 9, color: t.text4, marginTop: 1 }}>{technical}</div>
+      )}
     </div>
   );
 }
 
-function ComparePanels({ msg, models, t, showSrc, showScores, isAr }) {
-  const compareModels = compareModelList(models);
+function ComparePanels({
+  msg,
+  models,
+  t,
+  uiSettings,
+  isAr,
+  appearance,
+}) {
+  const compareModels = compareModelList(models, uiSettings.developerLabels);
+  const showSrc = uiSettings.showSources;
+  const showScores = uiSettings.showConfidence;
   const panels =
     msg.panels?.length > 0
       ? msg.panels
@@ -406,6 +213,11 @@ function ComparePanels({ msg, models, t, showSrc, showScores, isAr }) {
                 >
                   {panel.modelName}
                 </div>
+                {compareModels.find((m) => m.id === panel.modelId)?.technical && (
+                  <div style={{ fontSize: 10, color: t.text4, marginTop: 2, lineHeight: 1.3 }}>
+                    {compareModels.find((m) => m.id === panel.modelId).technical}
+                  </div>
+                )}
                 {panel.latency != null && !panel.loading && (
                   <div style={{ fontSize: 11, color: t.text4, marginTop: 2 }}>
                     {panel.latency}ms
@@ -453,13 +265,14 @@ function ComparePanels({ msg, models, t, showSrc, showScores, isAr }) {
                   "—"
                 )}
                 {showScores && !panel.loading && !panel.error && (
-                  <RetrievalConfidence
+                  <ConfidenceBadge
                     confidence={panel.confidence}
                     retrievalScore={panel.retrieval_score}
                     retrievedChunks={panel.retrieved_chunks}
                     modelId={panel.modelId}
                     t={t}
                     ar={ar}
+                    appearance={appearance}
                   />
                 )}
               </div>
@@ -471,32 +284,12 @@ function ComparePanels({ msg, models, t, showSrc, showScores, isAr }) {
                     flexShrink: 0,
                   }}
                 >
-                  <div
-                    style={{
-                      fontSize: 10,
-                      color: t.text4,
-                      textTransform: "uppercase",
-                      marginBottom: 4,
-                    }}
-                  >
-                    Sources
-                  </div>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
-                    {panel.sources.map((src, j) => (
-                      <span
-                        key={j}
-                        style={{
-                          fontSize: 11,
-                          color: t.text3,
-                          background: t.bgHover,
-                          borderRadius: 4,
-                          padding: "2px 6px",
-                        }}
-                      >
-                        {src.title}
-                      </span>
-                    ))}
-                  </div>
+                  <SourceList
+                    sources={panel.sources}
+                    t={t}
+                    ar={ar}
+                    appearance={appearance}
+                  />
                 </div>
               )}
             </div>
@@ -1074,6 +867,7 @@ async function applyOpenAIKeyToServer(apiKey) {
 export default function App() {
   const stored = loadStoredSessions();
   const [dark, setDark] = useState(true);
+  const [uiSettings, setUiSettings] = useState(() => loadUiSettings());
   const [sideOpen, setSideOpen] = useState(true);
   const [sessions, setSessions] = useState(
     () => stored?.sessions ?? [newSession()],
@@ -1081,14 +875,10 @@ export default function App() {
   const [activeId, setActiveId] = useState(
     () => stored?.activeId ?? stored?.sessions?.[0]?.id ?? Date.now(),
   );
-  const [showSrc, setShowSrc] = useState(false);
-  const [showScores, setShowScores] = useState(
-    () => localStorage.getItem("terramind_show_scores_v1") === "1",
-  );
+  const [dragOver, setDragOver] = useState(false);
   const [text, setText] = useState("");
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [dragOver, setDragOver] = useState(false);
   const [hover, setHover] = useState(null);
   const [models, setModels] = useState(DEFAULT_MODELS);
   const [selectedModel, setSelectedModel] = useState("auto_rag");
@@ -1221,7 +1011,22 @@ export default function App() {
     return () => document.removeEventListener("mousedown", close);
   }, [modelOpen]);
 
-  const t = dark ? DARK : LIGHT;
+  const theme = resolveTheme(uiSettings.appearance, dark);
+  const { t, css: themeCss, fontFamily, headingFont, useMonogramAvatar, composerRadius, chipRadius } =
+    theme;
+
+  useEffect(() => {
+    if (uiSettings.appearance !== "field") return;
+    import("@fontsource/dm-sans/400.css");
+    import("@fontsource/dm-sans/600.css");
+    import("@fontsource/dm-sans/700.css");
+  }, [uiSettings.appearance]);
+
+  const handleUiSettingsChange = (next) => {
+    setUiSettings(next);
+    saveUiSettings(next);
+  };
+
   const all = sessions.find((s) => s.id === activeId) || sessions[0];
   const filteredSessions = convSearch.trim()
     ? sessions.filter((s) => sessionMatchesSearch(s, convSearch))
@@ -1236,10 +1041,16 @@ export default function App() {
 
   const showAutoRouteHint = (routedTo, reason) => {
     if (!routedTo) return;
-    const label = ROUTED_LABELS[routedTo] || routedTo;
+    const routed = getRoutedDisplay(routedTo, {
+      developerLabels: uiSettings.developerLabels,
+    });
     clearAutoRouteTimer();
     setAutoRouteFading(false);
-    setAutoRouteHint({ label, reason: reason || "" });
+    setAutoRouteHint({
+      label: routed.label,
+      technical: routed.technical,
+      reason: reason || "",
+    });
     autoRouteTimerRef.current = setTimeout(() => {
       setAutoRouteFading(true);
       autoRouteTimerRef.current = setTimeout(() => {
@@ -1281,8 +1092,12 @@ export default function App() {
       return;
     }
     if (lastBot.routed_to) {
+      const routed = getRoutedDisplay(lastBot.routed_to, {
+        developerLabels: uiSettings.developerLabels,
+      });
       setAutoRouteHint({
-        label: ROUTED_LABELS[lastBot.routed_to] || lastBot.routed_to,
+        label: routed.label,
+        technical: routed.technical,
         reason: lastBot.router_reason || "",
       });
       setAutoRouteFading(false);
@@ -1402,7 +1217,7 @@ export default function App() {
     }
 
     if (compareMode) {
-      const compareModels = compareModelList(models);
+      const compareModels = compareModelList(models, uiSettings.developerLabels);
       const placeholderPanels = compareModels.map((m) => ({
         modelId: m.id,
         modelName: m.name,
@@ -1625,10 +1440,9 @@ export default function App() {
 
   const canSend = (text.trim() || image) && !loading && apiKeyReady;
   const isAr = (txt) => /[\u0600-\u06ff]/.test(txt || "");
-  const activeModel =
-    models.find((m) => m.id === selectedModel) ||
-    (selectedModel === "advisory" ? ADVISORY_MODEL : null) ||
-    models[0];
+  const activeModelLabels = getModelDisplay(selectedModel, {
+    developerLabels: uiSettings.developerLabels,
+  });
   const hasCompareMessages = all.messages.some((m) => m.role === "compare");
   const showBottomLoader =
     loading &&
@@ -1678,8 +1492,13 @@ export default function App() {
         overflow: "hidden",
         background: t.bg,
         color: t.text1,
-        fontFamily: F,
+        fontFamily: fontFamily,
         fontSize: 14,
+        "--tm-accent": t.accent,
+        "--tm-accent-dim": t.accentDim,
+        "--tm-panel-general": t.panelGeneral || t.accent,
+        "--tm-panel-product": t.panelProduct || t.accentWheat || "#c4a35a",
+        "--tm-confidence-bg": t.confidenceBg || t.bgHover,
       }}
     >
       <div className="tm-shell">
@@ -1784,7 +1603,7 @@ export default function App() {
                 border: "none",
                 outline: "none",
                 background: "transparent",
-                fontFamily: F,
+                fontFamily: fontFamily,
                 fontSize: 13,
                 color: t.text1,
               }}
@@ -1860,7 +1679,7 @@ export default function App() {
                     border: "none",
                     padding: "8px 8px",
                     cursor: "pointer",
-                    fontFamily: F,
+                    fontFamily: fontFamily,
                     display: "flex",
                     alignItems: "center",
                     gap: 8,
@@ -1924,80 +1743,13 @@ export default function App() {
             style={{ borderTop: `1px solid ${t.border1}`, margin: "10px 0" }}
           />
 
-          <label
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              fontSize: 13,
-              color: t.text3,
-              cursor: "pointer",
-              paddingLeft: 2,
-              marginBottom: 10,
-            }}
-          >
-            <input
-              type="checkbox"
-              checked={showSrc}
-              onChange={(e) => setShowSrc(e.target.checked)}
-              style={{ accentColor: t.accent, width: 14, height: 14 }}
-            />
-            Show sources
-          </label>
-
-          <label
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              fontSize: 13,
-              color: t.text3,
-              cursor: "pointer",
-              paddingLeft: 2,
-              marginBottom: 10,
-            }}
-          >
-            <input
-              type="checkbox"
-              checked={showScores}
-              onChange={(e) => {
-                const on = e.target.checked;
-                setShowScores(on);
-                localStorage.setItem(
-                  "terramind_show_scores_v1",
-                  on ? "1" : "0",
-                );
-              }}
-              style={{ accentColor: t.accent, width: 14, height: 14 }}
-            />
-            Show confidence
-          </label>
-
-          <button
-            onClick={() => setDark((d) => !d)}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              width: "100%",
-              background: "transparent",
-              border: `1px solid ${t.border1}`,
-              borderRadius: 8,
-              color: t.text3,
-              fontFamily: F,
-              fontSize: 13,
-              padding: "8px 12px",
-              cursor: "pointer",
-              transition: "background .15s",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = t.bgHover)}
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.background = "transparent")
-            }
-          >
-            {dark ? <I.sun /> : <I.moon />}
-            {dark ? "Light mode" : "Dark mode"}
-          </button>
+          <SettingsPanel
+            t={t}
+            uiSettings={uiSettings}
+            onChange={handleUiSettingsChange}
+            dark={dark}
+            onToggleDark={() => setDark((d) => !d)}
+          />
         </div>
       </aside>
 
@@ -2080,7 +1832,7 @@ export default function App() {
                 borderRadius: 10,
                 padding: "6px 12px",
                 cursor: "pointer",
-                fontFamily: F,
+                fontFamily: fontFamily,
                 color: t.text1,
                 transition: "border-color .15s, background .15s",
               }}
@@ -2095,16 +1847,18 @@ export default function App() {
                   textOverflow: "ellipsis",
                 }}
               >
-                {activeModel?.name || "Model"}
+                {activeModelLabels.friendly}
               </span>
               <I.chevron c={t.text3} />
             </button>
             {selectedModel === "auto_rag" && !compareMode && (
               <AutoRouteHint
                 label={autoRouteHint?.label}
+                technical={autoRouteHint?.technical}
                 reason={autoRouteHint?.reason}
                 t={t}
                 fading={autoRouteFading}
+                developerLabels={uiSettings.developerLabels}
               />
             )}
             {modelOpen && (
@@ -2123,7 +1877,11 @@ export default function App() {
                   zIndex: 50,
                 }}
               >
-                {withAdvisoryOption(models, advisoryUnlocked).map((m) => (
+                {withAdvisoryOption(models, advisoryUnlocked).map((m) => {
+                  const labels = getModelDisplay(m.id, {
+                    developerLabels: uiSettings.developerLabels,
+                  });
+                  return (
                   <button
                     key={m.id}
                     type="button"
@@ -2141,7 +1899,7 @@ export default function App() {
                       borderRadius: 8,
                       padding: "10px 12px",
                       cursor: "pointer",
-                      fontFamily: F,
+                      fontFamily: fontFamily,
                       transition: "background .15s",
                     }}
                     onMouseEnter={(e) => {
@@ -2161,9 +1919,19 @@ export default function App() {
                         color: m.id === selectedModel ? t.accent : t.text1,
                       }}
                     >
-                      {m.name}
+                      {labels.friendly}
                     </div>
-                    {m.description && (
+                    <div
+                      style={{
+                        fontSize: 10,
+                        color: t.text4,
+                        marginTop: 2,
+                        lineHeight: 1.35,
+                      }}
+                    >
+                      {labels.technical}
+                    </div>
+                    {(m.description || labels.description) && (
                       <div
                         style={{
                           fontSize: 11,
@@ -2172,11 +1940,12 @@ export default function App() {
                           lineHeight: 1.4,
                         }}
                       >
-                        {m.description}
+                        {m.description || labels.description}
                       </div>
                     )}
                   </button>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -2219,6 +1988,7 @@ export default function App() {
                   color: t.text1,
                   marginTop: 16,
                   marginBottom: 8,
+                  fontFamily: headingFont,
                 }}
               >
                 Ask the field.
@@ -2261,12 +2031,12 @@ export default function App() {
                     style={{
                       background: t.bgCard,
                       border: `1px solid ${t.border1}`,
-                      borderRadius: 20,
+                      borderRadius: chipRadius,
                       padding: "8px 16px",
                       fontSize: 13,
                       color: t.text2,
                       cursor: "pointer",
-                      fontFamily: F,
+                      fontFamily: fontFamily,
                       transition: "background .15s",
                     }}
                     onMouseEnter={(e) =>
@@ -2299,9 +2069,9 @@ export default function App() {
                       msg={msg}
                       models={models}
                       t={t}
-                      showSrc={showSrc}
-                      showScores={showScores}
+                      uiSettings={uiSettings}
                       isAr={isAr}
+                      appearance={uiSettings.appearance}
                     />
                   );
 
@@ -2375,6 +2145,10 @@ export default function App() {
                   );
 
                 const ar = isAr(msg.answer);
+                const useAdvisoryPanels = shouldUseAdvisoryPanels(
+                  msg.model,
+                  msg.answer,
+                );
                 return (
                   <div key={i} className="tm-msg-in" style={{ marginBottom: 20 }}>
                     <div
@@ -2386,22 +2160,11 @@ export default function App() {
                         flexDirection: ar ? "row-reverse" : "row",
                       }}
                     >
-                      <div
-                        style={{
-                          width: 28,
-                          height: 28,
-                          borderRadius: "50%",
-                          background: t.accentDim,
-                          border: `1px solid ${t.border1}`,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          flexShrink: 0,
-                          overflow: "hidden",
-                        }}
-                      >
-                        <TerraLogo size={30} />
-                      </div>
+                      <BotAvatar
+                        t={t}
+                        useMonogram={useMonogramAvatar}
+                        size={28}
+                      />
                       <span
                         style={{
                           fontSize: 13,
@@ -2433,6 +2196,31 @@ export default function App() {
                         paddingRight: ar ? 36 : 0,
                       }}
                     >
+                      {(msg.routed_to || msg.model === "auto_rag") &&
+                        msg.routed_to &&
+                        !msg.streaming && (
+                          <RoutePill
+                            routedTo={msg.routed_to}
+                            routerReason={msg.router_reason}
+                            t={t}
+                            developerLabels={uiSettings.developerLabels}
+                            ar={ar}
+                          />
+                        )}
+                      {uiSettings.developerLabels &&
+                        msg.model &&
+                        msg.model !== "auto_rag" &&
+                        !msg.streaming && (
+                          <div
+                            style={{
+                              fontSize: 10,
+                              color: t.text4,
+                              marginBottom: 6,
+                            }}
+                          >
+                            {getModelDisplay(msg.model).technical}
+                          </div>
+                        )}
                       {msg.streaming && msg.status && (
                         <div
                           style={{
@@ -2446,28 +2234,40 @@ export default function App() {
                         </div>
                       )}
                       <div style={{ fontSize: 14 }}>
-                        <MarkdownMessage
-                          content={msg.answer}
-                          theme={t}
-                          dir={ar ? "rtl" : "ltr"}
-                        />
-                        {msg.streaming && (
-                          <span
-                            style={{
-                              display: "inline-block",
-                              width: 8,
-                              height: 14,
-                              marginLeft: 2,
-                              background: t.accent,
-                              opacity: 0.7,
-                              verticalAlign: "text-bottom",
-                              animation: "blink 1s step-end infinite",
-                            }}
+                        {useAdvisoryPanels ? (
+                          <AdvisoryPanels
+                            answer={msg.answer}
+                            t={t}
+                            ar={ar}
+                            appearance={uiSettings.appearance}
+                            streaming={msg.streaming}
                           />
+                        ) : (
+                          <>
+                            <MarkdownMessage
+                              content={msg.answer}
+                              theme={t}
+                              dir={ar ? "rtl" : "ltr"}
+                            />
+                            {msg.streaming && (
+                              <span
+                                style={{
+                                  display: "inline-block",
+                                  width: 8,
+                                  height: 14,
+                                  marginLeft: 2,
+                                  background: t.accent,
+                                  opacity: 0.7,
+                                  verticalAlign: "text-bottom",
+                                  animation: "blink 1s step-end infinite",
+                                }}
+                              />
+                            )}
+                          </>
                         )}
                       </div>
-                      {showScores && msg.role === "bot" && (
-                        <RetrievalConfidence
+                      {uiSettings.showConfidence && msg.role === "bot" && (
+                        <ConfidenceBadge
                           confidence={msg.confidence}
                           retrievalScore={msg.retrieval_score}
                           retrievedChunks={msg.retrieved_chunks}
@@ -2475,57 +2275,16 @@ export default function App() {
                           modelId={msg.routed_to || msg.model || selectedModel}
                           t={t}
                           ar={ar}
+                          appearance={uiSettings.appearance}
                         />
                       )}
-                      {showSrc && msg.sources?.length > 0 && (
-                        <div
-                          style={{
-                            marginTop: 12,
-                            direction: ar ? "rtl" : "ltr",
-                            textAlign: ar ? "right" : "left",
-                          }}
-                        >
-                          <div
-                            style={{
-                              fontSize: 11,
-                              color: t.text4,
-                              letterSpacing: "0.1em",
-                              textTransform: "uppercase",
-                              marginBottom: 6,
-                            }}
-                          >
-                            {ar ? "المصادر" : "Sources"}
-                          </div>
-                          {msg.sources.map((src, j) => (
-                            <span
-                              key={j}
-                              style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: 5,
-                                background: t.bgCard,
-                                border: `1px solid ${t.border1}`,
-                                borderRadius: 6,
-                                padding: "4px 10px",
-                                margin: "2px 4px 2px 0",
-                                fontSize: 12,
-                                color: t.text3,
-                              }}
-                            >
-                              <span
-                                style={{
-                                  width: 4,
-                                  height: 4,
-                                  borderRadius: "50%",
-                                  background: t.accent,
-                                  display: "inline-block",
-                                  flexShrink: 0,
-                                }}
-                              />
-                              {src.title}
-                            </span>
-                          ))}
-                        </div>
+                      {uiSettings.showSources && msg.sources?.length > 0 && (
+                        <SourceList
+                          sources={msg.sources}
+                          t={t}
+                          ar={ar}
+                          appearance={uiSettings.appearance}
+                        />
                       )}
                     </div>
                   </div>
@@ -2540,21 +2299,7 @@ export default function App() {
                     marginBottom: 16,
                   }}
                 >
-                  <div
-                    style={{
-                      width: 28,
-                      height: 28,
-                      borderRadius: "50%",
-                      background: t.accentDim,
-                      border: `1px solid ${t.border1}`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      overflow: "hidden",
-                    }}
-                  >
-                    <TerraLogo size={28} />
-                  </div>
+                  <BotAvatar t={t} useMonogram={useMonogramAvatar} size={28} />
                   <div style={{ display: "flex", gap: 4 }}>
                     {[0, 1, 2].map((i) => (
                       <div
@@ -2665,7 +2410,7 @@ export default function App() {
               style={{
                 background: t.bgInput,
                 border: `2px solid ${t.inputBorder}`,
-                borderRadius: 16,
+                borderRadius: composerRadius,
                 padding: "12px 14px 10px",
                 display: "flex",
                 flexDirection: "column",
@@ -2694,7 +2439,7 @@ export default function App() {
                   border: "none",
                   outline: "none",
                   color: t.text1,
-                  fontFamily: F,
+                  fontFamily: fontFamily,
                   fontSize: 14,
                   lineHeight: 1.6,
                   resize: "none",
@@ -2725,7 +2470,7 @@ export default function App() {
                       alignItems: "center",
                       gap: 6,
                       padding: "0 10px",
-                      fontFamily: F,
+                      fontFamily: fontFamily,
                       fontSize: 12,
                       color: compareMode ? t.accent : t.text3,
                       transition: "all .15s",
@@ -2801,7 +2546,7 @@ export default function App() {
       </div>
 
       <style>{`
-        ${TM_CSS}
+        ${themeCss}
         @keyframes dot{0%,100%{opacity:.25;transform:scale(.75)}50%{opacity:1;transform:scale(1)}}
         @keyframes blink{50%{opacity:0}}
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
