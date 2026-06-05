@@ -17,6 +17,7 @@ Agricultural chat UI and API gateway for TerraMind (**Auto**, product RAG, gener
 - **Compare** button: same question → three answers in parallel columns
 - Image upload for crop/plant diagnosis (vision via **gpt-4o-mini**)
 - Optional source chips, dark/light mode, Arabic RTL
+- **Stylized themes** — per-appearance wallpapers, decor, and settings; see [../assets/README.md](../assets/README.md)
 
 ---
 

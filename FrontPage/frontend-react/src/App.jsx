@@ -315,6 +315,7 @@ function sanitize(str) {
 
 const SESSIONS_STORAGE_KEY = "terramind_sessions_v1";
 const OPENAI_KEY_SESSION = "terramind_openai_key_session_v1";
+const SIDEBAR_WIDTH = 280;
 
 function newSession() {
   return {
@@ -1609,8 +1610,8 @@ export default function App() {
       <aside
         className="tm-sidebar-glass"
         style={{
-          width: sideOpen ? 260 : 0,
-          minWidth: sideOpen ? 260 : 0,
+          width: sideOpen ? SIDEBAR_WIDTH : 0,
+          minWidth: sideOpen ? SIDEBAR_WIDTH : 0,
           overflow: "hidden",
           background: t.bgSide,
           ...(rtl
@@ -1628,7 +1629,7 @@ export default function App() {
             display: "flex",
             flexDirection: "column",
             height: "100%",
-            minWidth: 260,
+            minWidth: SIDEBAR_WIDTH,
             padding: "12px 12px 16px",
           }}
         >
@@ -1748,6 +1749,7 @@ export default function App() {
               flexDirection: "column",
               gap: 1,
               marginTop: 8,
+              paddingInline: 2,
             }}
           >
             {filteredSessions.length === 0 ? (
