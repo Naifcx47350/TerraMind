@@ -1,7 +1,4 @@
-FROM python:3.11-slim
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-COPY . .
-EXPOSE 8000
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# DEPRECATED — use repo-root docker-compose.yml (service: gateway).
+# See docker/README.md
+FROM alpine:3.19
+RUN echo "Use: docker compose up --build  (see docker/README.md)" >&2 && exit 1

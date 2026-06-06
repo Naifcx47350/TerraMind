@@ -1,0 +1,84 @@
+# TerraMind — run the full stack on any machine with Docker installed.
+#
+# Quick start:
+#   cp docker/env.example .env    # add OPENAI_API_KEY
+#   docker compose --profile init up init-indexes   # first time only: build vector indexes
+#   docker compose up --build
+#   open http://localhost:3000
+#
+# See docker/README.md for how each piece fits together.
+
+name: terramind
+
+services:
+  # --- 1. Model API (RAG + routing) — same as uvicorn on :8001 locally ---
+  model-api:
+    build:
+      context: .
+      dockerfile: docker/model-api/Dockerfile
+    ports:
+      - "8001:8001"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    volumes:
+      - vectorstore:/app/vectorstore
+    restart: unless-stopped
+
+  # --- 2. Gateway (FrontPage API) — same as uvicorn on :8000 locally ---
+  gateway:
+    build:
+      context: .
+      dockerfile: docker/gateway/Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      RAG_SERVICE_URL: http://model-api:8001/query
+      USE_MOCK: ${USE_MOCK:-false}
+    depends_on:
+      model-api:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # --- 3. Frontend (production build + nginx) — replaces npm run dev :3000 ---
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend/Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      gateway:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # --- One-shot: build Chroma indexes (run once, or after data changes) ---
+  init-indexes:
+    profiles: ["init"]
+    build:
+      context: .
+      dockerfile: docker/model-api/Dockerfile
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    volumes:
+      - vectorstore:/app/vectorstore
+    command:
+      - sh
+      - -c
+      - |
+        python Rag_Pc.py --reset
+        python -m terramind.rag.general.cli --reset
+        echo 'Indexes ready in volume vectorstore'
+
+volumes:
+  vectorstore:
+    name: terramind-vectorstore
