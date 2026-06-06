@@ -23,6 +23,7 @@ Agriculture support assistant with **Auto RAG** (default), manual product/genera
 | **[data/README.md](data/README.md)**                                               | Data folders — tracked vs gitignored                                           |
 | **[terramind/README.md](terramind/README.md)**                                     | Backend package layout                                                         |
 | **[FrontPage/RUN_LOCALLY.md](FrontPage/RUN_LOCALLY.md)**                           | Run all three services (ports, env)                                            |
+| **[docker/README.md](docker/README.md)**                                           | **Docker Desktop** — containers, mock mode, no-key demo, init indexes          |
 | **[FrontPage/README.md](FrontPage/README.md)**                                     | FrontPage API quick reference                                                  |
 
 ---
@@ -76,6 +77,37 @@ python run_dev.py
 **Or three terminals** — see [FrontPage/RUN_LOCALLY.md](FrontPage/RUN_LOCALLY.md).
 
 Open **http://localhost:3000**.
+
+### 4. Run with Docker (no conda / Node required)
+
+Install **[Docker Desktop](https://www.docker.com/products/docker-desktop/)**, then from repo root:
+
+```powershell
+cd <repo-root>
+copy docker\env.example .env
+```
+
+**Try without an OpenAI key** (demo / mock answers — same key prompt is skipped):
+
+```env
+USE_MOCK=true
+```
+
+**Or use real RAG** — set `OPENAI_API_KEY=...` and `USE_MOCK=false` in `.env`.
+
+```powershell
+# Real RAG only — first time, build vector indexes (needs OPENAI_API_KEY):
+docker compose --profile init run --rm init-indexes
+
+# Build images and start all three containers
+docker compose up --build
+```
+
+Open **http://localhost:3000**. In Docker Desktop → **Containers**, you should see `terramind-frontend`, `terramind-gateway`, and `terramind-model-api` running.
+
+Without a key and without `USE_MOCK=true`, the site still loads and shows the **OpenAI key gate** — paste a key in the browser; it syncs to both APIs (same as local dev). Mock mode skips that gate entirely.
+
+Full guide: **[docker/README.md](docker/README.md)**.
 
 ---
 

@@ -1,12 +1,16 @@
 # TerraMind — run the full stack on any machine with Docker installed.
 #
-# Quick start:
-#   cp docker/env.example .env    # add OPENAI_API_KEY
-#   docker compose --profile init up init-indexes   # first time only: build vector indexes
-#   docker compose up --build
-#   open http://localhost:3000
+# Quick start (Docker Desktop): see docker/QUICKSTART.md
 #
-# See docker/README.md for how each piece fits together.
+#   docker compose up --build
+#   open http://localhost:3000   → enter API key in browser if prompted
+#
+# Optional .env at repo root (secrets never committed):
+#   copy docker\env.example .env
+#
+# Real RAG (after you have a key): init-indexes once, then up --build
+#
+# Full explanation: docker/README.md
 
 name: terramind
 
