@@ -1,0 +1,55 @@
+# =============================================================================
+# .dockerignore — files NOT sent to `docker build` (like .gitignore for Docker)
+# =============================================================================
+# Why: smaller/faster builds, no secrets baked into images, no junk layers.
+# The build "context" is usually the repo root (.). Only non-ignored files are COPY'd.
+
+# --- Secrets (pass at runtime via .env / docker compose, not baked in) ---
+.env
+.env.*
+!.env.docker.example
+**/.env
+secrets.env
+
+# --- Python virtual env & cache ---
+.venv/
+venv/
+ENV/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+
+# --- Node (frontend deps are installed inside the frontend Dockerfile) ---
+**/node_modules/
+FrontPage/frontend-react/dist/
+**/.vite/
+
+# --- Git & IDE ---
+.git/
+.gitignore
+.vscode/
+.cursor/
+
+# --- Generated / local-only (mount as volumes instead) ---
+vectorstore/
+data/eval/runs/
+data/processed/
+
+# --- Large optional datasets (not needed for RAG MVP indexes) ---
+data/raw/PlantVillage/
+data/raw/Fine tuning data/
+
+# --- Docs & scratch (not needed inside containers) ---
+docs/
+*.md
+!docker/README.md
+
+# --- Docker meta (don't copy compose into image layers unnecessarily) ---
+docker-compose*.yml
+Dockerfile
+FrontPage/Dockerfile
+
+# --- OS junk ---
+.DS_Store
+Thumbs.db
