@@ -75,6 +75,7 @@ Expect output like `Indexed N document(s)` and `Built new index` or `Loaded exis
 Lines like `Ignoring wrong pointing object` are harmless **pypdf** PDF warnings.
 
 Indexes are stored in the Docker volume **`terramind-vectorstore`** (persists across restarts).  
+Corpus files under **`data/`** stay on your machine (cloned with the repo) and are **mounted** into `model-api` / `init-indexes` — they are not baked into the image.  
 Re-run this step only if you wipe the volume or change corpus data under `data/`.
 
 **Skip this step** if `USE_MOCK=true` (demo mode).

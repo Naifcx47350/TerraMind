@@ -29,6 +29,7 @@ services:
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
     volumes:
       - vectorstore:/app/vectorstore
+      - ./data:/app/data:ro
     restart: unless-stopped
 
   # --- 2. Gateway (FrontPage API) — same as uvicorn on :8000 locally ---
@@ -75,6 +76,7 @@ services:
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
     volumes:
       - vectorstore:/app/vectorstore
+      - ./data:/app/data:ro
     command:
       - sh
       - -c

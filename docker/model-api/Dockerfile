@@ -23,7 +23,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY terramind/ terramind/
 COPY Rag_Pc.py .
-COPY data/ data/
+
+# Corpus (PDFs, product Excel) is mounted at runtime — see docker-compose.yml
 
 # Indexes live on a named volume (see docker-compose.yml), not in the image
 RUN mkdir -p vectorstore/chroma vectorstore/chroma_products
