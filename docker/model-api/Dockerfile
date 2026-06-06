@@ -32,7 +32,7 @@ ENV PYTHONUNBUFFERED=1
 
 EXPOSE 8001
 
-HEALTHCHECK --interval=10s --timeout=5s --retries=5 --start-period=30s \
+HEALTHCHECK --interval=15s --timeout=5s --retries=5 --start-period=15s \
   CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/health')" || exit 1
 
 CMD ["python", "-m", "uvicorn", "terramind.api.app:app", "--host", "0.0.0.0", "--port", "8001"]

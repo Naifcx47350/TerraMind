@@ -1,5 +1,7 @@
 """General RAG — public API used by terramind.models.general_rag."""
 
+import threading
+
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
 
@@ -12,6 +14,7 @@ from terramind.rag.general.store import _chroma_exists, build_chroma_db
 from terramind.rag.scoring import sources_from_retrieved as _sources_from_retrieved
 
 _db: Chroma | None = None
+_init_lock = threading.Lock()
 
 
 def init_general_rag(reset: bool = False) -> Chroma:
@@ -30,8 +33,11 @@ def init_general_rag(reset: bool = False) -> Chroma:
 
 def get_general_db() -> Chroma:
     global _db
-    if _db is None:
-        _db = init_general_rag(reset=False)
+    if _db is not None:
+        return _db
+    with _init_lock:
+        if _db is None:
+            _db = init_general_rag(reset=False)
     return _db
 
 

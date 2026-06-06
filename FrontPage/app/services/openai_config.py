@@ -49,14 +49,14 @@ async def sync_openai_key_to_model_api(api_key: str) -> None:
     key = validate_openai_key(api_key)
     url = f"{base}/internal/openai-key"
     try:
-        async with httpx.AsyncClient(timeout=10) as client:
+        async with httpx.AsyncClient(timeout=30) as client:
             resp = await client.post(url, json={"api_key": key})
             resp.raise_for_status()
     except Exception as e:
         logger.warning("Could not sync OpenAI key to Model API (%s): %s", url, e)
         raise RuntimeError(
-            "Key saved for FrontPage but Model API (port 8001) did not accept it. "
-            "Is terramind.api.app running?"
+            "Key saved for FrontPage but Model API did not respond in time. "
+            "Wait for model-api to finish starting, then try again."
         ) from e
 
 

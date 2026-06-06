@@ -118,20 +118,23 @@ def get_models():
 
 @app.get("/health")
 def health():
-    status = {"status": "ok", "service": "terramind-models", "models": list_models()}
-    try:
-        from terramind.rag.product import get_product_db
+    """Lightweight liveness check — do not load Chroma or rebuild indexes here."""
+    from terramind.rag.general.config import CHROMA_PATH as GENERAL_CHROMA
+    from terramind.rag.product.config import CHROMA_PATH as PRODUCT_CHROMA
 
-        status["product_vectors"] = get_product_db()._collection.count()
-    except Exception as e:
-        status["product_vectors"] = f"error: {e}"
-    try:
-        from terramind.rag.general import get_general_db
+    def index_status(path) -> str:
+        sqlite = path / "chroma.sqlite3"
+        if sqlite.exists():
+            return "indexed"
+        return "missing"
 
-        status["general_vectors"] = get_general_db()._collection.count()
-    except Exception as e:
-        status["general_vectors"] = f"error: {e}"
-    return status
+    return {
+        "status": "ok",
+        "service": "terramind-models",
+        "models": list_models(),
+        "general_vectors": index_status(GENERAL_CHROMA),
+        "product_vectors": index_status(PRODUCT_CHROMA),
+    }
 
 
 @app.post("/query", response_model=QueryResponse)

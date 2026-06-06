@@ -25,7 +25,13 @@ data/raw/Fine tuning data/
 
 # === Secrets & local IDE ===
 .env
+.env.local
+.env.*.local
 .cursorignore
+
+# === Docker ===
+# .env is local only (use docker/env.example as template).
+# Chroma indexes: vectorstore/ (above) + Compose volume terramind-vectorstore — not committed.
 
 # === Python ===
 __pycache__/

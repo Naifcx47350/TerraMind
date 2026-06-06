@@ -578,6 +578,41 @@ async function consumeNdjsonStream(response, onEvent) {
   }
 }
 
+function BootstrapOverlay({ t, logoFilter, logoGlow, logoTint }) {
+  return (
+    <div
+      className="tm-bootstrap-overlay"
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 10001,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 16,
+        background: "rgba(0,0,0,0.72)",
+        backdropFilter: "blur(6px)",
+      }}
+      aria-live="polite"
+      aria-busy="true"
+    >
+      <TerraLogo
+        size={40}
+        logoFilter={logoFilter}
+        logoGlow={logoGlow}
+        logoTint={logoTint}
+      />
+      <div style={{ fontSize: 15, fontWeight: 600, color: t.text1 }}>
+        Starting TerraMind…
+      </div>
+      <div style={{ fontSize: 13, color: t.text3 }}>
+        Waiting for the API (this can take a moment in Docker).
+      </div>
+    </div>
+  );
+}
+
 function ApiKeyGate({
   t,
   open,
@@ -907,6 +942,7 @@ export default function App() {
   const [compareMode, setCompareMode] = useState(false);
   const [convSearch, setConvSearch] = useState("");
   const [apiKeyReady, setApiKeyReady] = useState(false);
+  const [apiConfigLoading, setApiConfigLoading] = useState(true);
   const [showApiKeyGate, setShowApiKeyGate] = useState(false);
   const [apiKeyInput, setApiKeyInput] = useState("");
   const [apiKeyError, setApiKeyError] = useState("");
@@ -948,43 +984,72 @@ export default function App() {
 
   useEffect(() => {
     let cancelled = false;
-    (async () => {
+
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    const fetchConfig = async () => {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 8000);
       try {
-        const r = await fetch(`${API}/config`);
+        const r = await fetch(`${API}/config`, { signal: controller.signal });
         if (!r.ok) throw new Error("config unavailable");
-        const d = await r.json();
-        if (cancelled) return;
-        if (d.use_mock || d.openai_configured) {
-          setApiKeyReady(true);
-          setShowApiKeyGate(false);
-          return;
-        }
-        const stored = sessionStorage.getItem(OPENAI_KEY_SESSION);
-        if (stored) {
-          try {
-            await applyOpenAIKeyToServer(stored);
-            if (!cancelled) {
-              setApiKeyReady(true);
-              setShowApiKeyGate(false);
-            }
+        return r.json();
+      } finally {
+        clearTimeout(timer);
+      }
+    };
+
+    (async () => {
+      const maxAttempts = 45;
+      for (let attempt = 1; attempt <= maxAttempts && !cancelled; attempt += 1) {
+        try {
+          const d = await fetchConfig();
+          if (cancelled) return;
+
+          setApiConfigLoading(false);
+
+          if (d.use_mock || d.openai_configured) {
+            setApiKeyReady(true);
+            setShowApiKeyGate(false);
             return;
-          } catch {
-            sessionStorage.removeItem(OPENAI_KEY_SESSION);
-            if (!cancelled) setApiKeyGateReason("reauth");
+          }
+
+          const stored = sessionStorage.getItem(OPENAI_KEY_SESSION);
+          if (stored) {
+            try {
+              await applyOpenAIKeyToServer(stored);
+              if (!cancelled) {
+                setApiKeyReady(true);
+                setShowApiKeyGate(false);
+              }
+              return;
+            } catch {
+              sessionStorage.removeItem(OPENAI_KEY_SESSION);
+              if (!cancelled) setApiKeyGateReason("reauth");
+            }
+          }
+
+          if (!cancelled) {
+            setApiKeyReady(false);
+            setShowApiKeyGate(true);
+          }
+          return;
+        } catch {
+          if (cancelled) return;
+          if (attempt < maxAttempts) {
+            await sleep(2000);
           }
         }
-        if (!cancelled) {
-          setApiKeyReady(false);
-          setShowApiKeyGate(true);
-        }
-      } catch {
-        if (!cancelled) {
-          setApiKeyReady(false);
-          setApiKeyGateReason("initial");
-          setShowApiKeyGate(true);
-        }
+      }
+
+      if (!cancelled) {
+        setApiConfigLoading(false);
+        setApiKeyReady(false);
+        setApiKeyGateReason("initial");
+        setShowApiKeyGate(true);
       }
     })();
+
     return () => {
       cancelled = true;
     };
@@ -1553,7 +1618,7 @@ export default function App() {
     "tm-root",
     dark ? "" : "tm-light",
     stylized ? "tm-stylized" : "",
-    showApiKeyGate || gateExiting ? "tm-gate-open" : "",
+    showApiKeyGate || gateExiting || apiConfigLoading ? "tm-gate-open" : "",
     apiKeyReady && !showApiKeyGate && !gateExiting ? "tm-app-ready" : "",
   ]
     .filter(Boolean)
@@ -2684,6 +2749,14 @@ export default function App() {
         logoGlow={logoGlow}
         logoTint={logoTint}
       />
+      {apiConfigLoading ? (
+        <BootstrapOverlay
+          t={t}
+          logoFilter={logoFilter}
+          logoGlow={logoGlow}
+          logoTint={logoTint}
+        />
+      ) : null}
     </div>
   );
 }

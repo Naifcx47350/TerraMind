@@ -1,6 +1,8 @@
 # TerraMind Docker — learning guide
 
-**rchestration** (start all services together) lives in the repo-root `docker-compose.yml`.This folder holds **Dockerfiles** for each service. **O**
+**New here?** Start with **[QUICKSTART.md](QUICKSTART.md)** (Docker Desktop, no-key demo, real RAG, key-in-browser).
+
+This folder holds **Dockerfiles** for each service. **Orchestration** (start all services together) lives in the repo-root `docker-compose.yml`.
 
 ---
 
@@ -109,21 +111,19 @@ If `COPY` fails with "file not found", check whether `.dockerignore` excluded it
 
 ## 6. Commands to run (any OS with Docker Desktop / Engine)
 
+**See [QUICKSTART.md](QUICKSTART.md)** for step-by-step paths (mock demo, full RAG, key in browser).
+
 From repo root:
 
 ```bash
-# 1. Secrets
-cp docker/env.example .env
-# Edit .env → set OPENAI_API_KEY
-
-# 2. First time: build vector indexes (needs OpenAI for embeddings)
-docker compose --profile init run --rm init-indexes
-
-# 3. Build images + start all services
+# Demo — no OpenAI key
+cp docker/env.example .env   # USE_MOCK=true
 docker compose up --build
 
-# 4. Open UI
-# http://localhost:3000
+# Full RAG
+# Edit .env → USE_MOCK=false, OPENAI_API_KEY=...
+docker compose --profile init run --rm init-indexes
+docker compose up --build
 ```
 
 Other useful commands:
