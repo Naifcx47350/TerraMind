@@ -16,7 +16,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY terramind/ terramind/
 COPY Rag_Pc.py .
-COPY data/ data/
 COPY FrontPage/ FrontPage/
 
 ENV PYTHONUNBUFFERED=1
