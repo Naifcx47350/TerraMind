@@ -193,4 +193,4 @@ Writes under `data/eval/runs/` (gitignored). Retrieval-only: `python -m terramin
 
 ## License / context
 
-Bootcamp MVP (RCP #9) — TerraMind focuses on grounded agricultural Q&A with explicit comparison between RAG and non-RAG behavior.
+SDA - AI Engineering Bootcamp MVP (RCP #9) — TerraMind focuses on grounded agricultural Q&A with explicit comparison between RAG and non-RAG behavior.
