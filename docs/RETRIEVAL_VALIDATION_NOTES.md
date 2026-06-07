@@ -70,3 +70,11 @@ May lead to ambiguity where retrieval returns the correct product name but the w
 Evaluate whether duplicate names create retrieval confusion and whether metadata filtering is required to resolve ambiguity.
 
 
+**Baseline Polish Backlog**
+
+- Confidence Score
+- No Results Handling
+- Prompt Refinement
+- Structured Response
+- Better Source Formatting
+- Retrieval Logging
