@@ -31,8 +31,12 @@ from terramind.rag.product.config import (
     RAG_PROMPT,
 )
 
-from terramind.rag.product.retrieve import (
-    retrieve_chunks,
+from terramind.rag.product.hybrid import (
+    hybrid_retrieve,
+)
+
+from terramind.rag.product.rerank import (
+    rerank_chunks,
 )
 
 # Context Builder
@@ -142,10 +146,24 @@ def generate_answer(
     generate a grounded answer.
     """
     
-    # Retrieve relevant product information
-    chunks = retrieve_chunks(
-        question
+    # Hybrid Retrieval
+    candidates = hybrid_retrieve(
+        question,
+        k=8,
     )
+
+    # Cross Encoder Re-ranking
+    chunks = rerank_chunks(
+        question,
+        candidates,
+        top_k=4,
+    )
+
+    print("\n=== CONTEXT ===\n")
+
+    for chunk in chunks:
+        print(chunk.page_content[:1000])
+        print("\n----------------\n")
     
     # Convert retrieved chunks into prompt context
     context = format_context(
