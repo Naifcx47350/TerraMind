@@ -107,6 +107,35 @@ Locally, Vite serves the UI; in Docker, nginx serves the production React build 
 
 ---
 
+## Tech stack
+
+<p align="center">
+  <img alt="Python" width="34px" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg"/>
+  <img alt="FastAPI" width="34px" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/fastapi/fastapi-original.svg"/>
+  <img alt="React" width="34px" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg"/>
+  <img alt="Vite" width="34px" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vite/vite-original.svg"/>
+  <img alt="OpenAI" width="34px" src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/openai.svg"/>
+  <img alt="Docker" width="34px" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg"/>
+  <img alt="nginx" width="34px" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nginx/nginx-original.svg"/>
+  <img alt="Node.js" width="34px" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nodejs/nodejs-original.svg"/>
+  <img alt="pandas" width="34px" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pandas/pandas-original.svg"/>
+  <img alt="PyTorch" width="34px" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pytorch/pytorch-original.svg"/>
+  <img alt="pytest" width="34px" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pytest/pytest-original.svg"/>
+</p>
+
+| Layer | Tools | Role in TerraMind |
+| --- | --- | --- |
+| **APIs** | Python, FastAPI, Uvicorn, httpx | Model API (:8001) + FrontPage gateway (:8000); streaming proxy to RAG |
+| **AI / RAG** | OpenAI, LangChain, ChromaDB | Chat, embeddings, vision; PDF + Excel → vector indexes; product hybrid (BM25 + dense) + rerank |
+| **UI** | React, Vite, react-markdown | Chat, compare, sessions; Vite in dev, nginx in Docker |
+| **Data** | pypdf, pandas, openpyxl | General PDF corpus; product Excel catalog |
+| **Deploy** | Docker, nginx, Node (build) | Three-container stack; `data/` mount + `terramind-vectorstore` volume |
+| **Tests** | pytest | Router, scoring, advisory tests under `tests/` |
+
+Full list with file paths and purpose: **[docs/TECH_STACK.md](docs/TECH_STACK.md)** (linked from [docs/SYSTEM_ARCHITECTURE.md](docs/SYSTEM_ARCHITECTURE.md) §9).
+
+---
+
 ## Models (picker order)
 
 | Mode | ID | Knowledge source |
@@ -164,6 +193,7 @@ Details: [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md).
 | **[PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md)** | Features, models, APIs, compare, Advisory |
 | **[docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md)** | Shipped work and remaining tasks |
 | **[docs/SYSTEM_ARCHITECTURE.md](docs/SYSTEM_ARCHITECTURE.md)** | Runtime topology |
+| **[docs/TECH_STACK.md](docs/TECH_STACK.md)** | Tools, libraries, logos, where each is used |
 | **[docs/README.md](docs/README.md)** | Index of all `docs/` files |
 | **[data/README.md](data/README.md)** | Data folders — tracked vs gitignored |
 

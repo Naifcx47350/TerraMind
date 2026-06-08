@@ -2,7 +2,7 @@
 
 **Status:** Current as of June 2026. This file is the **canonical architecture reference** — update it when the stack or boundaries change (e.g. after migrations, new services, or deployment).
 
-**Related (not duplicated here):** feature walkthrough → [PROJECT_OVERVIEW.md](../PROJECT_OVERVIEW.md); file-by-file map → [FILE_MAP_AND_PIPELINE.md](./FILE_MAP_AND_PIPELINE.md); local run → [FrontPage/RUN_LOCALLY.md](../FrontPage/RUN_LOCALLY.md).
+**Related (not duplicated here):** feature walkthrough → [PROJECT_OVERVIEW.md](../PROJECT_OVERVIEW.md); file-by-file map → [FILE_MAP_AND_PIPELINE.md](./FILE_MAP_AND_PIPELINE.md); **tools & libraries** → [TECH_STACK.md](./TECH_STACK.md); local run → [FrontPage/RUN_LOCALLY.md](../FrontPage/RUN_LOCALLY.md); Docker → [docker/QUICKSTART.md](../docker/QUICKSTART.md).
 
 ---
 
@@ -261,19 +261,25 @@ Config: `RAG_SERVICE_URL` (default `http://localhost:8001/query`), `USE_MOCK` fo
 
 ---
 
-## 9. External dependencies
+## 9. Technology stack
 
-| System               | Use                                   |
-| -------------------- | ------------------------------------- |
-| **OpenAI API**       | Chat, embeddings, vision              |
-| **LangChain**        | Prompts, `ChatOpenAI`, document types |
-| **langchain-chroma** | Vector store wrapper                  |
-| **ChromaDB**         | Local persistence                     |
-| **FastAPI + httpx**  | APIs and BFF proxy                    |
-| **pypdf**            | General PDF text extraction           |
-| **pandas**           | Product Excel load                    |
+Full inventory — purpose, version source, and **where in the repo each tool runs** (APIs, RAG, UI, Docker, tests):
 
-Secrets: `.env` / environment (`OPENAI_API_KEY`, optional `RAG_SERVICE_URL`).
+→ **[TECH_STACK.md](./TECH_STACK.md)**
+
+**Summary (runtime):**
+
+| Layer | Primary tools |
+| --- | --- |
+| APIs | FastAPI, Uvicorn, httpx (BFF proxy) |
+| LLM / vision | OpenAI (`gpt-4o-mini`, `text-embedding-3-small`) via LangChain |
+| Indexes | ChromaDB on disk (`vectorstore/` or Docker volume `terramind-vectorstore`) |
+| General RAG | pypdf → chunk → embed → retrieve (+ lexical rerank in `hybrid.py`) |
+| Product RAG | pandas/openpyxl → chunk → embed; **BM25** + dense hybrid; **CrossEncoder** rerank |
+| UI | React, Vite (dev); nginx (Docker production) |
+| Deploy | Docker Compose — three services; `data/` bind-mount, indexes in named volume |
+
+Secrets: repo-root `.env` (`OPENAI_API_KEY`, optional `RAG_SERVICE_URL` for local gateway). Not baked into images.
 
 ---
 
@@ -300,4 +306,5 @@ When architecture changes (new service, port, model mode, index layout, or advis
 1. Edit **this file** only for structure/topology/contracts.
 2. Keep feature-level narrative in `PROJECT_OVERVIEW.md`.
 3. Keep file-level inventory in `FILE_MAP_AND_PIPELINE.md`.
-4. Note the date or PR in the **Status** line at the top if helpful.
+4. Keep libraries and logos in `TECH_STACK.md` when dependencies change.
+5. Note the date or PR in the **Status** line at the top if helpful.
