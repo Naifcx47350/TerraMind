@@ -90,9 +90,7 @@ def format_sources(
             chunk.metadata.get(
                 "product_name"
             ),
-            chunk.metadata.get(
-                "chunk_type"
-            ),
+        
         )
 
         if source not in seen:
@@ -102,9 +100,9 @@ def format_sources(
             )
 
             sources.append(
-              f"- {source[0]} | "
-              f"{source[1]} "
-              f"({source[2]})"
+              f"- {source[1]} "
+              f"({source[0]}) "
+              
         )
 
     return "\n".join(
@@ -152,6 +150,16 @@ def generate_answer(
         chunks
     )
     
+
+    if not chunks:
+
+        return (
+            "I could not find relevant "
+            "information in the product catalog.\n\n"
+            "Please rephrase your question "
+            "or provide more details."
+        )
+
     # Build source references for answer transparency
     sources = format_sources(
         chunks
@@ -165,6 +173,10 @@ def generate_answer(
 
     llm = create_llm()
     
+    # Debug helper:
+    # print("\n=== CONTEXT ===\n")
+    # print(context)
+
     # Generate grounded answer from retrieved context
     response = llm.invoke(
         prompt
@@ -174,6 +186,7 @@ def generate_answer(
     # Return answer together with retrieval sources
     return (
         f"{response.content}\n\n"
+        f"---\n\n"
         f"### Sources\n"
         f"{sources}"
     )
@@ -189,7 +202,7 @@ def generate_answer(
 if __name__ == "__main__":
 
     question = (
-        "What size does Citrus Bacteria Clear come in?"
+        "What should I spray for red spider mites on citrus?"
     )
 
     answer = generate_answer(
