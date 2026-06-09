@@ -78,3 +78,10 @@ Evaluate whether duplicate names create retrieval confusion and whether metadata
 - Structured Response
 - Better Source Formatting
 - Retrieval Logging
+
+
+
+- Hybrid retrieval improved some recommendation queries (e.g., red spider mites) by introducing additional relevant products, but also introduced noise in other cases (e.g., planthopper query). Further evaluation is needed before adding more retrieval complexity.
+
+- Current retrieval results indicate that the RAG pipeline is generally retrieving relevant products and chunks. Most observed failures appear to stem from evaluation constraints (single expected product in the golden dataset) or recommendation-style questions where multiple valid products exist, rather than from retrieval failure itself.
+
