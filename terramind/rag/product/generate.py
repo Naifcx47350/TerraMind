@@ -94,9 +94,7 @@ def format_sources(
             chunk.metadata.get(
                 "product_name"
             ),
-            chunk.metadata.get(
-                "chunk_type"
-            ),
+           
         )
 
         if source not in seen:
@@ -106,14 +104,16 @@ def format_sources(
             )
 
             sources.append(
-              f"- {source[0]} | "
-              f"{source[1]} "
-              f"({source[2]})"
+
+              f"- {source[1]} "
+              f"({source[0]}) "
         )
 
     return "\n".join(
         sources
     )
+
+    
 
 
 # Create the Product RAG language model used for answer generation.
@@ -159,17 +159,23 @@ def generate_answer(
         top_k=4,
     )
 
-    print("\n=== CONTEXT ===\n")
-
-    for chunk in chunks:
-        print(chunk.page_content[:1000])
-        print("\n----------------\n")
+    
     
     # Convert retrieved chunks into prompt context
     context = format_context(
         chunks
     )
     
+    if not chunks:
+
+        return (
+            "I could not find relevant "
+            "information in the product catalog.\n\n"
+            "Please rephrase your question "
+            "or provide more details."
+        )
+
+
     # Build source references for answer transparency
     sources = format_sources(
         chunks
@@ -192,6 +198,7 @@ def generate_answer(
     # Return answer together with retrieval sources
     return (
         f"{response.content}\n\n"
+        f"---\n\n"
         f"### Sources\n"
         f"{sources}"
     )
@@ -207,7 +214,7 @@ def generate_answer(
 if __name__ == "__main__":
 
     question = (
-        "What size does Citrus Bacteria Clear come in?"
+        "What is the dilution for Onion-Ginger-Garlic Bacteria Clear?"
     )
 
     answer = generate_answer(
