@@ -1,0 +1,442 @@
+[
+    {
+        "ID":"Q01",
+        "Category":"dilution",
+        "Question":"What is the dilution ratio for 29% Bisultap?",
+        "Golden Answer":"30g mixed with 30 jin of water.",
+        "Source (catalog)":"PN0005 29%杀虫双",
+        "Column 1":null
+    },
+    {
+        "ID":"Q02",
+        "Category":"dilution",
+        "Question":"How do I dilute 45% Bifenazate + Etoxazole?",
+        "Golden Answer":"15g mixed with 30 jin of water.",
+        "Source (catalog)":"PN0014 45%联肼·乙螨唑",
+        "Column 1":null
+    },
+    {
+        "ID":"Q03",
+        "Category":"dilution",
+        "Question":"What is the dilution for Spider Mite Killer No.1?",
+        "Golden Answer":"50g mixed with 30 jin of water (dilute 800-1000x).",
+        "Source (catalog)":"AF0039 蜘蛛1号",
+        "Column 1":null
+    },
+    {
+        "ID":"Q04",
+        "Category":"dilution",
+        "Question":"How do I dilute Thrips No.1?",
+        "Golden Answer":"Dilute 800-1000x (one 500g bottle per 400-500kg water).",
+        "Source (catalog)":"AF0064 蓟马1号",
+        "Column 1":null
+    },
+    {
+        "ID":"Q05",
+        "Category":"dilution",
+        "Question":"What is the dilution ratio for 24% Clethodim?",
+        "Golden Answer":"One 20ml sachet mixed with 30 jin of water.",
+        "Source (catalog)":"PN0015 24%烯草酮",
+        "Column 1":null
+    },
+    {
+        "ID":"Q06",
+        "Category":"dilution",
+        "Question":"How do I dilute 50% Benazolin?",
+        "Golden Answer":"One 12g sachet mixed with 30 jin of water.",
+        "Source (catalog)":"PN0016 50%草除灵",
+        "Column 1":null
+    },
+    {
+        "ID":"Q07",
+        "Category":"dilution",
+        "Question":"What is the dilution for Citrus Bacteria Clear?",
+        "Golden Answer":"1g mixed with 1 jin (500g) of water (1000x).",
+        "Source (catalog)":"AF0001 柑橘菌立清",
+        "Column 1":null
+    },
+    {
+        "ID":"Q08",
+        "Category":"dilution",
+        "Question":"How do I dilute Hydroponic Treasure?",
+        "Golden Answer":"1g mixed with 1 jin (500g) of water.",
+        "Source (catalog)":"AF0027 水培宝",
+        "Column 1":null
+    },
+    {
+        "ID":"Q09",
+        "Category":"dilution",
+        "Question":"What is the dilution ratio for Pyraclostrobin (Kairun)?",
+        "Golden Answer":"10g mixed with 30 jin of water.",
+        "Source (catalog)":"PN0002 吡唑醚菌酯-凯润",
+        "Column 1":" "
+    },
+    {
+        "ID":"Q10",
+        "Category":"dilution",
+        "Question":"How do I dilute 5% Imidacloprid?",
+        "Golden Answer":"30g mixed with 30 jin of water.",
+        "Source (catalog)":"PN0024 5%吡虫啉",
+        "Column 1":null
+    },
+    {
+        "ID":"Q11",
+        "Category":"dilution",
+        "Question":"What is the dilution ratio for 10% Imidacloprid?",
+        "Golden Answer":"10g mixed with 30 jin of water.",
+        "Source (catalog)":"PN0025 10%吡虫啉",
+        "Column 1":null
+    },
+    {
+        "ID":"Q12",
+        "Category":"dilution",
+        "Question":"How do I dilute 24% Bifenazate (Happy Citrus Garden)?",
+        "Golden Answer":"15g mixed with 40 jin of water.",
+        "Source (catalog)":"PN0013 24%联苯肼酯",
+        "Column 1":null
+    },
+    {
+        "ID":"Q13",
+        "Category":"dilution",
+        "Question":"Does Plant Revival Liquid need to be diluted?",
+        "Golden Answer":"No. It is used directly without dilution.",
+        "Source (catalog)":"AF0034 植物复活液",
+        "Column 1":null
+    },
+    {
+        "ID":"Q14",
+        "Category":"dilution",
+        "Question":"What is the dilution for Onion-Ginger-Garlic Bacteria Clear?",
+        "Golden Answer":"1g mixed with 1 jin (500g) of water (1000x).",
+        "Source (catalog)":"AF0002 葱姜蒜菌立清",
+        "Column 1":null
+    },
+    {
+        "ID":"Q15",
+        "Category":"dilution",
+        "Question":"How much water does one 500g bottle of Spider No.1 cover?",
+        "Golden Answer":"About 400-500kg of water (supports one mu of spraying).",
+        "Source (catalog)":"AF0039 蜘蛛1号",
+        "Column 1":null
+    },
+    {
+        "ID":"Q16",
+        "Category":"usage",
+        "Question":"How is 29% Bisultap applied?",
+        "Golden Answer":"Spray. Mix with 30-60kg water per mu and spray evenly.",
+        "Source (catalog)":"PN0005 29%杀虫双",
+        "Column 1":null
+    },
+    {
+        "ID":"Q17",
+        "Category":"usage",
+        "Question":"How is 24% Clethodim applied?",
+        "Golden Answer":"Stem-and-leaf spray, 30-40kg water per mu, applied once.",
+        "Source (catalog)":"PN0015 24%烯草酮",
+        "Column 1":null
+    },
+    {
+        "ID":"Q18",
+        "Category":"usage",
+        "Question":"How is Citrus Bacteria Clear applied?",
+        "Golden Answer":"Dilute 1000x and spray evenly on the leaf surface during the growth period.",
+        "Source (catalog)":"AF0001 柑橘菌立清",
+        "Column 1":null
+    },
+    {
+        "ID":"Q19",
+        "Category":"usage",
+        "Question":"How is Plant Revival Liquid applied?",
+        "Golden Answer":"Shake, spray directly on leaves until wet, once every 7-10 days; avoid midday heat and flowers.",
+        "Source (catalog)":"AF0034 植物复活液",
+        "Column 1":null
+    },
+    {
+        "ID":"Q20",
+        "Category":"usage",
+        "Question":"How many times per season can 24% Clethodim be used?",
+        "Golden Answer":"At most once per season.",
+        "Source (catalog)":"PN0015 24%烯草酮",
+        "Column 1":null
+    },
+    {
+        "ID":"Q21",
+        "Category":"usage",
+        "Question":"How many times per season can 50% Benazolin be used?",
+        "Golden Answer":"At most once per season.",
+        "Source (catalog)":"PN0016 50%草除灵",
+        "Column 1":null
+    },
+    {
+        "ID":"Q22",
+        "Category":"usage",
+        "Question":"How many times per season can 10% Imidacloprid be used?",
+        "Golden Answer":"At most 3 times per season.",
+        "Source (catalog)":"PN0025 10%吡虫啉",
+        "Column 1":null
+    },
+    {
+        "ID":"Q23",
+        "Category":"usage",
+        "Question":"How many times can 50% Carbendazim be used per season?",
+        "Golden Answer":"At most 3 times per season.",
+        "Source (catalog)":"PN0042 50%多菌灵",
+        "Column 1":null
+    },
+    {
+        "ID":"Q24",
+        "Category":"crop",
+        "Question":"Which crops is 29% Bisultap registered for?",
+        "Golden Answer":"Rice, cruciferous vegetables (cabbage, Chinese cabbage), sugarcane, tea, corn.",
+        "Source (catalog)":"PN0005 29%杀虫双",
+        "Column 1":null
+    },
+    {
+        "ID":"Q25",
+        "Category":"crop",
+        "Question":"What pest does 45% Bifenazate + Etoxazole target on citrus?",
+        "Golden Answer":"Red spider mite.",
+        "Source (catalog)":"PN0014 45%联肼·乙螨唑",
+        "Column 1":null
+    },
+    {
+        "ID":"Q26",
+        "Category":"crop",
+        "Question":"What does Spider Mite Killer No.1 control?",
+        "Golden Answer":"Red, yellow and white spider mites and mites on fruit trees and vegetables.",
+        "Source (catalog)":"AF0039 蜘蛛1号",
+        "Column 1":null
+    },
+    {
+        "ID":"Q27",
+        "Category":"crop",
+        "Question":"What pest does Thrips No.1 control?",
+        "Golden Answer":"Thrips, on fruit trees and vegetables.",
+        "Source (catalog)":"AF0064 蓟马1号",
+        "Column 1":null
+    },
+    {
+        "ID":"Q28",
+        "Category":"crop",
+        "Question":"Which weeds does 24% Clethodim control?",
+        "Golden Answer":"Annual grass-family weeds (e.g. barnyard grass, crabgrass).",
+        "Source (catalog)":"PN0015 24%烯草酮",
+        "Column 1":null
+    },
+    {
+        "ID":"Q29",
+        "Category":"crop",
+        "Question":"Which weeds does 50% Benazolin control?",
+        "Golden Answer":"Annual broadleaf weeds in rapeseed fields.",
+        "Source (catalog)":"PN0016 50%草除灵",
+        "Column 1":null
+    },
+    {
+        "ID":"Q30",
+        "Category":"crop",
+        "Question":"Can 50% Benazolin be used on mustard-type rapeseed?",
+        "Golden Answer":"Use with caution; it is registered for cabbage-type winter rapeseed.",
+        "Source (catalog)":"PN0016 50%草除灵",
+        "Column 1":null
+    },
+    {
+        "ID":"Q31",
+        "Category":"crop",
+        "Question":"What pest does 5% Imidacloprid control on rice?",
+        "Golden Answer":"Planthopper (rice flea\/飞虱).",
+        "Source (catalog)":"PN0024 5%吡虫啉",
+        "Column 1":null
+    },
+    {
+        "ID":"Q32",
+        "Category":"crop",
+        "Question":"What is the active ingredient of Pyraclostrobin (Kairun)?",
+        "Golden Answer":"Pyraclostrobin 250 g\/L.",
+        "Source (catalog)":"PN0002 吡唑醚菌酯-凯润",
+        "Column 1":null
+    },
+    {
+        "ID":"Q33",
+        "Category":"crop",
+        "Question":"What is the active ingredient of 29% Bisultap?",
+        "Golden Answer":"Bisultap 29%.",
+        "Source (catalog)":"PN0005 29%杀虫双",
+        "Column 1":null
+    },
+    {
+        "ID":"Q34",
+        "Category":"crop",
+        "Question":"What are the active ingredients of 45% Bifenazate + Etoxazole?",
+        "Golden Answer":"Bifenazate 30% + Etoxazole 15% (total 45%).",
+        "Source (catalog)":"PN0014 45%联肼·乙螨唑",
+        "Column 1":null
+    },
+    {
+        "ID":"Q35",
+        "Category":"dosage",
+        "Question":"What is the per-mu dose of 29% Bisultap on rice?",
+        "Golden Answer":"155-185 ml per mu.",
+        "Source (catalog)":"PN0005 29%杀虫双",
+        "Column 1":null
+    },
+    {
+        "ID":"Q36",
+        "Category":"dosage",
+        "Question":"What is the per-mu dose of 24% Clethodim in spring soybean field?",
+        "Golden Answer":"20-30 ml per mu.",
+        "Source (catalog)":"PN0015 24%烯草酮",
+        "Column 1":null
+    },
+    {
+        "ID":"Q37",
+        "Category":"dosage",
+        "Question":"What is the per-mu dose of 50% Benazolin in rapeseed field?",
+        "Golden Answer":"30-40 ml per mu.",
+        "Source (catalog)":"PN0016 50%草除灵",
+        "Column 1":null
+    },
+    {
+        "ID":"Q38",
+        "Category":"dosage",
+        "Question":"What is the per-mu dose of 5% Imidacloprid on rice?",
+        "Golden Answer":"12-24 g per mu.",
+        "Source (catalog)":"PN0024 5%吡虫啉",
+        "Column 1":null
+    },
+    {
+        "ID":"Q39",
+        "Category":"dosage",
+        "Question":"What is the per-mu dose of 50% Carbendazim on wheat head blight?",
+        "Golden Answer":"100-150 g per mu.",
+        "Source (catalog)":"PN0042 50%多菌灵",
+        "Column 1":null
+    },
+    {
+        "ID":"Q40",
+        "Category":"safety",
+        "Question":"What is the safety interval of 24% Bifenazate on citrus?",
+        "Golden Answer":"21 days; maximum 1 application per season.",
+        "Source (catalog)":"PN0013 24%联苯肼酯",
+        "Column 1":null
+    },
+    {
+        "ID":"Q41",
+        "Category":"safety",
+        "Question":"What is the safety interval of 10% Imidacloprid?",
+        "Golden Answer":"14 days.",
+        "Source (catalog)":"PN0025 10%吡虫啉",
+        "Column 1":null
+    },
+    {
+        "ID":"Q42",
+        "Category":"safety",
+        "Question":"When should pesticide spraying be avoided?",
+        "Golden Answer":"On windy days or when rain is expected within 1 hour.",
+        "Source (catalog)":"PN0024 5%吡虫啉",
+        "Column 1":null
+    },
+    {
+        "ID":"Q43",
+        "Category":"safety",
+        "Question":"What should you do if 24% Bifenazate contacts the skin?",
+        "Golden Answer":"Remove contaminated clothing, wipe off the agent, and rinse with plenty of water and soap.",
+        "Source (catalog)":"PN0013 24%联苯肼酯",
+        "Column 1":null
+    },
+    {
+        "ID":"Q44",
+        "Category":"spec",
+        "Question":"What is the package size of 24% Clethodim?",
+        "Golden Answer":"20 ml.",
+        "Source (catalog)":"PN0015 24%烯草酮",
+        "Column 1":null
+    },
+    {
+        "ID":"Q45",
+        "Category":"spec",
+        "Question":"What is the package size of 50% Benazolin?",
+        "Golden Answer":"12 g.",
+        "Source (catalog)":"PN0016 50%草除灵",
+        "Column 1":null
+    },
+    {
+        "ID":"Q46",
+        "Category":"spec",
+        "Question":"What is the active-ingredient concentration of Pyraclostrobin (Kairun)?",
+        "Golden Answer":"250 g\/L pyraclostrobin.",
+        "Source (catalog)":"PN0002 吡唑醚菌酯-凯润",
+        "Column 1":null
+    },
+    {
+        "ID":"Q47",
+        "Category":"spec",
+        "Question":"What is the main ingredient of Spider Mite Killer No.1?",
+        "Golden Answer":"Herbal (Chinese medicinal) plant extract.",
+        "Source (catalog)":"AF0039 蜘蛛1号",
+        "Column 1":null
+    },
+    {
+        "ID":"Q48",
+        "Category":"spec",
+        "Question":"What is the main ingredient of Thrips No.1?",
+        "Golden Answer":"Cinnamaldehyde >=5%.",
+        "Source (catalog)":"AF0064 蓟马1号",
+        "Column 1":null
+    },
+    {
+        "ID":"Q49",
+        "Category":"spec",
+        "Question":"What crops is Pyraclostrobin (Kairun) used on?",
+        "Golden Answer":"Wheat, rice, corn, soybean, peanut, fruit trees, vegetables.",
+        "Source (catalog)":"PN0002 吡唑醚菌酯-凯润",
+        "Column 1":null
+    },
+    {
+        "ID":"Q50",
+        "Category":"spec",
+        "Question":"What is the active ingredient of 5% Imidacloprid?",
+        "Golden Answer":"Imidacloprid 5%.",
+        "Source (catalog)":"PN0024 5%吡虫啉",
+        "Column 1":null
+    },
+    {
+        "ID":"Q51",
+        "Category":"diagnosis",
+        "Question":"What should I spray for red spider mites on citrus?",
+        "Golden Answer":"Use **45% Bifenazate + Etoxazole** (or **24% Bifenazate**), 15g mixed with 30 jin of water.",
+        "Source (catalog)":"PN0014 45%联肼·乙螨唑",
+        "Column 1":null
+    },
+    {
+        "ID":"Q52",
+        "Category":"diagnosis",
+        "Question":"What should I spray for spider mites on fruit trees and vegetables?",
+        "Golden Answer":"Use **Spider Mite Killer No.1**, 50g mixed with 30 jin of water (diluted 800-1000x).",
+        "Source (catalog)":"AF0039 蜘蛛1号",
+        "Column 1":null
+    },
+    {
+        "ID":"Q53",
+        "Category":"diagnosis",
+        "Question":"What should I spray for thrips?",
+        "Golden Answer":"Use **Thrips No.1**, diluted 800-1000x, sprayed on the leaf surface.",
+        "Source (catalog)":"AF0064 蓟马1号",
+        "Column 1":null
+    },
+    {
+        "ID":"Q54",
+        "Category":"diagnosis",
+        "Question":"What should I spray for planthoppers on rice?",
+        "Golden Answer":"Use **5% Imidacloprid**, 30g mixed with 30 jin of water (12-24 g per mu).",
+        "Source (catalog)":"PN0024 5%吡虫啉",
+        "Column 1":null
+    },
+    {
+        "ID":"Q55",
+        "Category":"diagnosis",
+        "Question":"What should I use for powdery mildew \/ strawberry powdery mildew?",
+        "Golden Answer":"Use **Pyraclostrobin (Kairun)**, 10g mixed with 30 jin of water.",
+        "Source (catalog)":"PN0002 吡唑醚菌酯-凯润",
+        "Column 1":null
+    }
+]
