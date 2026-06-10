@@ -204,6 +204,54 @@ def generate_answer(
     )
 
 
+
+def generate_answer_with_metadata(
+    question: str,
+):
+    """
+    Return answer together with retrieved chunks.
+    """
+
+    candidates = hybrid_retrieve(
+        question,
+        k=8,
+    )
+
+    chunks = rerank_chunks(
+        question,
+        candidates,
+        top_k=4,
+    )
+
+    context = format_context(
+        chunks
+    )
+
+    if not chunks:
+
+        return {
+            "answer":
+                "I could not find relevant information in the product catalog.",
+            "retrieved": [],
+        }
+
+    prompt = RAG_PROMPT.format(
+        context=context,
+        question=question,
+    )
+
+    llm = create_llm()
+
+    response = llm.invoke(
+        prompt
+    )
+
+    return {
+        "answer": response.content,
+        "retrieved": chunks,
+    }
+
+    
 # Development Test
 # 
 # Run this file directly to validate:
