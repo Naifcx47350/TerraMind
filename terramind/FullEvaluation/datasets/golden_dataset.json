@@ -1,0 +1,1644 @@
+[
+  {
+    "question": "What does 4 grams mixed with 1 jin (0.5kg) of water mean?",
+    "reference_answer": "Hello, I am here; it refers to the mixing ratio, dear.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Product Usage",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "How do I do seed dressing?",
+    "reference_answer": "Ratio: 1g of bacterial agent to 1 jin of water. 30g agent needs 30 jin of water. 10-15 jin of liquid is needed per mu. You can spray it evenly on potato seed blocks until moist but not dripping, or soak the seeds in the liquid for 10-15 minutes, dry for 1-2 hours in the shade, and then plant.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Instruction Manual",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Is this product genuine?",
+    "reference_answer": "Dear, you absolutely do not need to worry about the quality! The cost-effectiveness is also very high!",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Product Inquiry",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "As long as it's genuine. I just hope the weeds don't survive after spraying.",
+    "reference_answer": "The effect is very good, dear.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Efficacy Inquiry",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "How much area can one bag cover?",
+    "reference_answer": "500 grams for one mu of land; it needs to be mixed with water and sprayed, dear.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Product Usage",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Can it just be dry scattered like this?",
+    "reference_answer": "Dear, it must be mixed with water; okay, dear.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Product Usage",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Does this herbicide harm broad beans?",
+    "reference_answer": "Hello, I am here; no, it doesn't, dear.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Safety/Compatibility",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "How much water do I use for one bag?",
+    "reference_answer": "Hello, rapeseed special herbicide 20ml, one bag mixes with 30 jin of water.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Product Usage",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "It says this is for broad beans on the package, can I use it on them?",
+    "reference_answer": "Yes, you can, dear.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Safety/Compatibility",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Boss, how much water do I mix with one bottle of this medicine?",
+    "reference_answer": "Hello, 1 gram mixes with 1 jin of water. Spray on leaves once every 5 days. Adjust usage based on field size. 500 grams covers one mu. Improvement will be seen after 3-4 cycles.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Product Usage",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Boss, how many grams do I need for 2 jin of water?",
+    "reference_answer": "Hello, 2 grams, dear.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Calculation",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Dear merchant: I received the goods but there are no mixing instructions, how do I use it?",
+    "reference_answer": "1 gram mixes with 1 jin of water. Spray on leaves once every 5 days. 500 grams covers one mu of land. Improvement will be seen after 3-4 cycles.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Product Usage",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "How many grams is one bottle of this product?",
+    "reference_answer": "Hello, it is 50 grams, dear.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Product Inquiry",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Hello, is this medicine really as effective as the advertisement says?",
+    "reference_answer": "Dear, I am here, just let me know if you have any questions! The effect is very good.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Efficacy Inquiry",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "How many jin of water can one bag be mixed with?",
+    "reference_answer": "Hello, rapeseed special herbicide 20ml, one bag mixes with 30 jin of water.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Product Usage",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Can this be used to weed broad beans? The broad beans are quite large now, is it still okay to spray?",
+    "reference_answer": "Hello, yes you can, dear.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Safety/Compatibility",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Will there be any problems? If something goes wrong, will you compensate?",
+    "reference_answer": "There won't be any issues, dear, as long as you use it according to the ratio.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Support / Policy",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Boss, hello; how do I use this?",
+    "reference_answer": "Dear, one gram mixes with one jin of water.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Product Usage",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Okay thanks; is it for watering the roots? Not spraying?",
+    "reference_answer": "Dear, it is mixed with water for spraying.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Product Usage",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "If it has no effect, will you refund me? Do I have to do supplemental spraying? Is it a waste of money? Do I have to spray ten times for it to work? This is nonsense.",
+    "reference_answer": "Hello, there are many factors to whether the product is effective, so we cannot guarantee it. It relates to timing, environmental conditions, and application methods. You can scan the code to verify authenticity.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Complaint/Support",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "I mixed two bags for one bucket, there's no effect at all. Harming consumers is illegal.",
+    "reference_answer": "If the effect is poor, try increasing the concentration, dear.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Troubleshooting",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Please tell me how much water to mix per bottle?",
+    "reference_answer": "Hello, 1 gram mixes with 1 jin of water. Spray on leaves every 5 days. 500 grams for one mu. Improvement will appear after 3-4 cycles.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Product Usage",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Is one small bottle 50 grams?",
+    "reference_answer": "Yes, dear.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Product Inquiry",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "What time of day can I spray?",
+    "reference_answer": "Hello, best to use at 10 AM. Water-soluble fertilizers and microbial agents are usually 1g to 1 jin of water. Pesticides are 5g to 1 jin of water for leaf spraying.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Best Practices",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Why didn't it say how many grams a bottle is? How much water does a 50g bottle mix with? Is one bucket of water okay?",
+    "reference_answer": "Hello, yours is 50 grams. It mixes with 50 jin of water.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Product Usage",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "How many jin of potato seeds can one bag be used for? Why aren't you replying?",
+    "reference_answer": "Hello, 10 jin, dear.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Product Usage",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "The prevention list doesn't mention potatoes, can it still be used? You are selling something different from what you advertised.",
+    "reference_answer": "Dear, it won't be an issue; it can definitely be used.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Safety/Compatibility",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "I bought potato seed dressing, but the merchant sent medicine for fruit trees and flowers. Can it be used for dressing potatoes?",
+    "reference_answer": "Yes, it can be used, dear.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Safety/Compatibility",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Boss, can this liquid medicine be sprayed on rapeseed now?",
+    "reference_answer": "Yes, dear; it can be sprayed as long as temperatures are above freezing.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Safety/Compatibility",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Is it okay to spray it on broad beans?",
+    "reference_answer": "Sorry dear~ I made a typo. You need to spray it on the weeds, you cannot spray it on other crops.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Safety/Compatibility",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Spraying weeds in the rapeseed field won't harm the rapeseed, right?",
+    "reference_answer": "Hello, no it won't.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Safety/Compatibility",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Boss, why haven't the weeds died more than ten days after spraying?",
+    "reference_answer": "Dear, how much water did you mix it with?",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Troubleshooting",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "I sprayed your medicine and it didn't work, instead, my lettuce died! Fake product.",
+    "reference_answer": "Dear, if used according to the correct ratio, this wouldn't happen. How much water did you mix it with?",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Troubleshooting",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "Can it be sprayed on fruit trees?",
+    "reference_answer": "Hello, yes it can, dear.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Safety/Compatibility",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Why is the price so low? Is it because the effect is bad?",
+    "reference_answer": "It's a promotional price, dear. The effect is good.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Product Inquiry",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Hello, 50 grams mixes with how many kilograms of water?",
+    "reference_answer": "Hello, 50 jin (25kg), dear.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Calculation",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Is it a liquid or powder? Teach me how to use it before I place an order.",
+    "reference_answer": "It is a liquid, dear. 1 gram to 1 jin of water, 1 bag of 30g to 30 jin of water. 1 bag can dress 10 jin of seeds.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Product Inquiry",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Can it be used for soil cultivation? Can it be used for succulents?",
+    "reference_answer": "Hello, yes it can be used.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Safety/Compatibility",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Send me the usage instructions.",
+    "reference_answer": "1 gram to 1 jin of water, use once every 7-10 days, for 2-3 consecutive times. The core logic is 'prevention before low temperatures hit'. Do not use if temperature drops below -2°C.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Product Usage",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Currently it is -2 to -4 degrees Celsius, can it not be used?",
+    "reference_answer": "Dear, it can be used at -2 degrees.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Safety/Compatibility",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "What is the water mixing ratio?",
+    "reference_answer": "Generally use the spray method: 10ml mixed with 30 jin of water, 40ml covers one mu. Spray once every 7 days for 2-3 consecutive applications.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Product Usage",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Dear, how much medicine do I mix in one bucket of water?",
+    "reference_answer": "Hello, 1 gram to 1 jin of water. Spray on leaves every 5 days. 500 grams per mu.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Product Usage",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "So for half a bucket (15 jin of water), I mix 15 grams?",
+    "reference_answer": "Hello, yes, 15 grams, dear.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Calculation",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Dear, for this medicine, do we mix it with water at home, or can it be sprayed directly on the vegetables?",
+    "reference_answer": "Dear, you need to mix it with water and spray.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Product Usage",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Boss, why aren't the weeds dead? I used one bag for one bucket of water. Is your medicine ineffective?",
+    "reference_answer": "Hello, you can do a supplemental spray. Product efficacy depends on many factors like timing, environment, and application method.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Troubleshooting",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "How many milliliters of medicine for one bucket of water?",
+    "reference_answer": "One bag of 24% Clethodim mixes with 30 jin of water, dear.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Product Usage",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "How long after soaking the cut potato pieces in the bacterial liquid should I wait before planting?",
+    "reference_answer": "Soak for 15 minutes, fish them out and let them dry for 1-2 hours, then you can plant them.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Product Usage",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Boss hello, is this medicine for lettuce? I have dozens of lettuce plants with yellowing leaves, can I spray this?",
+    "reference_answer": "Yes, dear, it can be used.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Safety/Compatibility",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Do I mix it with water and spray? Cabbage also has yellow leaves, can I spray that too?",
+    "reference_answer": "Yes, dear, you can use it.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Safety/Compatibility",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "How long until it takes effect?",
+    "reference_answer": "It takes effect in 5-7 days, dear.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Efficacy Inquiry",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Can this be used on tea trees?",
+    "reference_answer": "Hello, it is not recommended.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Safety/Compatibility",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Is it effective? My Kalanchoe has white fuzz on its leaves.",
+    "reference_answer": "Yes, dear, you can use it. It is very effective when mixed with water.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Safety/Compatibility",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Hello. The white fuzz isn't too severe. I've been spraying daily for about a week. How much longer until it's cured?",
+    "reference_answer": "Dear, it takes 7-15 days to see full effects.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Troubleshooting",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "How many milliliters of medicine for 40 jin of water?",
+    "reference_answer": "24% Bifenazate: 20 grams mixed with 40 jin of water.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Calculation",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Hello, what does 'only spray once' mean? Spray on the leaves?",
+    "reference_answer": "Dear, mix with water and spray on the leaves.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Product Usage",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Is it for prevention or treatment?",
+    "reference_answer": "Dear, it works for both.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Product Inquiry",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Can it still be used if it froze?",
+    "reference_answer": "It can be used after it thaws out, dear.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Product Usage",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Can this only be used on the ZZ plant (Zamioculcas)? Can it be used on Monstera?",
+    "reference_answer": "Hello, it can be used on Monstera. It works for most green plants.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Safety/Compatibility",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Didn't it say this is for potato seed dressing? Why doesn't the manual say that? Once mixed with water, do I just put the potatoes in the water?",
+    "reference_answer": "Yes, dear. Mix 1g to 1 jin of water, and you put the potatoes directly into the liquid.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Product Usage",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Can this be used for weeding in an orchard?",
+    "reference_answer": "Dear, it is not recommended.",
+    "source_docs": "cat1_usage_product_real.jsonl",
+    "category": "Usage & Product",
+    "Task type": "Safety/Compatibility",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "What is the water ratio for this liquid medicine?",
+    "reference_answer": "45% Bifenazate·Etoxazole: 15 grams mixed with 30 jin of water.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Product Usage",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Wheat spider mites, what is the dosage for 50 jin of water per mu?",
+    "reference_answer": "Spider No. 1: 500ml mixes with 300 jin of water, which is one full bottle. Spray on crop leaves. 500 grams covers one mu of land.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Product Usage",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Does a set of 100g + 100g cover one mu?",
+    "reference_answer": "Hello, 500 grams covers one mu, dear.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Calculation",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "How much water can 500ml be mixed with?",
+    "reference_answer": "29% Bisultap: 1 gram mixes with 2 jin of water.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Product Usage",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "How much medicine for 30 jin of water?",
+    "reference_answer": "45% Bifenazate·Etoxazole: 15 grams mixed with 30 jin of water.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Calculation",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "How much water do I mix with a bottle of Junliqing? I used it and there's no improvement; it actually looks more withered and yellow than before.",
+    "reference_answer": "Hello, it's 50 jin of water. What ratio did you use? Your mix might have been too concentrated.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Troubleshooting",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "Strawberry red spider mites and white spider mites; which medicine should I use?",
+    "reference_answer": "Please check this one, dear. 45% Bifenazate·Etoxazole: 15 grams mixes with 30 jin of water.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Product Inquiry",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Does it work on aphids (the white ones) on Kalanchoe?",
+    "reference_answer": "Dear, this is not an insecticide.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Safety/Compatibility",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "What vegetables can this be used on? Can it be used in a vegetable garden?",
+    "reference_answer": "Hello, it can be used on any vegetables, dear.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Safety/Compatibility",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Do I need to use it with other pesticides?",
+    "reference_answer": "No need, dear.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Product Usage",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "The thrips medicine water looks just like regular water, will it be effective?",
+    "reference_answer": "Thrips No. 1: 500ml mixes with 300 jin of water to cover one mu. If the insects aren't dead, do a supplemental spray. Do not use more than 3 times per season.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Troubleshooting",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Can it be used for anthracnose? Do you have Hymexazol and Metalaxyl-M·Fludioxonil? I want to mix them.",
+    "reference_answer": "Yes, it can. We have this one, dear.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Product Inquiry",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Dear, the day before yesterday afternoon I removed leaves with downy mildew and sprayed both sides. It was fine yesterday, but this morning many leaves grew downy mildew again. What should I do?",
+    "reference_answer": "Hello, dear, please take a clear photo and send it to me.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Troubleshooting",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "Does it affect the plant if it has already borne fruit? Lemon tree has red spider mites. How much to use for 1L of water?",
+    "reference_answer": "Hello, it doesn't affect it, dear. You can use it. 45% Bifenazate·Etoxazole: 15 grams to 30 jin of water.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Safety/Compatibility",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "What is the main function of this medicine?",
+    "reference_answer": "Hello, it's an insecticide, dear.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Product Inquiry",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "What is the dosage for black skin sugarcane?",
+    "reference_answer": "29% Bisultap: 1 gram mixes with 2 jin of water.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Product Usage",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Can it deal with bean pod borers?",
+    "reference_answer": "Hello, yes it can, dear.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Safety/Compatibility",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Is this powdery mildew? Which model should I buy?",
+    "reference_answer": "It might be, dear. Please refer to this product.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Diagnosis",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "I mixed one drop with 500ml and sprayed both sides, but the bugs didn't die even after three uses. What do I do?",
+    "reference_answer": "Dear, how much water did you mix in total? If bugs don't die, you can supplementarily spray, but no more than 3 times a season.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Troubleshooting",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "The lettuce roots are all rotten, what medicine should I spray?",
+    "reference_answer": "Dear, please refer to this product.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Diagnosis",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "What is the dosage for betel nut trees in Hainan province? What bugs does it kill?",
+    "reference_answer": "29% Bisultap: 1 gram to 2 jin of water. Dear, you can refer to the product details for targeted pests.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Product Inquiry",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Can this be sprayed on fruit trees? Does it control the pine shoot borer on red pine trees?",
+    "reference_answer": "Yes it can be used, dear. For pine shoot borer, please refer to this product.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Safety/Compatibility",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Can it cure yellow spots on lettuce? My lettuce is growing leaves with yellow spots.",
+    "reference_answer": "Hello, yes it can improve the condition, dear.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Diagnosis",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Do you ship via Postal service?",
+    "reference_answer": "Yes, it is shipped via Postal service, dear.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Logistics",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Boss, are these red spider mites? The person who sold me the strawberry seedlings said they were. How do I use this medicine?",
+    "reference_answer": "Dear, do you see spider webs? If not, it's hard to be certain. To use: 45% Bifenazate·Etoxazole, 15 grams to 30 jin of water.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Diagnosis",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "Boss, how many buckets of water should one bottle of this Bisultap be mixed with?",
+    "reference_answer": "29% Bisultap: 1 gram to 2 jin of water.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Product Usage",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "How many caps of medicine for one full sprayer?",
+    "reference_answer": "We haven't specifically measured it by the cap, dear. Please scale down proportionally based on the standard ratio.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Calculation",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Is it fresh production date? Can it kill corn worms and rice worms?",
+    "reference_answer": "Yes it can kill those. Product turnover is high so we can't check the exact date, but we guarantee what you receive is genuine and within its validity period.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Product Inquiry",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Chrysanthemum shoots have bugs, probably aphids. Can this work? How much water for one bag?",
+    "reference_answer": "Yes it can work. Please refer to this product specification, dear.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Diagnosis",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "What is the difference between this and Paraquat?",
+    "reference_answer": "Dear, you can check the product details page, it has all the introductions.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Product Inquiry",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Is it exactly a pesticide or an adjuvant?",
+    "reference_answer": "Hello, this is an adjuvant, dear. Its role is 'assistive' and must be used with pesticides to help active ingredients adhere, penetrate, and disperse evenly, improving efficacy.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Product Inquiry",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Should I use it in the morning or evening? Do I spray leaves or water the roots? My strawberry leaves have burnt edges and spots on the back.",
+    "reference_answer": "Use it in the morning, dear. Spray the leaves.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Product Usage",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Is it guaranteed to kill the weeds to the root?",
+    "reference_answer": "Hello, there are many factors for effectiveness, so we cannot make absolute guarantees. It depends on time, environment, and operation.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Efficacy Inquiry",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Boss, why is the medicine not working? I used 500g for 300 jin of water, but two days later I don't see the red spider mites dying.",
+    "reference_answer": "Did you put the small bonus packet inside? It takes 5-7 days to show effects, dear.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Troubleshooting",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "The rose leaves dried up, and after pruning, the branches dried up too. What disease is this? How do I use the fungicide I received?",
+    "reference_answer": "Dear, without seeing the leaves it's hard to judge. The fungicide can be used, dear.",
+    "source_docs": "cat2_diagnosis_real.jsonl",
+    "category": "Diagnosis",
+    "Task type": "Diagnosis",
+    "difficulty": "Hard"
+  }
+,
+  {
+    "question": "Is this medicine effective for yellowing leaves? Can I return it if it doesn't work?",
+    "reference_answer": "It is very effective. If you are not satisfied, returns are supported within 7 days of receipt as long as secondary sales are not affected.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "After-sales",
+    "Task type": "Support",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "I ordered two bottles but only received one package today. Where is the other half of my order?",
+    "reference_answer": "Hello, due to courier weight limits, large orders are sometimes split into multiple packages. The second package is on its way; let me check the tracking number for you.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "Logistics",
+    "Task type": "Support",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "The package arrived but one of the liquid bottles leaked completely inside the box. What should I do?",
+    "reference_answer": "We are terribly sorry for the damage during transit! Please take a quick photo of the leaking bottle and the shipping label, and we will arrange a free replacement right away.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "After-sales",
+    "Task type": "Troubleshooting",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "My logistics status hasn't updated for 4 days and it's stuck at the regional transit station. Can you expedite it?",
+    "reference_answer": "We apologize for the delay. We have flagged this tracking number with the courier company to find out the status and expedite the delivery to your village.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "Logistics",
+    "Task type": "Support",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "I accidentally clicked and bought the wrong item. Can I change it to the weed killer before you ship it out?",
+    "reference_answer": "As long as the warehouse hasn't processed the shipment yet, we can modify it. Please request a cancellation or send us the correct item link immediately so we can adjust your order.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "After-sales",
+    "Task type": "Support",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "My package arrived but it did not include the complimentary small booster bottle that was promised in the description.",
+    "reference_answer": "We deeply apologize for the packing oversight! We will re-ship the missing complimentary booster bottle to your address today at no extra cost.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "After-sales",
+    "Task type": "Support",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "The tracking status says 'Delivered,' but I haven't received anything at my home. Where did the courier leave it?",
+    "reference_answer": "Couriers often leave packages at the local village service point or with a neighbor if you aren't home. Please check there first. If you still can't find it, we will contact the driver directly.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "Logistics",
+    "Task type": "Troubleshooting",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Can you issue an official electronic invoice for this purchase? Our agricultural cooperative needs it for reimbursement.",
+    "reference_answer": "Yes, absolutely. Please send over your cooperative's full legal name, unified social credit code, and your email address so we can issue the electronic invoice.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "After-sales",
+    "Task type": "Support",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "The outer cardboard box was completely crushed and torn open when the courier dropped it off. Can I reject the package?",
+    "reference_answer": "Yes, if the inner bottles are damaged or exposed, you can reject the package directly at delivery. Please let us know so we can initiate a refund or a new shipment for you.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "Logistics",
+    "Task type": "Support",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "I haven't used the medicine yet because my crop schedule changed. Can I still return it if the outer delivery box is opened?",
+    "reference_answer": "Yes, as long as the internal pesticide bottles themselves remain unopened, sealed, and undamaged, you can return them within our 7-day return window.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "After-sales",
+    "Task type": "Support",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "I need to modify my delivery address because I entered the wrong farm sector number. Can you fix it?",
+    "reference_answer": "If the package hasn't left our facility, we can update it immediately. Please provide the new full address details right away.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "Logistics",
+    "Task type": "Support",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "The courier agent refuses to deliver to my actual farm gate and says I have to drive to town to get it. Why?",
+    "reference_answer": "Some rural routes are outside standard truck delivery boundaries. Let us contact the local courier manager to see if an alternative drop-off can be arranged.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "Logistics",
+    "Task type": "Troubleshooting",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "I ordered the liquid formulation but you sent me a box of water-soluble powder. How do I exchange this?",
+    "reference_answer": "We sincerely apologize for the picking error. We will arrange a courier to swap the items at your location or process a return label for the correct liquid product.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "After-sales",
+    "Task type": "Troubleshooting",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Because your delivery was delayed by a week, my spraying window closed and my crops got infested. I want compensation.",
+    "reference_answer": "We deeply regret the delivery delay caused by logistical issues. While we cannot cover crop losses, we want to offer a full refund for the product and a high-value discount token.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "After-sales",
+    "Task type": "Support",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "I forgot to apply the promotional voucher code during checkout. Can you refund me the price difference?",
+    "reference_answer": "We cannot modify a finalized transaction amount, but we can issue an equivalent store credit or coupon code for your very next purchase.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "After-sales",
+    "Task type": "Support",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Do you support cash on delivery for remote agricultural towns, or must I pay online first?",
+    "reference_answer": "Cash on delivery depends on your exact postal code and the available local courier partners. Please share your location to check eligibility.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "Logistics",
+    "Task type": "Q&A",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "The tracking link you sent gives a 'System Error' page. How can I verify where my fertilizer is?",
+    "reference_answer": "The courier system might be undergoing maintenance. Please let me manually pull your live tracking status directly from our internal portal.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "Logistics",
+    "Task type": "Troubleshooting",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "I paid for a 1L bottle but received a smaller 500ml variant. Check your shipping records.",
+    "reference_answer": "We apologize for the mistake. Please send a photo of the received bottle and we will ship out the missing volume or refund the cost difference immediately.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "After-sales",
+    "Task type": "Troubleshooting",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "I initiated a return process three days ago. How long does it take for the money to show up in my bank?",
+    "reference_answer": "Once our warehouse receives and inspects the returned item, the refund is released instantly. It usually takes 3-5 business days for banks to process it.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "After-sales",
+    "Task type": "Support",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "The courier tracking says 'Returned to Sender' due to an insufficient address. What happens now?",
+    "reference_answer": "Once the package bounces back to our facility, we can re-ship it to you. Please provide an updated address with landmarks to ensure successful delivery.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "Logistics",
+    "Task type": "Troubleshooting",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Can I request that my order be shipped via EMS instead of Postal Service? The local post office is too far from my farm.",
+    "reference_answer": "Yes, we can change the carrier profile for your shipment. Additional shipping costs may apply depending on the package weight.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "Logistics",
+    "Task type": "Support",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "I checked my package and noticed the production date stamp is blurry. Can I exchange it for a clearly marked batch?",
+    "reference_answer": "Absolutely. If the label visibility is poor, we will initiate an exchange to make sure you have complete batch traceability details.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "After-sales",
+    "Task type": "Support",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "The application told me the package would arrive in 2 days, but now it says 5 days. Why did the timeline change?",
+    "reference_answer": "Unfavorable weather conditions near the sorting hub caused temporary dispatch holdups. We are tracking it closely to minimize the delay.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "Logistics",
+    "Task type": "Support",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "I received an automated SMS stating my order was canceled due to stock issues. When will my funds be returned?",
+    "reference_answer": "The cancellation triggers an immediate reverse gateway transaction. The automated process reverses the amount to your payment card within 24-48 hours.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "After-sales",
+    "Task type": "Support",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Can I pay a partial amount now and settle the rest after the pesticide delivers and I test it?",
+    "reference_answer": "We require full upfront payment processing or complete standard settlement at the time of cash-on-delivery. Installment options are currently unsupported.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "After-sales",
+    "Task type": "Q&A",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "I want to return a bag of fertilizer, but the outer packaging has a slight tear that I taped up. Will you accept it?",
+    "reference_answer": "As long as the contents inside are intact, haven't leaked, and the product is unused, we can accept the return within our standard window.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "After-sales",
+    "Task type": "Support",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "The logistics status says my package was left in the farm storage shed, but I checked and it's not there. What do I do?",
+    "reference_answer": "We apologize for the confusion. We will contact the specific courier delivery agent immediately to confirm the exact GPS location or physical drop-off spot.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "Logistics",
+    "Task type": "Troubleshooting",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "The tracking dashboard says 'Signed by Household,' but my family was away all day. Did someone else take my parcel?",
+    "reference_answer": "Sometimes drivers pre-sign packages when delivering to communal drop points or farm gates. Please check with neighbors or your local gate station first.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "Logistics",
+    "Task type": "Troubleshooting",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Can you route my delivery to the express self-service pickup locker at the rural township center instead of my home?",
+    "reference_answer": "Yes, we can change the delivery endpoint to your requested locker location if the order hasn't entered the final delivery dispatch route.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "Logistics",
+    "Task type": "Support",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "I realized I ordered the wrong volume size right after hitting buy. Can I modify it before the warehouse packs it?",
+    "reference_answer": "If the status shows 'Processing' and hasn't moved to 'Shipped,' we can intercept it to modify your items. Please share the specific variation immediately.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "After-sales",
+    "Task type": "Support",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "The discount code I applied during the harvest festival promotion didn't reduce the price of the special sprayers. Why?",
+    "reference_answer": "Certain hardware items and high-capacity sprayers are excluded from general crop chemical discount structures. Please check the promotion's terms page.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "After-sales",
+    "Task type": "Q&A",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "I need a physical, paper invoice with an official corporate stamp tucked inside the delivery box for audit reasons. Can you do this?",
+    "reference_answer": "Certainly. We will log a special fulfillment note for our warehouse line to print and include a stamped physical invoice with your items.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "After-sales",
+    "Task type": "Support",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "I purchased a combined product kit but only the application tools arrived today. Where is the chemical agent itself?",
+    "reference_answer": "Kits containing both hardware and liquid solutions are divided into separate boxes for safety compliance. The second box will arrive via a specialized carrier shortly.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "Logistics",
+    "Task type": "Support",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "The tracking route shows my package was delivered to a village with a similar name 30 miles away. How can this be fixed?",
+    "reference_answer": "This looks like a sorting facility routing error. We will contact the logistics hub supervisor immediately to redirect the package to your correct address.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "Logistics",
+    "Task type": "Troubleshooting",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "Are your partner courier networks capable of delivering to rural properties during weekend hours, or only weekdays?",
+    "reference_answer": "Standard delivery occurs Monday through Saturday for rural routes. Sunday delivery depends heavily on the specific regional courier partner handling the final mile.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "Logistics",
+    "Task type": "Q&A",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "The trigger nozzle on the spray bottle I received is fractured and will not pump liquid. Can you send a working part?",
+    "reference_answer": "We apologize for the component defect. We will dispatch a replacement spray nozzle kit to your address immediately without requiring you to return the bottle.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "After-sales",
+    "Task type": "Troubleshooting",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "The expiration stamp on the container bottom appears to show it expires next month. Can I get a newer batch?",
+    "reference_answer": "We maintain a fresh inventory standard. Please send us a quick snapshot of that batch stamp, and we will arrange a swap for a fresher product run.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "After-sales",
+    "Task type": "Support",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "I found the identical growth regulator chemical cheaper on another agricultural site. Can I return this unopened order?",
+    "reference_answer": "Yes, you can return any unopened items within 7 days. Please note that return shipping costs for non-quality issues are handled by the buyer.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "After-sales",
+    "Task type": "Support",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "I will be away at a regional farming convention next week. Can you instruct the courier to hold delivery until Friday?",
+    "reference_answer": "We can add a delayed shipping instruction to your file, or you can use the courier app link once dispatched to choose your exact delivery date.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "Logistics",
+    "Task type": "Support",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "The tracking URL provided in my shipping confirmation email leads to a broken 404 page. How can I see where my items are?",
+    "reference_answer": "The tracking code might be too fresh to register on the public server. Please check again in a couple of hours, or let me pull the data manually right now.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "Logistics",
+    "Task type": "Troubleshooting",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "The package gross weight printed on the courier sticker is 5kg, but I ordered 10kg of product. Did you miss half my order?",
+    "reference_answer": "Please check if your order was assigned multiple tracking IDs. If not, our picking team may have shorted the box, and we will ship the balance immediately.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "Logistics",
+    "Task type": "Troubleshooting",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "I completed payment for the premium rooting agent, but now your system says it is out of stock. What happens next?",
+    "reference_answer": "We sincerely apologize for the inventory mismatch. We can reorder it for you with an expected 5-day delay, swap it for an equivalent item, or issue an immediate refund.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "After-sales",
+    "Task type": "Support",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "The delivery driver dropped off the boxes at my gate but refused to wait while I checked for fluid leaks. Is this standard?",
+    "reference_answer": "Drivers on tight schedules are generally not required to wait for internal unboxing. However, any transit damage discovered afterward is still fully covered by our policy.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "Logistics",
+    "Task type": "Q&A",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "The status tracking shows 'Delivered,' but the carrier agent just texted saying they will actually arrive tomorrow morning. Why?",
+    "reference_answer": "Some drivers scan items as delivered when updating their logs at the regional hub before the physical run. Rest assured, your package will arrive tomorrow.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "Logistics",
+    "Task type": "Support",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "My online banking portal indicates I was billed twice for order number 88219. Can you verify this double charge?",
+    "reference_answer": "Let me review our financial logs. If an extra processing token occurred, we will void the duplicate transaction and return the authorization hold immediately.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "After-sales",
+    "Task type": "Support",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "I received my refund transaction confirmation, but the amount is short by 15 credits. Why is there a difference?",
+    "reference_answer": "The difference represents the processing fee or return shipping cost deducted according to our non-defective return policy rules.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "After-sales",
+    "Task type": "Support",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "The system portal keeps failing when I attempt to generate my return shipping label. Can you generate it for me?",
+    "reference_answer": "Certainly. The system might be facing a temporary API bottleneck. I will generate the PDF return label manually and send it directly to your email address.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "After-sales",
+    "Task type": "Troubleshooting",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Is the return shipping cost covered by your company if I am returning an item because it arrived completely frozen and ruined?",
+    "reference_answer": "Yes, absolutely. For any product quality issues or shipping damages, we provide a prepaid return label and cover all associated shipping fees.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "After-sales",
+    "Task type": "Support",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "My shipping tracking status is showing 'Customs Delay' at the provincial boundary line. Is there an issue with the chemical permits?",
+    "reference_answer": "Certain agricultural products go through routine agricultural inspection spot-checks at regional borders. This is normal and typically clears within 24 hours.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "Logistics",
+    "Task type": "Support",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "The box delivered by the courier has a powerful chemical odor and looks wet at the base. Should I refuse to accept it?",
+    "reference_answer": "Yes, please refuse delivery due to damage, and ask the courier to return it to sender. We will get a clean, replacement package sent out to you immediately.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "Logistics",
+    "Task type": "Troubleshooting",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "The invoice paper placed inside my shipping container has another customer's name and address on it. Did I get their order?",
+    "reference_answer": "We apologize for the paperwork mix-up! Please check if the actual items match your digital receipt. If the items are correct, you can simply discard the incorrect document.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "After-sales",
+    "Task type": "Troubleshooting",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "I chose standard economy delivery, but now my pest situation is urgent. Can I upgrade to overnight shipping?",
+    "reference_answer": "If the package hasn't been handed over to the courier yet, we can modify the shipping tier. You will just need to cover the carrier's price difference.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "Logistics",
+    "Task type": "Support",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "I placed two separate orders within the last hour. Can you pack them into a single box to save on packaging waste?",
+    "reference_answer": "We will try to merge them at the packing line if they are assigned to the same warehouse sector. Please provide both order numbers right away.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "Logistics",
+    "Task type": "Support",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "The item arrived safely, but there is no instruction manual inside the box. How do I know the correct dilution ratios?",
+    "reference_answer": "We apologize for the missing printout. I will send a PDF version of the complete instruction manual and dosage charts directly to your phone right now.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "After-sales",
+    "Task type": "Support",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "My shipment status has been stuck at 'Sorting Center Hub' for more than six days. Can you find out what is going on?",
+    "reference_answer": "Six days is unusually long for that transit hub. We will file an official tracer request with the logistics company manager to locate and move your package.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "Logistics",
+    "Task type": "Troubleshooting",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "The driver dropped the parcel over my courtyard wall because no one answered, and one bottle split open on the bricks. Will you replace it?",
+    "reference_answer": "We are sorry to hear that. Since the driver handled the delivery improperly, we will assume responsibility and dispatch a replacement bottle to you.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "After-sales",
+    "Task type": "Troubleshooting",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "I clicked 'Cancel Order' on my profile page, but the system says it cannot cancel because it just shipped. Can I stop it in transit?",
+    "reference_answer": "Once items are handed over to the courier, we cannot stop transit. You can simply reject the package when it arrives, and it will be returned to us for a refund.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "Logistics",
+    "Task type": "Support",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "The tracking log shows 'Delivery Failed - Address Unknown.' I have lived on this farm for ten years. Why couldn't they find it?",
+    "reference_answer": "This can happen if a new driver is assigned to the route. Please provide a nearby landmark or your digital map coordinates, and we will update the carrier's delivery notes.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "Logistics",
+    "Task type": "Troubleshooting",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "I paid extra for priority delivery, but it took six full days to reach my farm. Can I get a refund on the shipping cost?",
+    "reference_answer": "Yes, absolutely. Since our priority service window was missed, we will credit the premium shipping fee back to your account.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "After-sales",
+    "Task type": "Support",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Instead of waiting for a refund check, can you just exchange this product for a bottle of your liquid copper fungicide?",
+    "reference_answer": "We can process a direct exchange item order for you. If there is any price difference between the items, we will adjust it before shipping.",
+    "source_docs": "cat3_aftersales_logistics_real.jsonl",
+    "category": "After-sales",
+    "Task type": "Support",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "How many days after spraying can the vegetables be eaten?",
+    "reference_answer": "Please wait seven days after spraying before harvesting to ensure the pre-harvest interval is safely met.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "Can I feed my crops to geese right after spraying this?",
+    "reference_answer": "No, please wait at least 7 days after spraying before harvesting the forage or allowing geese to feed on it to ensure it is completely safe.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "Is this insecticide toxic to honeybees? My orange orchard is currently in full bloom.",
+    "reference_answer": "Yes, this product is highly toxic to bees. Avoid spraying during the active flowering period to prevent harming beneficial pollinators.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "My chickens accidentally wandered into the field and ate some weeds that were sprayed with this herbicide yesterday. Will they get poisoned?",
+    "reference_answer": "Monitor your chickens closely for unusual behavior. Keep livestock and poultry out of newly treated fields for at least 5-7 days following an application.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "I accidentally got some concentrated liquid splashed into my eyes while mixing the solution. What should I do?",
+    "reference_answer": "Immediately flush your eyes with a gentle stream of clean running water for at least 15 minutes, keeping eyelids open. Seek professional medical attention immediately after flushing.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "Is it safe to spray this around the perimeter of the house if my wife is pregnant? Can she breathe the air downwind?",
+    "reference_answer": "To minimize risk, pregnant women and young children should completely avoid the area during application and remain indoors until the spray has entirely dried and odors have dissipated.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "Can I rinse out my pesticide backpack sprayer tank directly in the local fish pond?",
+    "reference_answer": "Absolutely not. This product contains active ingredients that are highly toxic to aquatic life. Never wash application equipment near open water sources, ponds, or rivers.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "How should I properly dispose of the empty plastic pesticide bottles once they are used up?",
+    "reference_answer": "Triple-rinse the empty bottles (adding the rinse water to your sprayer), puncture or crush the containers so they cannot be reused, and dispose of them at a designated local agricultural chemical waste point.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "What is the shelf life of this product? The manufacturing date stamp on the bottom of the bottle says it was made two years ago.",
+    "reference_answer": "The standard shelf life is 2 years. If the container has been stored tightly sealed in a cool, dry place and the chemical hasn't separated or clumped, it may still be usable, though efficacy may be reduced.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Will applying this specific agent leave long-term heavy metal or chemical residues in my greenhouse soil?",
+    "reference_answer": "No, this is a highly degradable organic/microbial formula. It breaks down quickly via soil microorganisms and sunlight, leaving no harmful persistent residues when used at recommended rates.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "I accidentally got the mixed chemical solution all over my bare hands and arms. What immediate steps should I take?",
+    "reference_answer": "Remove any contaminated clothing immediately. Wash your skin thoroughly with plenty of running water and soap for at least 15 minutes. If irritation or redness develops, consult a doctor.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "I felt dizzy and nauseous after inhaling some of the spray mist while working downwind without a mask. What should I do?",
+    "reference_answer": "Leave the treated area immediately to get fresh air. Sit down and rest in a well-ventilated space. Drink plenty of water. If the dizziness or nausea persists, seek medical help with the product label in hand.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "Do I need any specialized protective equipment like a full respirator mask when mixing this specific fungicide?",
+    "reference_answer": "While a full respirator isn't mandatory, we strongly advise wearing a standard protective face mask, rubber gloves, and safety goggles during preparation to avoid direct exposure to concentrated drops.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Is it safe to let my young children play on the backyard lawn immediately after I finish applying this treatment?",
+    "reference_answer": "No, please keep children and pets off the treated lawn or garden beds until the liquid spray has dried completely, which usually takes around 2 to 4 hours depending on sun exposure.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "Can I safely apply this weed killer near a shallow drinking water well on my farm?",
+    "reference_answer": "Maintain a minimum safety buffer distance of at least 15 to 20 meters from any drinking water well or open aquifer to absolutely eliminate any risk of groundwater contamination or runoff.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "Will this product harm household pets like dogs or cats if they happen to walk across the damp treated soil?",
+    "reference_answer": "Once the application has fully dried into the soil, it is generally safe for pets. However, walking on it while wet can cause skin irritation or accidental paw licking, which might cause mild stomach upset.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "Can I mix this chemical with household liquid dish soap to act as a homemade surfactant or wetting agent?",
+    "reference_answer": "We strongly advise against mixing agricultural chemicals with household cleaners or detergents. Unpredictable chemical reactions can neutralize the active ingredients or cause severe leaf burn on your crops.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "It started raining heavily less than an hour after I finished spraying. Will the chemical run off into local streams and cause toxicity?",
+    "reference_answer": "Heavy rain shortly after application can wash away the product, reducing its efficacy and potentially introducing runoff into local waterways. Avoid spraying if rain is forecast within 4 to 6 hours.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "Are there any known long-term chronic health risks for professional operators who handle this formula daily over several months?",
+    "reference_answer": "When handled properly using personal protective equipment (gloves, masks, long sleeves), there are no observed chronic toxic risks. Always adhere to standard agricultural hygiene practices.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "What is the specific medical antidote description if someone accidentally swallows a small amount of this concentrated liquid?",
+    "reference_answer": "There is no specific chemical antidote. Treatment must be symptomatic. Do not induce vomiting unless explicitly directed by medical personnel. Rush the patient to an emergency room immediately with the container packaging.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "Is this product hazardous to beneficial earthworms and overall soil microbiota when applied at standard concentration ratios?",
+    "reference_answer": "When used according to the precise dilution guidelines, it exhibits minimal toxicity to soil microflora and earthworms. Over-concentration must be avoided to keep soil biology balanced.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "How long should I wait before letting livestock animals graze in fields treated with this targeted chemical?",
+    "reference_answer": "Keep all grazing cattle, sheep, and other livestock away from the pasture for at least 14 days post-application to ensure safety.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "Can runoff from the field enter our commercial aquaculture setup? Is it toxic to shrimp or prawns?",
+    "reference_answer": "Yes, crustacean and aquatic life species are highly sensitive to this compound. Create absolute physical boundaries to prevent water runoff into aquaculture areas.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "The odor after application is extremely pungent. Is breathing the smell over a long duration unsafe?",
+    "reference_answer": "The strong smell is part of the warning formulation carrier system. While not acutely toxic if diluted, avoid prolonged inhalation in enclosed zones. Ensure adequate airflow.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Can this concentrated product catch fire if stored in a hot metal container box near a generator set?",
+    "reference_answer": "Keep it stored in a cool, shaded environment away from electrical sparks or open heat sources. High ambient storage temperatures can compromise chemical stability.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "What is the minimum safe distance I must maintain when spraying this chemical near an active honeybee hive?",
+    "reference_answer": "To protect beneficial pollinators, maintain an absolute buffer zone of at least 50 meters from any beehives and spray only during late evening hours when bees aren't foraging.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "Is it fine if I apply this treatment while wearing shorts and sandals since it is a very hot day?",
+    "reference_answer": "No, this is highly unsafe. Always wear full-length pants, a long-sleeved shirt, and closed, water-resistant footwear to avoid any accidental skin contact with the chemical spray.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "I accidentally mixed this herbicide with another brand's crop oil concentrate, and the tank became hot to the touch. Is this dangerous?",
+    "reference_answer": "Stop using it immediately. An unexpected exothermic chemical reaction can release toxic fumes or degrade the chemical container. Step away and let the mixture cool in a well-ventilated space.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "Can I spray this product along the fence line right next to a dairy cow milking shed?",
+    "reference_answer": "To eliminate the risk of chemical drift getting into milking equipment or livestock feed supplies, keep a safe distance of at least 10 meters from active dairy production structures.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "I have some leftover pre-mixed solution in my tank. Can I store it temporarily in an empty plastic water bottle?",
+    "reference_answer": "Never store any agricultural chemicals or pesticides in unmarked consumer beverage containers. This presents a high risk of accidental ingestion. Dispose of or use any mixed solution immediately.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "My guard dog walked through the garden bed and licked the dried residue off the treated plant leaves. Will he get sick?",
+    "reference_answer": "While completely dried residue carries a lower exposure risk than wet spray, monitor your pet for heavy salivation or vomiting. Contact a veterinarian immediately if symptoms appear.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "What standard classification filter mask is required to protect my lungs from fine mist particles during high-pressure spraying?",
+    "reference_answer": "We strongly recommend using an approved N95 or particulate respirator mask rated for organic vapors to ensure fine aerosol droplets are completely filtered out.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "The wind speed is currently around 15 miles per hour. Is it still safe to go ahead and spray my fields today?",
+    "reference_answer": "No, avoid application when wind speeds exceed 10 mph. High winds cause chemical drift, which can damage non-target neighboring crops and cause environmental hazards.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Can I use this targeted outdoor crop formula to treat aphids on my indoor household potted plants?",
+    "reference_answer": "No, this product is formulated strictly for open agricultural use. Using it indoors can lead to a hazardous buildup of chemical fumes in enclosed residential living spaces.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "If rainwater runs off my treated fields into a nearby duck pond, will it harm the local waterfowl?",
+    "reference_answer": "The active ingredients are formulated to bind to soil particles to limit runoff, but excessive direct flow into small ponds can be toxic. Keep a vegetated buffer strip near open water.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "I developed a mild red skin rash on my forearms after spreading these granules without wearing long gloves. What should I do?",
+    "reference_answer": "Wash the affected skin areas thoroughly with soap and cool water immediately. Avoid scratching the skin. If the redness or rash remains after 24 hours, consult a medical professional.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "Does this agricultural agent carry any long-term carcinogenic risk classifications for regular farm workers?",
+    "reference_answer": "This compound has passed rigorous toxicology reviews and is not classified as a carcinogen, provided it is applied according to the personal protective standards on the label.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "I left the concentrated bottle out in direct, hot sunlight for an entire afternoon. Could it have formed dangerous toxic gases?",
+    "reference_answer": "Extreme heat can cause chemical pressure inside the container to expand, but it will not create secondary toxic gases. Let the container cool completely in the shade before opening.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Is it safe for pregnant women to handle and pick the crops once the 7-day pre-harvest interval has passed?",
+    "reference_answer": "Yes, once the full 7-day interval has passed, the chemical residues have broken down to safe baseline levels. However, washing harvested produce thoroughly is always recommended.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "Is it safe to pour the remaining rinse water from washing my spray tank down a standard residential kitchen sink?",
+    "reference_answer": "No, never dispose of equipment wash water down domestic drains or household septic systems. Spray the diluted rinse water back out onto an untreated section of the target field.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "Can I apply this treatment along the property line right next to a public school playground field?",
+    "reference_answer": "To prevent any accidental exposure, apply the chemical only when the school is not in session, and ensure there is zero wind drift blowing toward the playground perimeter.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "What immediate first aid should be performed if a child swallows one of the solid fertilizer pellets?",
+    "reference_answer": "Rinse the child's mouth thoroughly with water. Do not induce vomiting unless told to do so by emergency medical services. Take the product packaging and seek emergency medical care immediately.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "Will this garden treatment harm the harmless frogs, lizards, and toads that live around my vegetable patches?",
+    "reference_answer": "This compound is designed to target specific pests and exhibits very low toxicity toward terrestrial reptiles and amphibians when applied at standard label dilution rates.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "What is the upper storage temperature limit for this liquid formula to ensure it doesn't degrade or cause a pressure leak?",
+    "reference_answer": "Store the product in a well-ventilated storage unit where ambient temperatures remain consistently below 40 degrees Celsius to maintain stability and prevent container expansion.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Is it safe to smoke a cigarette or eat a lunch sandwich while I am applying this pesticide powder?",
+    "reference_answer": "Absolutely not. Smoking or eating while handling agricultural chemicals creates a direct path for accidental chemical ingestion. Wash your hands and face thoroughly before eating or smoking.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "If the mixed solution splashes onto my clothing, can I wash those clothes with the regular family laundry load?",
+    "reference_answer": "No, contaminated work clothes must be kept separate and washed in a distinct machine cycle apart from regular family laundry to prevent cross-contamination.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Will this chemical agent leave persistent toxic chemical residues on my harvesting scissors and sorting tools?",
+    "reference_answer": "The chemical breaks down rapidly, but tools should still be washed with warm soapy water and thoroughly dried after use to prevent any residue buildup or crop cross-contamination.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Is it safe for a nursing mother to mix and apply this highly concentrated chemical powder solution?",
+    "reference_answer": "To guarantee complete safety, nursing or pregnant mothers should completely avoid handling concentrated agricultural chemicals and delegate mixing tasks to another team member.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "A sudden gust of wind blew some powder dust directly into my face during mixing. What is the emergency protocol?",
+    "reference_answer": "Move to fresh air immediately. Rinse your mouth thoroughly with water, and flush your face and eyes with clean water for at least 15 minutes. Seek medical advice if respiratory discomfort occurs.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "Is this specific chemical substance restricted or completely banned in municipal watershed conservation areas?",
+    "reference_answer": "Yes, certain environmental protection districts restrict its use due to aquifer protection rules. Please check your regional agricultural authority guidelines before application.",
+    "source_docs": "cat4_safety_sensitive_real.jsonl",
+    "category": "Safety",
+    "Task type": "Safety/Health",
+    "difficulty": "Hard"
+  }
+]
+
