@@ -62,7 +62,7 @@ def retrieve_chunks(
         )
         # Store retrieval score for evaluation and debugging
         metadata[
-            "retrieval_score"
+            "relevance_score"
         ] = score
 
 
