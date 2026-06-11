@@ -28,6 +28,9 @@ RUN pip install --no-cache-dir --upgrade pip \
 
 COPY terramind/ terramind/
 
+# Pre-download CrossEncoder reranker used by product RAG (~90MB; avoids first-query delay).
+RUN python -c "from sentence_transformers import CrossEncoder; CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')"
+
 # Corpus (PDFs, product Excel) is mounted at runtime — see docker-compose.yml
 
 # Indexes live on a named volume (see docker-compose.yml), not in the image
@@ -37,7 +40,7 @@ ENV PYTHONUNBUFFERED=1
 
 EXPOSE 8001
 
-HEALTHCHECK --interval=15s --timeout=5s --retries=5 --start-period=15s \
+HEALTHCHECK --interval=15s --timeout=5s --retries=8 --start-period=120s \
   CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/health')" || exit 1
 
 CMD ["python", "-m", "uvicorn", "terramind.api.app:app", "--host", "0.0.0.0", "--port", "8001"]

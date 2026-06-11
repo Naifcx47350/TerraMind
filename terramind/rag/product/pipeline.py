@@ -47,6 +47,25 @@ def get_product_db() -> Chroma:
     return _DB
 
 
+def warm_product_rag() -> None:
+    """Eager-load Chroma, BM25, and CrossEncoder so the first user query is not slow."""
+    import logging
+
+    from terramind.rag.product.hybrid import build_bm25_index
+    from terramind.rag.product.rerank import load_reranker
+
+    log = logging.getLogger(__name__)
+
+    db = get_product_db()
+    log.info("Product RAG: Chroma ready (%s vectors)", db._collection.count())
+
+    build_bm25_index()
+    log.info("Product RAG: BM25 index ready")
+
+    load_reranker()
+    log.info("Product RAG: CrossEncoder reranker ready")
+
+
 def _retrieve_ranked(db: Chroma, question: str, k: int = RETRIEVAL_K) -> list[Document]:
     retrieval_query = rewrite_query(question)
     print(f"\nOriginal Query: {question}")
@@ -101,4 +120,5 @@ __all__ = [
     "retrieve_products",
     "sources_from_retrieved",
     "stream_answer_with_rag",
+    "warm_product_rag",
 ]
