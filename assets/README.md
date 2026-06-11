@@ -19,7 +19,7 @@ assets/backgrounds/{appearance}/
 
 **Appearances:** `field`, `forest`, `harvest`, `ocean`, `dusk`
 
-After adding or renaming PNGs, restart the Vite dev server (or run `npm run build`) so `import.meta.glob` picks up new files.
+After adding or renaming PNGs, restart the Vite dev server (or run `npm run build`) so `import.meta.glob` picks up new files. In Docker, rebuild the `frontend` image after asset changes (`docker compose build frontend`).
 
 ---
 

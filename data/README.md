@@ -22,6 +22,8 @@ Product RAG currently reads the translated files:
 - `raw/product_catalog/translated/product_catalog_en.xlsx`
 - `raw/product_catalog/translated/product_categories_en.xlsx`
 
+After catalog path or filename changes, rebuild the product index: `python -m terramind.rag.product.cli --reset` (local) or `docker compose --profile init run --rm init-indexes` (Docker).
+
 ## Runtime relevance
 
 - `sample/` is used by General RAG, but only allowlisted files are indexed. Today that allowlist is `pesticide_safety_general.txt` in `terramind/rag/general/config.py`.

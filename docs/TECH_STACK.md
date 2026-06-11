@@ -79,6 +79,7 @@ Corpus layout: [GENERAL_RAG_CORPUS.md](./GENERAL_RAG_CORPUS.md) · [data/README.
 | **react-markdown** + **remark-gfm** | Render assistant answers (headings, lists, bold) | Chat message components in `frontend-react/src/` |
 | **@fontsource/dm-sans** | UI typography | Loaded in `App.jsx` |
 | **Browser storage** | Saved chats and hidden Advisory unlock | `localStorage` / `sessionStorage` keys in `App.jsx`, `uiSettings.js` |
+| **Static UI assets** | Theme wallpapers and decor PNGs | Repo-root `assets/` via Vite alias `@assets` (`vite.config.js`); Docker frontend image copies `assets/` at build time |
 
 Dev proxy: Vite forwards `/api/*` → `http://localhost:8000` (see `vite.config.js`).
 
@@ -102,7 +103,7 @@ Guides: [docker/QUICKSTART.md](../docker/QUICKSTART.md) · [docker/README.md](..
 
 | Tool | Purpose | Where used |
 | --- | --- | --- |
-| **pytest** | Unit/integration tests | `tests/` (router, scoring, advisory meta); optional `FrontPage/tests/` |
+| **pytest** | Unit/integration tests | `tests/` — 64 tests (router, scoring, advisory, auto battery); `FrontPage/tests/` — 7 gateway smoke tests |
 | **Git** | Version control | Repo; `.dockerignore` excludes `.git/` from build context |
 | **Conda** (optional) | Recommended local Python env name `terramind` | Documented in [README.md](../README.md), [FrontPage/RUN_LOCALLY.md](../FrontPage/RUN_LOCALLY.md) — not required for Docker |
 

@@ -102,7 +102,8 @@ App.jsx  POST /api/ask/compare
 | **`terramind/meta_questions.py`** | Meta/identity detection (Auto → base LLM; Advisory short-circuit)                               | `router.py`, `run_advisory`, streaming         |
 | **`terramind/rag/llm_stream.py`** | OpenAI token streaming via LangChain                                                            | `streaming.py`, `generate.py`                  |
 | **`terramind/rag/general/`**      | Full general pipeline + CLI + eval                                                              | `terramind.models.general_rag`                 |
-| **`terramind/rag/product/`**      | Package implementation for Product RAG                                                          | `terramind.models.product_rag`                 |
+| **`terramind/rag/product/`**      | Product RAG package — Excel → Chroma → hybrid retrieve → answer | `terramind.models.product_rag` via `pipeline.py` |
+| **`docker-compose.yml`**          | Docker: three services + `terramind-vectorstore` volume + `init-indexes` profile | `docker compose up --build` |
 | **`terramind/rag/scoring.py`**    | Retrieval scores + confidence                                                                   | RAG answer dicts                               |
 | **`rag_api.py`**                  | Shim → `terramind.api.app`                                                                      | Legacy uvicorn target                          |
 | **`run_dev.py`**                  | Starts :8001, :8000, :3000                                                                      | Local dev                                      |
@@ -110,6 +111,23 @@ App.jsx  POST /api/ask/compare
 | **`requirements-dev.txt`**        | Dev extras (pytest)                                                                             | `pip install -r requirements-dev.txt`          |
 
 Product RAG and General RAG are package-based under **`terramind/rag/product/`** and **`terramind/rag/general/`**.
+
+**Product RAG modules (`terramind/rag/product/`):**
+
+| Module | Role |
+| --- | --- |
+| `config.py` | Paths (`CATALOG_PATH`, `CHROMA_PATH`), models, RAG prompt |
+| `load.py` | Excel → LangChain product documents |
+| `chunk.py` | Product sections → retrieval chunks |
+| `store.py` | Build/load Chroma index |
+| `rewrite.py` | Query rewrite before retrieval |
+| `retrieve.py` | Dense vector search |
+| `hybrid.py` | BM25 + dense fusion (RRF) |
+| `rerank.py` | Cross-encoder rerank |
+| `generate.py` | Context formatting + LLM answer |
+| `pipeline.py` | Public API used by model adapters (`init_product_rag`, `get_product_db`, …) |
+| `cli.py` | `--reset` index build + smoke question |
+| `clarification.py`, `catalog_agent.py` | Scaffolds for future catalog tools (not in Auto router yet) |
 
 ### BUILD (one-off commands)
 
@@ -156,7 +174,7 @@ Product RAG and General RAG are package-based under **`terramind/rag/product/`**
 | **`docs/FILE_MAP_AND_PIPELINE.md`** | This file                                                |
 | **`data/README.md`**                | Data layout + gitignore                                  |
 | **`docs/SYSTEM_ARCHITECTURE.md`**   | Canonical architecture                                   |
-| **`assets/`**                       | Logo (`assets/logo/`), diagrams (`assets/architecture/`) |
+| **`assets/`**                       | UI wallpapers/decor (`assets/backgrounds/`), logos (`assets/logo/`); loaded via Vite `@assets` alias; copied into Docker frontend build |
 | **`docs/`**                         | Developer documentation only (not ingested by RAG)       |
 | **`docs/GENERAL_RAG_CORPUS.md`**    | General RAG corpus list and rebuild steps                |
 | **`TM_Logo.png`**                   | Branding for README; **not** served to UI                |
@@ -188,9 +206,9 @@ Product RAG and General RAG are package-based under **`terramind/rag/product/`**
 | File                                    | What it does                                                                                              |
 | --------------------------------------- | --------------------------------------------------------------------------------------------------------- |
 | **`frontend-react/src/main.jsx`**       | React mount → `App`                                                                                       |
-| **`frontend-react/src/App.jsx`**        | Chat, streaming UI, Auto picker, hidden Advisory unlock (6× logo), compare, scores, `MarkdownMessage.jsx` |
+| **`frontend-react/src/App.jsx`**        | Chat, streaming UI, Auto picker, hidden Advisory unlock (6× logo), compare, scores, startup `BootstrapOverlay`, `MarkdownMessage.jsx` |
 | **`frontend-react/index.html`**         | HTML shell                                                                                                |
-| **`frontend-react/vite.config.js`**     | Dev server port 3000; proxy `/api` → 8000                                                                 |
+| **`frontend-react/vite.config.js`**     | Dev server port 3000; proxy `/api` → 8000; alias `@assets` → repo-root `assets/` |
 | **`frontend-react/package.json`**       | npm deps & `dev` script                                                                                   |
 | **`frontend-react/public/TM_Logo.png`** | Logo at `/TM_Logo.png` (**this** is the file the browser loads)                                           |
 
@@ -201,7 +219,8 @@ Product RAG and General RAG are package-based under **`terramind/rag/product/`**
 | **`setup_env.ps1`**                          | Creates `.env` snippet                                         |
 | **`env.rag.snippet`**                        | Template env lines                                             |
 | **`Dockerfile`**                             | API container only; still needs :8001 + indexes for full RAG   |
-| **`tests/test_api.py`**                      | API smoke tests                                                |
+| **`tests/test_api.py`**                      | Gateway smoke tests (health, config, ask)                      |
+| **`../tests/`** (repo root)                  | Router, scoring, advisory meta, auto question battery (64 tests) |
 | **`pyrightconfig.json`**                     | IDE typing                                                     |
 | **`package-lock.json`** (under `FrontPage/`) | Orphan lockfile if no `package.json` there — **likely UNUSED** |
 
