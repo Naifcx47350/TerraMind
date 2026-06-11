@@ -145,7 +145,7 @@ No `init-indexes`. Open http://localhost:3000.
 ### Path B — Full RAG (recommended)
 
 1. Repo-root `.env` with `USE_MOCK=false` and `OPENAI_API_KEY=...`
-2. `docker compose --profile init run --rm init-indexes` **once**
+2. `docker compose --profile init run --rm init-indexes` **once** (runs `terramind.rag.product.cli --reset` + `terramind.rag.general.cli --reset`)
 3. `docker compose up --build`
 4. Open http://localhost:3000
 
@@ -217,6 +217,7 @@ Images contain **code only** — not `.env`, not vector indexes, not API keys.
 | Port 3000 / 8000 in use | Stop other apps or change ports in `docker-compose.yml` |
 | `host not found in upstream "gateway"` | Rebuild frontend; start full stack with `docker compose up` |
 | **502 on API key Continue** | Run `init-indexes`; wait for model-api to finish starting; retry |
+| “Starting TerraMind…” overlay (10–30s) | Normal while gateway/model-api boot; wait or check `docker compose ps` |
 | Slow start / corpus loading in logs | Run `init-indexes` once; ensure volume has indexes |
 | Key gate but RAG errors | Run `init-indexes` with key in `.env` |
 | Empty/mock answers with real key | Set `USE_MOCK=false`; restart compose |

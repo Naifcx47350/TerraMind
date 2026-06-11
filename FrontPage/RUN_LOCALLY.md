@@ -29,13 +29,15 @@ Starts all three services in one terminal. Open **http://localhost:3000**. Press
 
 Requires `npm install` once in `<repo-root>/FrontPage/frontend-react`.
 
+On first open, you may briefly see **“Starting TerraMind…”** while the UI waits for the gateway (`GET /api/config`). That is normal when all three processes start together.
+
 ---
 
 ## Three terminals (manual)
 
 | Terminal | Service                                        | Port     |
 | -------- | ---------------------------------------------- | -------- |
-| 1        | TerraMind Model API (`terramind.api.app` or `rag_api.py`) | **8001** |
+| 1        | TerraMind Model API (`terramind.api.app`) | **8001** |
 | 2        | FrontPage API (`uvicorn app.main`)             | **8000** |
 | 3        | React UI (`npm run dev`)                       | **3000** |
 
@@ -81,7 +83,7 @@ uvicorn terramind.api.app:app --reload --port 8001
 | ------------- | -------------------------------------- | -------------------------- |
 | `auto_rag` (default) | `terramind/models/auto_rag.py` + `router.py` | Picks product, general, or **base LLM** per question |
 | `general_rag` | `terramind/models/general_rag.py` → `terramind/rag/general/` | PDFs in `data/raw/documents/` |
-| `product_rag` | `terramind/models/product_rag.py` → `terramind/rag/product/` | Client product Excel |
+| `product_rag` | `terramind/models/product_rag.py` → `terramind/rag/product/` | `data/raw/product_catalog/translated/product_catalog_en.xlsx` |
 | `base_llm`    | `terramind/models/base_llm.py`         | OpenAI only (no retrieval) |
 | `advisory` (hidden UI) | `run_advisory()` / `stream_advisory_events` | General then product; unlock via 6× logo click |
 
@@ -223,15 +225,19 @@ You should see `v24.15.0`. If `nvm use` succeeds but `node -v` shows another ver
 
 ## 4. Quick checklist (product RAG + UI)
 
-1. Terminal 1: `rag_api` on **8001** — `/health` OK
+1. Terminal 1: Model API on **8001** (`uvicorn terramind.api.app:app --reload --port 8001`) — `/health` OK
 2. Terminal 2: FrontPage `uvicorn` on **8000** — `.env` has `RAG_SERVICE_URL` and `USE_MOCK=false`
 3. Terminal 3: `npm run dev` on **3000**
 4. Browser: http://localhost:3000 — ask a product question (e.g. “How do I use Citrus Bacteria Clear?”)
 5. Answer should cite catalog products; enable **Show sources** in the sidebar
 
+Or use **`python run_dev.py`** from repo root for steps 1–3 in one terminal.
+
 If the UI says _“Cannot connect to API”_, terminal 2 (port 8000) is down.
 
 If answers look like mock tomato/wheat text, check `USE_MOCK` is `false` and `RAG_SERVICE_URL` is set; terminal 1 must be running.
+
+If decor images look broken after moving assets, restart Vite (`npm run dev`) so `@assets` glob picks up PNGs under repo-root `assets/`.
 
 ---
 
@@ -239,6 +245,7 @@ If answers look like mock tomato/wheat text, check `USE_MOCK` is `false` and `RA
 
 | Problem                                                   | What to do                                                                                     |
 | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| “Starting TerraMind…” overlay stays a long time           | Gateway :8000 not up yet — wait or start `uvicorn app.main:app` in `FrontPage/`; in Docker wait for healthy `gateway` |
 | Cannot connect to API / Vite `ECONNREFUSED` on `/api/ask` | Start `uvicorn` **inside `FrontPage/`** on port 8000; confirm http://localhost:8000/api/health |
 | `Could not import module "app.main"`                      | Wrong folder — `cd <repo-root>/FrontPage` before `uvicorn`                                       |
 | Frontend won’t start                                      | `cd <repo-root>/FrontPage/frontend-react`, then `nvm use`, `npm install`, `npm run dev`          |
@@ -247,16 +254,22 @@ If answers look like mock tomato/wheat text, check `USE_MOCK` is `false` and `RA
 
 ---
 
-## Optional: connect your TerraMind RAG scripts later
+## Optional: mock mode or external LLM
 
-When pointing FrontPage at the model API, set in `FrontPage/.env`:
+For offline UI demos without RAG, set in `FrontPage/.env`:
+
+```env
+USE_MOCK=true
+```
+
+For real RAG (recommended), keep:
 
 ```env
 USE_MOCK=false
 RAG_SERVICE_URL=http://localhost:8001/query
 ```
 
-Until then, use `USE_MOCK=true` or `LLM_PROVIDER` + `LLM_API_KEY` as in `README.md`.
+Model API must be running on **8001** with indexes built (`python -m terramind.rag.product.cli --reset` and `python -m terramind.rag.general.cli --reset`).
 
 ---
 
@@ -264,7 +277,8 @@ Until then, use `USE_MOCK=true` or `LLM_PROVIDER` + `LLM_API_KEY` as in `README.
 
 | Task                        | Command                                  |
 | --------------------------- | ---------------------------------------- |
-| API tests                   | `cd <repo-root>/FrontPage` then `pytest tests/ -v`   |
+| Model/router tests          | `cd <repo-root>` then `pytest tests/ -v` |
+| Gateway API tests           | `cd <repo-root>/FrontPage` then `pytest tests/ -v` |
 | Production build (frontend) | `cd <repo-root>/FrontPage/frontend-react` then `npm run build` |
 | Preview production build    | `npm run preview`                        |
 

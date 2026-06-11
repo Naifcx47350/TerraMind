@@ -47,6 +47,10 @@ Defaults come from decor files; users override via **Settings → Advanced** (sa
 - Stylized boost: `theme/index.js` → `boostStylizedContrast()`
 - CSS scrim/shadow: `theme/visuals.js` → `.tm-stylized .tm-content-width`
 
+### Startup overlay (“Starting TerraMind…”)
+
+Shown in `App.jsx` while `GET /api/config` is retrying (gateway not ready). Normal for a few seconds after `run_dev.py` or `docker compose up`. Restart Vite if decor PNGs fail to load after changing files under repo-root `assets/`.
+
 ### Widen sidebar (conversation list clipping)
 
 `App.jsx` → `SIDEBAR_WIDTH` (currently 280px).

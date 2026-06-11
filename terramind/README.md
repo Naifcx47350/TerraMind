@@ -168,6 +168,23 @@ Build/reset command:
 python -m terramind.rag.product.cli --reset
 ```
 
+**Package modules:**
+
+| Module | Role |
+| --- | --- |
+| `config.py` | `CATALOG_PATH`, `CHROMA_PATH`, embedding/chat models, RAG prompt |
+| `load.py` | Read translated Excel → product `Document` rows |
+| `chunk.py` | Split catalog fields into retrieval chunks |
+| `store.py` | Build/load `vectorstore/chroma_products/` |
+| `rewrite.py` | Query rewrite before hybrid search |
+| `retrieve.py` | Dense Chroma retrieval |
+| `hybrid.py` | BM25 + dense reciprocal-rank fusion |
+| `rerank.py` | Cross-encoder rerank (`ms-marco-MiniLM-L-6-v2`) |
+| `generate.py` | Format context + call OpenAI |
+| `pipeline.py` | Public API (`init_product_rag`, `get_product_db`, `answer_with_rag`, streaming) |
+| `cli.py` | `--reset` and smoke-test question |
+| `clarification.py`, `catalog_agent.py` | Future catalog tools (scaffolded, not routed yet) |
+
 The archived legacy script is kept under `archive/Rag_Pc_legacy.py` for reference only.
 
 ---

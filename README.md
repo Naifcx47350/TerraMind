@@ -12,14 +12,14 @@ Agriculture support assistant with **Auto RAG** (default), manual product/genera
 
 ## Choose how to run
 
-| | **Docker** (recommended for demos / no local toolchain) | **Local dev** (Python + Node on your machine) |
-| --- | --- | --- |
-| **Needs** | [Docker Desktop](https://www.docker.com/products/docker-desktop/) only | Conda Python 3.11+, Node.js, `pip install -r requirements.txt` |
-| **Indexes** | Docker volume `terramind-vectorstore` (build once with `init-indexes`) | Folder `vectorstore/` on disk (gitignored) |
-| **Corpus (`data/`)** | Mounted from your clone — **not** baked into images | Used directly from repo |
-| **Secrets** | Repo-root `.env` only (copy from `docker/env.example`) | Repo-root `.env` or `FrontPage/.env` |
-| **Start** | `docker compose up --build` | `python run_dev.py` (or three terminals) |
-| **Full guide** | **[docker/QUICKSTART.md](docker/QUICKSTART.md)** | **[FrontPage/RUN_LOCALLY.md](FrontPage/RUN_LOCALLY.md)** |
+|                      | **Docker** (recommended for demos / no local toolchain)                | **Local dev** (Python + Node on your machine)                  |
+| -------------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------- |
+| **Needs**            | [Docker Desktop](https://www.docker.com/products/docker-desktop/) only | Conda Python 3.11+, Node.js, `pip install -r requirements.txt` |
+| **Indexes**          | Docker volume `terramind-vectorstore` (build once with `init-indexes`) | Folder `vectorstore/` on disk (gitignored)                     |
+| **Corpus (`data/`)** | Mounted from your clone — **not** baked into images                    | Used directly from repo                                        |
+| **Secrets**          | Repo-root `.env` only (copy from `docker/env.example`)                 | Repo-root `.env` or `FrontPage/.env`                           |
+| **Start**            | `docker compose up --build`                                            | `python run_dev.py` (or three terminals)                       |
+| **Full guide**       | **[docker/QUICKSTART.md](docker/QUICKSTART.md)**                       | **[FrontPage/RUN_LOCALLY.md](FrontPage/RUN_LOCALLY.md)**       |
 
 Both paths serve the app at **http://localhost:3000** (frontend **3000**, gateway **8000**, model API **8001**).
 
@@ -123,14 +123,14 @@ Locally, Vite serves the UI; in Docker, nginx serves the production React build 
   <img alt="pytest" width="34px" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pytest/pytest-original.svg"/>
 </p>
 
-| Layer | Tools | Role in TerraMind |
-| --- | --- | --- |
-| **APIs** | Python, FastAPI, Uvicorn, httpx | Model API (:8001) + FrontPage gateway (:8000); streaming proxy to RAG |
-| **AI / RAG** | OpenAI, LangChain, ChromaDB | Chat, embeddings, vision; PDF + Excel → vector indexes; product hybrid (BM25 + dense) + rerank |
-| **UI** | React, Vite, react-markdown | Chat, compare, sessions; Vite in dev, nginx in Docker |
-| **Data** | pypdf, pandas, openpyxl | General PDF corpus; product Excel catalog |
-| **Deploy** | Docker, nginx, Node (build) | Three-container stack; `data/` mount + `terramind-vectorstore` volume |
-| **Tests** | pytest | Router, scoring, advisory tests under `tests/` |
+| Layer        | Tools                           | Role in TerraMind                                                                              |
+| ------------ | ------------------------------- | ---------------------------------------------------------------------------------------------- |
+| **APIs**     | Python, FastAPI, Uvicorn, httpx | Model API (:8001) + FrontPage gateway (:8000); streaming proxy to RAG                          |
+| **AI / RAG** | OpenAI, LangChain, ChromaDB     | Chat, embeddings, vision; PDF + Excel → vector indexes; product hybrid (BM25 + dense) + rerank |
+| **UI**       | React, Vite, react-markdown     | Chat, compare, sessions; Vite in dev, nginx in Docker                                          |
+| **Data**     | pypdf, pandas, openpyxl         | General PDF corpus; product Excel catalog                                                      |
+| **Deploy**   | Docker, nginx, Node (build)     | Three-container stack; `data/` mount + `terramind-vectorstore` volume                          |
+| **Tests**    | pytest                          | Router, scoring, advisory tests under `tests/`                                                 |
 
 Full list with file paths and purpose: **[docs/TECH_STACK.md](docs/TECH_STACK.md)** (linked from [docs/SYSTEM_ARCHITECTURE.md](docs/SYSTEM_ARCHITECTURE.md) §9).
 
@@ -138,13 +138,13 @@ Full list with file paths and purpose: **[docs/TECH_STACK.md](docs/TECH_STACK.md
 
 ## Models (picker order)
 
-| Mode | ID | Knowledge source |
-| --- | --- | --- |
-| Auto (recommended) | `auto_rag` | Router picks product RAG, general RAG, or base LLM |
-| Agriculture Knowledge RAG | `general_rag` | PDFs in `data/raw/documents/` |
-| Product Catalog RAG | `product_rag` | Translated client Excel (`data/raw/product_catalog/translated/product_catalog_en.xlsx`) |
-| Base LLM | `base_llm` | OpenAI only — no retrieval |
-| Advisory (hidden UI) | `advisory` | General then product — unlock via logo easter egg; see [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) |
+| Mode                      | ID            | Knowledge source                                                                                  |
+| ------------------------- | ------------- | ------------------------------------------------------------------------------------------------- |
+| Auto (recommended)        | `auto_rag`    | Router picks product RAG, general RAG, or base LLM                                                |
+| Agriculture Knowledge RAG | `general_rag` | PDFs in `data/raw/documents/`                                                                     |
+| Product Catalog RAG       | `product_rag` | Translated client Excel (`data/raw/product_catalog/translated/product_catalog_en.xlsx`)           |
+| Base LLM                  | `base_llm`    | OpenAI only — no retrieval                                                                        |
+| Advisory (hidden UI)      | `advisory`    | General then product — unlock via logo easter egg; see [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) |
 
 Default chat/vision model: **`gpt-4o-mini`**. Corpus notes: [docs/GENERAL_RAG_CORPUS.md](docs/GENERAL_RAG_CORPUS.md).
 
@@ -177,6 +177,7 @@ TerraMind/
 - **Show sources** / **Show scores**; plant **image upload** (vision → all modes)
 - **Conversation history** + **localStorage** sessions + sidebar search
 - **OpenAI key prompt** if `OPENAI_API_KEY` is missing (syncs gateway + model API)
+- **Startup overlay** — brief “Starting TerraMind…” while the UI waits for `/api/config` (normal on cold start; longer in Docker)
 - English / Arabic (RTL)
 
 Details: [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md).
@@ -185,17 +186,17 @@ Details: [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md).
 
 ## Documentation
 
-| Document | Description |
-| --- | --- |
-| **[docker/QUICKSTART.md](docker/QUICKSTART.md)** | **Docker** — clone → `.env` → init indexes → compose up |
-| **[FrontPage/RUN_LOCALLY.md](FrontPage/RUN_LOCALLY.md)** | **Local dev** — ports, env, three terminals |
-| **[docker/README.md](docker/README.md)** | Docker concepts, Dockerfiles, compose file map |
-| **[PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md)** | Features, models, APIs, compare, Advisory |
-| **[docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md)** | Shipped work and remaining tasks |
-| **[docs/SYSTEM_ARCHITECTURE.md](docs/SYSTEM_ARCHITECTURE.md)** | Runtime topology |
-| **[docs/TECH_STACK.md](docs/TECH_STACK.md)** | Tools, libraries, logos, where each is used |
-| **[docs/README.md](docs/README.md)** | Index of all `docs/` files |
-| **[data/README.md](data/README.md)** | Data folders — tracked vs gitignored |
+| Document                                                       | Description                                             |
+| -------------------------------------------------------------- | ------------------------------------------------------- |
+| **[docker/QUICKSTART.md](docker/QUICKSTART.md)**               | **Docker** — clone → `.env` → init indexes → compose up |
+| **[FrontPage/RUN_LOCALLY.md](FrontPage/RUN_LOCALLY.md)**       | **Local dev** — ports, env, three terminals             |
+| **[docker/README.md](docker/README.md)**                       | Docker concepts, Dockerfiles, compose file map          |
+| **[PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md)**                 | Features, models, APIs, compare, Advisory               |
+| **[docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md)**           | Shipped work and remaining tasks                        |
+| **[docs/SYSTEM_ARCHITECTURE.md](docs/SYSTEM_ARCHITECTURE.md)** | Runtime topology                                        |
+| **[docs/TECH_STACK.md](docs/TECH_STACK.md)**                   | Tools, libraries, logos, where each is used             |
+| **[docs/README.md](docs/README.md)**                           | Index of all `docs/` files                              |
+| **[data/README.md](data/README.md)**                           | Data folders — tracked vs gitignored                    |
 
 ---
 
@@ -205,9 +206,11 @@ From **`<repo-root>`** with `terramind` env active:
 
 ```powershell
 pytest tests/ -v
+cd FrontPage
+pytest tests/ -v
 ```
 
-Routing battery: `pytest tests/test_auto_question_battery.py -v`.
+Router/scoring/advisory battery: `pytest tests/test_auto_question_battery.py -v` (64 tests under `tests/`; 7 gateway smoke tests under `FrontPage/tests/`).
 
 ---
 

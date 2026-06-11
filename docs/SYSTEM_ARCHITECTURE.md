@@ -117,6 +117,17 @@ Same as above but waits for one JSON body from `POST /query` / `POST /api/ask`.
 
 Non-streaming `/query/advisory` and `/api/ask/advisory` remain available.
 
+### 3.4 UI startup (bootstrap overlay)
+
+On first load, React shows a full-screen **“Starting TerraMind…”** overlay while it polls **`GET /api/config`** on the gateway (:8000). This is expected when:
+
+- `run_dev.py` starts all three services in parallel (Vite :3000 often wins the race)
+- Docker containers are still booting (`gateway` depends on healthy `model-api`)
+
+The overlay retries for up to ~90s, then falls through to the API key gate if the gateway never responds. It is **not** a RAG/index error — rebuild indexes only when retrieval fails after the app is fully loaded.
+
+Implementation: `BootstrapOverlay` in `FrontPage/frontend-react/src/App.jsx` (`apiConfigLoading` state).
+
 ---
 
 ## 4. Model layer
@@ -174,9 +185,11 @@ discover → load (pypdf) → chunk → embed → Chroma
 
 **Corpus:** Translated Excel catalog in `data/raw/product_catalog/translated/` (`product_catalog_en.xlsx` + `product_categories_en.xlsx`). Original/source workbooks are kept under `data/raw/product_catalog/original/` and are not used at runtime.
 
-**Pipeline:** Same shape as general (load → chunk → store → retrieve → generate), exposed via `terramind.rag.product` and `terramind.models.product_rag`.
+**Pipeline:** Excel rows → product documents → chunks → Chroma → hybrid retrieve (dense + BM25 + rerank) → generate. Public API: `terramind/rag/product/pipeline.py` (`init_product_rag`, `get_product_db`, `answer_with_rag`, streaming helpers).
 
-**Index:** Built via product CLI / pipeline: `python -m terramind.rag.product.cli --reset`.
+**Package modules:** `config`, `load`, `chunk`, `store`, `rewrite`, `retrieve`, `hybrid`, `rerank`, `generate`, `pipeline`, `cli`; scaffolds `clarification.py`, `catalog_agent.py` (not wired to routing yet).
+
+**Index:** `python -m terramind.rag.product.cli --reset` (same command used by Docker `init-indexes`).
 
 ### 5.3 Separation of concerns
 
