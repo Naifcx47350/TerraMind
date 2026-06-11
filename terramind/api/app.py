@@ -7,7 +7,9 @@ Run from repo root:
 """
 
 import asyncio
+import logging
 import time
+from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
@@ -27,7 +29,23 @@ from terramind.models import (
     run_model,
 )
 
-app = FastAPI(title="TerraMind Model API", version="2.1.0")
+_log = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def _lifespan(app: FastAPI):
+    """Warm product retrieval (BM25 + reranker) so the first chat request is not multi-minute."""
+    try:
+        from terramind.rag.product.pipeline import warm_product_rag
+
+        await asyncio.to_thread(warm_product_rag)
+        _log.info("Product RAG warmup finished")
+    except Exception as exc:
+        _log.warning("Product RAG warmup skipped (lazy load on first query): %s", exc)
+    yield
+
+
+app = FastAPI(title="TerraMind Model API", version="2.1.0", lifespan=_lifespan)
 
 app.add_middleware(
     CORSMiddleware,
