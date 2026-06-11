@@ -2,7 +2,7 @@
 
 ## Path convention
 
-Replace **`<repo-root>`** with wherever you cloned TerraMind (the folder that contains `terramind/`, `Rag_Pc.py`, `run_dev.py`, and `FrontPage/`).
+Replace **`<repo-root>`** with wherever you cloned TerraMind (the folder that contains `terramind/`, `run_dev.py`, and `FrontPage/`).
 
 Examples (not literal — use your own path):
 
@@ -66,7 +66,7 @@ conda activate terramind
 Build indexes once (or after data changes):
 
 ```powershell
-python Rag_Pc.py --reset    # product catalog Excel
+python -m terramind.rag.product.cli --reset    # product catalog Excel
 python -m terramind.rag.general.cli --reset   # general agriculture PDFs (required for general/auto)
 ```
 
@@ -81,7 +81,7 @@ uvicorn terramind.api.app:app --reload --port 8001
 | ------------- | -------------------------------------- | -------------------------- |
 | `auto_rag` (default) | `terramind/models/auto_rag.py` + `router.py` | Picks product, general, or **base LLM** per question |
 | `general_rag` | `terramind/models/general_rag.py` → `terramind/rag/general/` | PDFs in `data/raw/documents/` |
-| `product_rag` | `terramind/models/product_rag.py` → `Rag_Pc.py` | Client product Excel |
+| `product_rag` | `terramind/models/product_rag.py` → `terramind/rag/product/` | Client product Excel |
 | `base_llm`    | `terramind/models/base_llm.py`         | OpenAI only (no retrieval) |
 | `advisory` (hidden UI) | `run_advisory()` / `stream_advisory_events` | General then product; unlock via 6× logo click |
 
@@ -149,7 +149,7 @@ RAG_SERVICE_URL=http://localhost:8001/query
 REQUEST_TIMEOUT=90
 ```
 
-OpenAI key: `<repo-root>/.env` or `<repo-root>/FrontPage/.env` with `OPENAI_API_KEY=...` (read by `Rag_Pc.py` / `rag_api`).
+OpenAI key: `<repo-root>/.env` or `<repo-root>/FrontPage/.env` with `OPENAI_API_KEY=...` (read by `terramind.rag.product` / `rag_api`).
 
 **Restart FrontPage uvicorn after any `.env` or config change.**
 

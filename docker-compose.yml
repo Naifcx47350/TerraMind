@@ -81,7 +81,7 @@ services:
       - sh
       - -c
       - |
-        python Rag_Pc.py --reset
+        python -m terramind.rag.product.cli --reset
         python -m terramind.rag.general.cli --reset
         echo 'Indexes ready in volume vectorstore'
 

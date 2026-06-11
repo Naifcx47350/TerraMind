@@ -35,7 +35,7 @@ terramind/
 │   └── image_context.py    # Inject image analysis into model prompts
 ├── rag/
 │   ├── general/            # General agriculture RAG pipeline
-│   ├── product/            # Product catalog RAG package / migration target
+│   ├── product/            # Product catalog RAG package
 │   ├── llm_stream.py       # LangChain token streaming helpers
 │   ├── scoring.py          # Retrieval scores + confidence labels
 │   └── source_display.py   # Friendly source names for the UI
@@ -111,7 +111,7 @@ Data source:
 
 ```text
 data/raw/documents/   # PDF corpus
-data/raw/text/        # optional text references
+data/raw/reference_text/   # optional text references
 data/sample/          # allowlisted sample references
 ```
 
@@ -137,7 +137,7 @@ Useful CLI options include `--inspect` and `--eval-retrieval`.
 
 ### Product catalog RAG
 
-Location: `terramind/rag/product/` plus legacy root script `Rag_Pc.py`
+Location: `terramind/rag/product/`
 
 Purpose: answer company product catalog questions from the Excel catalog. This is the
 only RAG path that should provide product-specific dosage, crop labels, product IDs,
@@ -146,8 +146,8 @@ ingredients, and manual-style catalog details.
 Data source:
 
 ```text
-data/raw/text/ProductCatalog(En).xlsx
-data/raw/text/Product_catagorys(En).xlsx
+data/raw/product_catalog/translated/product_catalog_en.xlsx
+data/raw/product_catalog/translated/product_categories_en.xlsx
 ```
 
 Pipeline shape:
@@ -165,12 +165,10 @@ vectorstore/chroma_products/
 Build/reset command:
 
 ```powershell
-python Rag_Pc.py --reset
+python -m terramind.rag.product.cli --reset
 ```
 
-Product RAG migration note: some product logic is still exposed through the root
-`Rag_Pc.py` script while the package under `terramind/rag/product/` is the long-term
-home for the catalog pipeline.
+The archived legacy script is kept under `archive/Rag_Pc_legacy.py` for reference only.
 
 ---
 
@@ -179,7 +177,7 @@ home for the catalog pipeline.
 Both RAG systems need indexes before real retrieval works:
 
 ```powershell
-python Rag_Pc.py --reset
+python -m terramind.rag.product.cli --reset
 python -m terramind.rag.general.cli --reset
 ```
 
@@ -189,7 +187,7 @@ the named volume `terramind-vectorstore` instead.
 Important Docker behavior:
 
 - `data/` is mounted into `model-api` and `init-indexes`; it is not baked into the images.
-- The `model-api` image still contains `terramind/` and `Rag_Pc.py`.
+- The `model-api` image contains `terramind/`; corpus files are mounted at runtime.
 - If the Docker volume is deleted with `docker compose down -v`, run `init-indexes` again.
 
 Docker index command:

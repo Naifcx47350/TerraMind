@@ -1,6 +1,6 @@
 # TerraMind — local/generated paths (see data/README.md for corpus layout)
 
-# === Vector indexes (rebuild with Rag_Pc / terramind.rag.general.cli) ===
+# === Vector indexes (rebuild with terramind.rag.product.cli / terramind.rag.general.cli) ===
 vectorstore/
 
 # === Generated outputs ===

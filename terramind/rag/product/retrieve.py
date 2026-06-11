@@ -1,11 +1,4 @@
-"""
-Product RAG — similarity search over product vectors.
-
-TODO: Move from Rag_Pc.py:
-  - retrieve_products(db, question, k) -> list[Document]
-  - format_context(retrieved) -> single string for the prompt
-See docs/PROJECT_STATUS.md (product migration).
-"""
+"""Product RAG retrieval over the product Chroma index."""
 
 
 from langchain_core.documents import (
@@ -17,10 +10,7 @@ from langchain_chroma import Chroma
 from terramind.rag.product.config import (
     RETRIEVAL_K,
 )
-
-from terramind.rag.product.store import (
-    load_vector_store,
-)
+from terramind.rag.scoring import distance_to_relevance
 
 
 
@@ -33,41 +23,17 @@ from terramind.rag.product.store import (
 
 
 def retrieve_chunks(
+    db: Chroma,
     question: str,
     k: int = RETRIEVAL_K,
 ) -> list[Document]:
-    """
-    Retrieve chunks with relevance scores.
-    """
-    # Load the Product RAG vector store
-    db = load_vector_store()
-    
-    # Retrieve top-k chunks together with their similarity scores
-    pairs = (
-        db.similarity_search_with_score(
-            question,
-            k=k,
-        )
-    )
-    
-    # Attach retrieval scores to chunk metadata
-    # so downstream components can inspect ranking quality
+    """Retrieve product chunks with UI-compatible relevance scores."""
+    pairs = db.similarity_search_with_score(question, k=k)
     results = []
 
-    for doc, score in pairs:
-
-        # Copy metadata to avoid mutating the original document
-        metadata = dict(
-            doc.metadata
-        )
-        # Store retrieval score for evaluation and debugging
-        metadata[
-            "relevance_score"
-        ] = score
-
-
-        # Create a new document containing the original content
-        # plus retrieval metadata
+    for doc, distance in pairs:
+        metadata = dict(doc.metadata)
+        metadata["relevance_score"] = distance_to_relevance(distance)
         results.append(
             Document(
                 page_content=doc.page_content,
@@ -76,6 +42,15 @@ def retrieve_chunks(
         )
 
     return results
+
+
+def retrieve_products(
+    db: Chroma,
+    question: str,
+    k: int = RETRIEVAL_K,
+) -> list[Document]:
+    """Compatibility wrapper used by Auto routing and Advisory."""
+    return retrieve_chunks(db, question, k=k)
 
 
 # Retrieval Test
@@ -90,7 +65,10 @@ if __name__ == "__main__":
     )
 
     # Retrieve relevant chunks from Chroma
+    from terramind.rag.product.store import load_vector_store
+
     results = retrieve_chunks(
+        load_vector_store(),
         question
     )
 

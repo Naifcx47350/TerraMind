@@ -6,7 +6,7 @@
 
 Agriculture support assistant with **Auto RAG** (default), manual product/general RAG, base LLM baseline, and a **hidden Advisory mode** — plus a **React chat UI** with streaming answers, compare view, image upload, retrieval scores, and saved conversations.
 
-**`<repo-root>`** = your clone (folder with `docker-compose.yml`, `terramind/`, `Rag_Pc.py`, `run_dev.py`, and `FrontPage/`).
+**`<repo-root>`** = your clone (folder with `docker-compose.yml`, `terramind/`, `run_dev.py`, and `FrontPage/`).
 
 ---
 
@@ -76,7 +76,7 @@ Set `OPENAI_API_KEY` in `.env` (repo root or `FrontPage/.env`).
 **Build vector indexes once** (writes to `./vectorstore/`):
 
 ```powershell
-python Rag_Pc.py --reset
+python -m terramind.rag.product.cli --reset
 python -m terramind.rag.general.cli --reset
 ```
 
@@ -142,7 +142,7 @@ Full list with file paths and purpose: **[docs/TECH_STACK.md](docs/TECH_STACK.md
 | --- | --- | --- |
 | Auto (recommended) | `auto_rag` | Router picks product RAG, general RAG, or base LLM |
 | Agriculture Knowledge RAG | `general_rag` | PDFs in `data/raw/documents/` |
-| Product Catalog RAG | `product_rag` | Client Excel (`ProductCatalog(En).xlsx`) |
+| Product Catalog RAG | `product_rag` | Translated client Excel (`data/raw/product_catalog/translated/product_catalog_en.xlsx`) |
 | Base LLM | `base_llm` | OpenAI only — no retrieval |
 | Advisory (hidden UI) | `advisory` | General then product — unlock via logo easter egg; see [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) |
 
@@ -157,7 +157,7 @@ TerraMind/
 ├── docker-compose.yml         # Docker: three services + vectorstore volume
 ├── docker/                    # Dockerfiles, QUICKSTART, env.example
 ├── terramind/                 # Backend: api, models, rag/
-├── Rag_Pc.py                  # Product RAG entry (CLI + re-export)
+├── archive/                   # Archived legacy scripts (not runtime)
 ├── run_dev.py                 # Local: start :8001 + :8000 + :3000
 ├── vectorstore/               # Chroma indexes (local dev; gitignored)
 ├── data/                      # Corpus + eval; see data/README.md

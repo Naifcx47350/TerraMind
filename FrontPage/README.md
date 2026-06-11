@@ -46,7 +46,7 @@ Repo root (not inside `FrontPage/`):
 
 - `terramind/api/app.py` or `rag_api.py` — model API on **port 8001**
 - `terramind/models/` — `auto_rag`, `product_rag`, `general_rag`, `base_llm`
-- `Rag_Pc.py` — product Chroma index; `terramind/rag/general/` — general index
+- `terramind/rag/product/` — product Chroma index; `terramind/rag/general/` — general index
 - `run_dev.py` — start all three services
 
 ---

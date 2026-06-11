@@ -1,225 +1,104 @@
-"""
-Product RAG — public API used by terramind.models.product_rag.
+"""Product RAG public API used by model adapters, Auto routing, and Advisory."""
 
-TODO: Move from Rag_Pc.py and wire submodules:
-  - init_product_rag(reset) -> Chroma
-  - get_product_db() -> cached Chroma handle
-  - answer_with_rag(db, question) -> {answer, retrieved, context, ...}
-  - sources_from_retrieved(retrieved) -> list[dict] for UI sources
-When done: terramind.rag.product.__init__ imports from HERE, not from Rag_Pc.
-See docs/PROJECT_STATUS.md (product migration).
-"""
-from terramind.rag.product.rewrite import (
-    rewrite_query,
-)
+from __future__ import annotations
 
-from terramind.rag.product.load import (
-    load_products,
-)
+import threading
+from collections.abc import Iterator
 
-from terramind.rag.product.chunk import (
-    build_all_chunks,
-)
+from langchain_chroma import Chroma
+from langchain_core.documents import Document
 
-from terramind.rag.product.store import (
-    load_vector_store,
-    build_vector_store,
-)
+from terramind.rag.llm_stream import stream_chat_tokens
+from terramind.rag.product.chunk import build_all_chunks
+from terramind.rag.product.config import CATALOG_PATH, CHAT_MODEL, RAG_PROMPT, RETRIEVAL_K
+from terramind.rag.product.generate import format_context, generate_answer_with_metadata
+from terramind.rag.product.hybrid import hybrid_retrieve, reset_bm25_cache
+from terramind.rag.product.load import load_products
+from terramind.rag.product.rerank import rerank_chunks
+from terramind.rag.product.rewrite import rewrite_query
+from terramind.rag.product.store import build_vector_store, chroma_exists, load_vector_store
+from terramind.rag.scoring import sources_from_retrieved as _sources_from_retrieved
 
-from terramind.rag.product.config import (
-    CATALOG_PATH,
-)
-
-from terramind.rag.product.generate import (
-    generate_answer_with_metadata,
-    format_context,
-)
-
-from terramind.rag.product.hybrid import (
-    hybrid_retrieve,
-)
-
-from terramind.rag.product.rerank import (
-    rerank_chunks,
-)
-
-from terramind.rag.llm_stream import (
-    stream_chat_tokens,
-)
-
-from terramind.rag.product.config import (
-    CHAT_MODEL,
-    RAG_PROMPT,
-)
+_DB: Chroma | None = None
+_INIT_LOCK = threading.Lock()
 
 
-
-
-_DB = None
-
-def init_product_rag(
-    reset: bool = False,
-):
-
-    products = load_products(
-        CATALOG_PATH
-    )
-
-    chunks = build_all_chunks(
-        products
-    )
-
-    db = build_vector_store(
-        chunks,
-        reset=reset,
-    )
+def init_product_rag(reset: bool = False) -> Chroma:
+    """Build or load the product Chroma index from translated catalog files."""
+    products = load_products(CATALOG_PATH)
+    chunks = build_all_chunks(products)
+    db = build_vector_store(chunks, reset=reset)
+    reset_bm25_cache()
 
     global _DB
-
     _DB = db
-
     return db
 
-def get_product_db():
 
+def get_product_db() -> Chroma:
+    """Return cached product Chroma handle; build the index if it is missing."""
     global _DB
+    if _DB is not None:
+        return _DB
 
-    if _DB is None:
-
-        _DB = load_vector_store()
-
+    with _INIT_LOCK:
+        if _DB is None:
+            _DB = load_vector_store() if chroma_exists() else init_product_rag(reset=False)
     return _DB
 
-  
-def answer_with_rag(
-    db,
-    question: str,
-):
 
-    return generate_answer_with_metadata(
-        question
-    )
+def _retrieve_ranked(db: Chroma, question: str, k: int = RETRIEVAL_K) -> list[Document]:
+    retrieval_query = rewrite_query(question)
+    print(f"\nOriginal Query: {question}")
+    print(f"Rewritten Query: {retrieval_query}\n")
+    candidates = hybrid_retrieve(db, retrieval_query, k=max(k * 2, 8))
+    return rerank_chunks(question, candidates, top_k=k)
+
+
+def retrieve_products(
+    db: Chroma,
+    question: str,
+    k: int = RETRIEVAL_K,
+) -> list[Document]:
+    """Retrieve product chunks using query rewrite, dense+BM25 fusion, and rerank."""
+    return _retrieve_ranked(db, question, k=k)
+
+
+def answer_with_rag(db: Chroma, question: str, k: int = RETRIEVAL_K) -> dict:
+    """Return the product answer and retrieved chunks in the existing app contract."""
+    return generate_answer_with_metadata(db, question)
+
 
 def stream_answer_with_rag(
-    db,
+    db: Chroma,
     question: str,
-):
-    retrieval_query = rewrite_query(
-        question
-    )
-
-    print(
-        f"\nOriginal Query: {question}"
-    )
-
-    print(
-        f"Rewritten Query: {retrieval_query}\n"
-    )
-
-    candidates = hybrid_retrieve(
-        retrieval_query,
-        k=8,
-    )
-
-    chunks = rerank_chunks(
-        question,
-        candidates,
-        top_k=4,
-    )
+    k: int = RETRIEVAL_K,
+) -> tuple[list[Document], Iterator[str]]:
+    """Retrieve product chunks, then stream LLM tokens."""
+    chunks = _retrieve_ranked(db, question, k=k)
     if not chunks:
+        return [], iter(["I could not find relevant information in the product catalog."])
 
-        return (    
-            [],
-            iter(
-                [
-                "I could not find relevant information in the product catalog."
-            ]
-            ),
-        )
-    
-    
-    context = format_context(
-        chunks
-    )
-
-    prompt = RAG_PROMPT.invoke(
-        {
-            "context": context,
-            "question": question,
-        }
-    )
-
-    messages = (
-        prompt.to_messages()
-    )
-
+    prompt = RAG_PROMPT.invoke({"context": format_context(chunks), "question": question})
     token_gen = stream_chat_tokens(
-        messages,
+        prompt.to_messages(),
         model=CHAT_MODEL,
         temperature=0,
     )
-
-    return (
-        chunks,
-        token_gen,
-    )
+    return chunks, token_gen
 
 
-def sources_from_retrieved(
-    retrieved,
-):
-
-    sources = []
-
-    seen = set()
-
-    for chunk in retrieved:
-
-        product_id = chunk.metadata.get(
-            "product_id"
-        )
-
-        product_name = chunk.metadata.get(
-            "product_name"
-        )
-
-        key = (
-            product_id,
-            product_name,
-        )
-
-        if key in seen:
-            continue
-
-        seen.add(
-            key
-        )
-
-        sources.append(
-            {
-                "id": product_id,
-                "title": product_name,
-            }
-        )
-
-    return sources
+def sources_from_retrieved(retrieved: list[Document]) -> list[dict]:
+    """Format product source chips for API/UI response models."""
+    return _sources_from_retrieved("product", retrieved)
 
 
-#####
-if __name__ == "__main__":
-
-    db = get_product_db()
-
-    retrieved, token_gen = stream_answer_with_rag(
-        db,
-        "How much water should I mix it with?"
-    )
-
-    print("\nRetrieved:")
-    print(len(retrieved))
-
-    print("\nAnswer:\n")
-
-
-    for token in token_gen:
-        print(token, end="")
+__all__ = [
+    "answer_with_rag",
+    "format_context",
+    "get_product_db",
+    "init_product_rag",
+    "retrieve_products",
+    "sources_from_retrieved",
+    "stream_answer_with_rag",
+]

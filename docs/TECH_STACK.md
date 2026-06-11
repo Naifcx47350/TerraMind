@@ -30,12 +30,12 @@
 
 | Tool | Purpose | Where used |
 | --- | --- | --- |
-| **Python 3.11** | Runtime for both APIs, RAG pipelines, CLI, tests | `terramind/`, `FrontPage/app/`, `Rag_Pc.py`, Docker `python:3.11-slim` images |
+| **Python 3.11** | Runtime for both APIs, RAG pipelines, CLI, tests | `terramind/`, `FrontPage/app/`, Docker `python:3.11-slim` images |
 | **FastAPI** | HTTP APIs, request models, streaming responses | Model API `terramind/api/app.py`; gateway `FrontPage/app/main.py` |
 | **Uvicorn** | ASGI server | Local dev (`run_dev.py`, manual terminals); Docker `CMD` for `:8000` and `:8001` |
 | **Pydantic / pydantic-settings** | Request/response schemas, gateway config | `terramind/api/app.py`, `FrontPage/app/schemas/`, `FrontPage/app/config.py` |
 | **httpx** | Async HTTP client — gateway → model API | `FrontPage/app/services/rag_service.py` (proxy `/query`, compare, advisory, streams) |
-| **python-dotenv** | Load `OPENAI_API_KEY` and service URLs from `.env` | Repo root `.env`; `Rag_Pc.py`, `terramind/api/app.py`, `FrontPage/app/main.py` |
+| **python-dotenv** | Load `OPENAI_API_KEY` and service URLs from `.env` | Repo root `.env`; `terramind/api/app.py`, `FrontPage/app/main.py` |
 
 ---
 
@@ -52,7 +52,7 @@
 
 | Tool | Purpose | Where used |
 | --- | --- | --- |
-| **ChromaDB** + **langchain-chroma** | On-disk vector indexes for general PDFs and product catalog | `vectorstore/chroma/` (general), `vectorstore/chroma_products/` (product); Docker volume `terramind-vectorstore`; `terramind/rag/general/store.py`, `terramind/rag/product/store.py`, legacy `Rag_Pc.py` |
+| **ChromaDB** + **langchain-chroma** | On-disk vector indexes for general PDFs and product catalog | `vectorstore/chroma/` (general), `vectorstore/chroma_products/` (product); Docker volume `terramind-vectorstore`; `terramind/rag/general/store.py`, `terramind/rag/product/store.py`, `terramind/rag/product/` |
 | **rank-bm25** (`BM25Okapi`) | Lexical (keyword) retrieval for product catalog | `terramind/rag/product/hybrid.py` — combined with dense vectors in hybrid search |
 | **sentence-transformers** (`CrossEncoder`) | Re-rank product retrieval candidates | `terramind/rag/product/rerank.py` — model `cross-encoder/ms-marco-MiniLM-L-6-v2` |
 | **Custom lexical rerank** | Lightweight token overlap boost on general RAG candidates | `terramind/rag/general/hybrid.py` (no extra library — blends vector order + lexical score) |
@@ -64,7 +64,7 @@
 | Tool | Purpose | Where used |
 | --- | --- | --- |
 | **pypdf** | Extract text from agriculture PDF corpus | `terramind/rag/general/load.py` — sources under `data/raw/documents/` |
-| **pandas** + **openpyxl** | Read product Excel catalog and category sheets | `terramind/rag/product/load.py`, `Rag_Pc.py` — `data/raw/text/ProductCatalog(En).xlsx` |
+| **pandas** + **openpyxl** | Read translated product Excel catalog and category sheets | `terramind/rag/product/load.py` — `data/raw/product_catalog/translated/product_catalog_en.xlsx` |
 
 Corpus layout: [GENERAL_RAG_CORPUS.md](./GENERAL_RAG_CORPUS.md) · [data/README.md](../data/README.md).
 

@@ -16,7 +16,7 @@ pip install -r requirements.txt
 
 ## 0. After removing or adding corpus files (e.g. FAO `.md` deleted, PDF only)
 
-1. Confirm the file is gone from disk (e.g. no `data/raw/text/Pest_Management_FAO.md`).
+1. Confirm the file is gone from disk (e.g. no `data/raw/reference_text/Pest_Management_FAO.md`).
 2. Run **`--inspect`** — you should see **7** sources (6 PDFs + `pesticide_safety_general.txt`), with **no** `Pest_Management_FAO.md`.
 3. Run **`--reset`** before **`--eval-retrieval`**. The existing Chroma index still holds old chunks until you rebuild.
 4. **Restart** the model API (`run_dev.py` or port **8001**) after `--reset` so the in-memory index reloads.
