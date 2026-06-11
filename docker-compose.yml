@@ -17,6 +17,7 @@ name: terramind
 services:
   # --- 1. Model API (RAG + routing) — same as uvicorn on :8001 locally ---
   model-api:
+    image: terramind-model-api:local
     build:
       context: .
       dockerfile: docker/model-api/Dockerfile
@@ -34,6 +35,7 @@ services:
 
   # --- 2. Gateway (FrontPage API) — same as uvicorn on :8000 locally ---
   gateway:
+    image: terramind-gateway:local
     build:
       context: .
       dockerfile: docker/gateway/Dockerfile
@@ -53,6 +55,7 @@ services:
 
   # --- 3. Frontend (production build + nginx) — replaces npm run dev :3000 ---
   frontend:
+    image: terramind-frontend:local
     build:
       context: .
       dockerfile: docker/frontend/Dockerfile
@@ -64,8 +67,10 @@ services:
     restart: unless-stopped
 
   # --- One-shot: build Chroma indexes (run once, or after data changes) ---
+  # Same image as model-api (shared tag) — Compose builds once, init reuses cached layers.
   init-indexes:
     profiles: ["init"]
+    image: terramind-model-api:local
     build:
       context: .
       dockerfile: docker/model-api/Dockerfile

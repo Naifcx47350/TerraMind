@@ -46,11 +46,11 @@ OPENAI_API_KEY=sk-your-key-here
 
 You do **not** need `RAG_SERVICE_URL` in `.env` for Docker — `docker-compose.yml` sets `http://model-api:8001/query` for the gateway container automatically.
 
-| Variable | Required? | Notes |
-|----------|-----------|--------|
-| `OPENAI_API_KEY` | For RAG + `init-indexes` | Never committed; not baked into images |
-| `USE_MOCK` | No | `true` = demo answers, no key, skip index build |
-| `RAG_SERVICE_URL` | No in Docker | Compose sets this internally |
+| Variable          | Required?                | Notes                                           |
+| ----------------- | ------------------------ | ----------------------------------------------- |
+| `OPENAI_API_KEY`  | For RAG + `init-indexes` | Never committed; not baked into images          |
+| `USE_MOCK`        | No                       | `true` = demo answers, no key, skip index build |
+| `RAG_SERVICE_URL` | No in Docker             | Compose sets this internally                    |
 
 **Verify Compose sees your `.env`** (from repo root):
 
@@ -67,7 +67,10 @@ If the value is empty, you are in the wrong directory or the variable name is mi
 
 **Run once** after clone (or after `docker compose down -v`). Embeddings need `OPENAI_API_KEY` in repo-root `.env`.
 
+Build the model API image first (CPU-only PyTorch — avoids multi-GB CUDA downloads):
+
 ```bash
+docker compose build model-api
 docker compose --profile init run --rm init-indexes
 ```
 
@@ -96,11 +99,11 @@ docker compose up -d --build
 
 Open **http://localhost:3000**
 
-| Service | Container role | Host port |
-|---------|------------------|-----------|
-| `frontend` | React UI (nginx) | **3000** |
-| `gateway` | FrontPage API | **8000** |
-| `model-api` | RAG / models | **8001** |
+| Service     | Container role   | Host port |
+| ----------- | ---------------- | --------- |
+| `frontend`  | React UI (nginx) | **3000**  |
+| `gateway`   | FrontPage API    | **8000**  |
+| `model-api` | RAG / models     | **8001**  |
 
 **Always start all three with Compose** — do not run the frontend image alone in Docker Desktop (nginx needs the `gateway` hostname on the Compose network).
 
@@ -110,12 +113,12 @@ Stop: `Ctrl+C` in the terminal, or Docker Desktop → Containers → stop **terr
 
 ### 5. API key behavior (what new users should expect)
 
-| Situation | What happens |
-|-----------|----------------|
-| `OPENAI_API_KEY` in repo-root `.env` | Key modal may be **skipped** on your machine (injected at runtime) |
-| No key in `.env`, `USE_MOCK=false` | **Key modal** in the browser (intended for shared / cloned setups) |
-| `USE_MOCK=true` | No key modal; canned demo answers |
-| Pulled images from Docker Hub | **No key inside images** — each user uses their own `.env` or the modal |
+| Situation                            | What happens                                                            |
+| ------------------------------------ | ----------------------------------------------------------------------- |
+| `OPENAI_API_KEY` in repo-root `.env` | Key modal may be **skipped** on your machine (injected at runtime)      |
+| No key in `.env`, `USE_MOCK=false`   | **Key modal** in the browser (intended for shared / cloned setups)      |
+| `USE_MOCK=true`                      | No key modal; canned demo answers                                       |
+| Pulled images from Docker Hub        | **No key inside images** — each user uses their own `.env` or the modal |
 
 Keys typed in the browser apply to **running** containers only (not baked into images).  
 Sharing the three images does **not** share your API key.
@@ -145,7 +148,7 @@ No `init-indexes`. Open http://localhost:3000.
 ### Path B — Full RAG (recommended)
 
 1. Repo-root `.env` with `USE_MOCK=false` and `OPENAI_API_KEY=...`
-2. `docker compose --profile init run --rm init-indexes` **once** (runs `terramind.rag.product.cli --reset` + `terramind.rag.general.cli --reset`)
+2. `docker compose build model-api` then `docker compose --profile init run --rm init-indexes` **once**
 3. `docker compose up --build`
 4. Open http://localhost:3000
 
@@ -209,26 +212,27 @@ Images contain **code only** — not `.env`, not vector indexes, not API keys.
 
 ## Troubleshooting
 
-| Problem | Fix |
-|---------|-----|
-| `docker compose` not found | Install Docker Desktop; restart terminal |
-| Wrong directory | `cd` to repo root (where `docker-compose.yml` is) |
-| Empty `OPENAI_API_KEY` in `docker compose config` | Fix repo-root `.env`; exact name `OPENAI_API_KEY` |
-| Port 3000 / 8000 in use | Stop other apps or change ports in `docker-compose.yml` |
-| `host not found in upstream "gateway"` | Rebuild frontend; start full stack with `docker compose up` |
-| **502 on API key Continue** | Run `init-indexes`; wait for model-api to finish starting; retry |
-| “Starting TerraMind…” overlay (10–30s) | Normal while gateway/model-api boot; wait or check `docker compose ps` |
-| Slow start / corpus loading in logs | Run `init-indexes` once; ensure volume has indexes |
-| Key gate but RAG errors | Run `init-indexes` with key in `.env` |
-| Empty/mock answers with real key | Set `USE_MOCK=false`; restart compose |
-| `Ignoring wrong pointing object` | Harmless PDF parser warnings |
+| Problem                                           | Fix                                                                                      |
+| ------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `docker compose` not found                        | Install Docker Desktop; restart terminal                                                 |
+| Wrong directory                                   | `cd` to repo root (where `docker-compose.yml` is)                                        |
+| Empty `OPENAI_API_KEY` in `docker compose config` | Fix repo-root `.env`; exact name `OPENAI_API_KEY`                                        |
+| Port 3000 / 8000 in use                           | Stop other apps or change ports in `docker-compose.yml`                                  |
+| `host not found in upstream "gateway"`            | Rebuild frontend; start full stack with `docker compose up`                              |
+| **502 on API key Continue**                       | Run `init-indexes`; wait for model-api to finish starting; retry                         |
+| `pip` logs show `nvidia-*` / `cuda-*` for 30+ min | Cancel build; pull latest repo with `docker/install-python-deps.sh`; rebuild `model-api` |
+| “Starting TerraMind…” overlay (10–30s)            | Normal while gateway/model-api boot; wait or check `docker compose ps`                   |
+| Slow start / corpus loading in logs               | Run `init-indexes` once; ensure volume has indexes                                       |
+| Key gate but RAG errors                           | Run `init-indexes` with key in `.env`                                                    |
+| Empty/mock answers with real key                  | Set `USE_MOCK=false`; restart compose                                                    |
+| `Ignoring wrong pointing object`                  | Harmless PDF parser warnings                                                             |
 
 ---
 
 ## Local dev vs Docker
 
-| | `run_dev.py` / RUN_LOCALLY | Docker |
-|---|---------------------------|--------|
-| Install | Python, conda, Node | Docker Desktop |
-| UI | Vite hot reload | Production build in nginx |
-| Best for | Day-to-day development | Clone → run anywhere |
+|          | `run_dev.py` / RUN_LOCALLY | Docker                    |
+| -------- | -------------------------- | ------------------------- |
+| Install  | Python, conda, Node        | Docker Desktop            |
+| UI       | Vite hot reload            | Production build in nginx |
+| Best for | Day-to-day development     | Clone → run anywhere      |
