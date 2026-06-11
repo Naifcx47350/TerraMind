@@ -86,13 +86,14 @@ Vite proxies `/api/*` to `http://localhost:8000`, so the frontend only talks to 
 | **LangChain**        | Prompt templates, `ChatOpenAI`, message types                       |
 | **langchain-chroma** | Vector store wrapper                                                |
 | **ChromaDB**         | On-disk vector indexes under `vectorstore/`                         |
-| **pandas**           | Excel product catalog loading (`Rag_Pc.py`)                         |
+| **pandas**           | Excel product catalog loading (`terramind/rag/product/`)                         |
 
 ### Data files
 
 | Location                                      | Content                                                                                              |
 | --------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `data/raw/text/ProductCatalog(En).xlsx`       | Client product catalog (RAG mode 1)                                                                  |
+| `data/raw/product_catalog/translated/product_catalog_en.xlsx` | Translated client product catalog used by Product RAG                                                 |
+| `data/raw/product_catalog/translated/product_categories_en.xlsx` | Translated product category sheet joined during Product RAG indexing                                  |
 | `data/raw/documents/`                         | General agriculture PDFs (RAG mode 2) — see [docs/GENERAL_RAG_CORPUS.md](docs/GENERAL_RAG_CORPUS.md) |
 | `vectorstore/chroma/`                         | General document embeddings                                                                          |
 | `vectorstore/chroma_products/`                | Product catalog embeddings                                                                           |
@@ -108,7 +109,7 @@ All modes share the same **response shape** (`answer`, `sources`, `confidence`, 
 | ----------------------------- | ------------- | --------------------------------------------------------- | ------------------------------------------------------------ | ------------- |
 | **Auto (recommended)**        | `auto_rag`    | `auto_rag.py` + `router.py`                               | Routes to product, general, or **base LLM** (meta questions) | `gpt-4o-mini` |
 | **Agriculture Knowledge RAG** | `general_rag` | `general_rag.py` → `terramind/rag/general/`               | Public PDFs in `data/raw/documents/`                         | `gpt-4o-mini` |
-| **Product Catalog RAG**       | `product_rag` | `product_rag.py` → `Rag_Pc.py` / `terramind/rag/product/` | Excel catalog in Chroma                                      | `gpt-4o-mini` |
+| **Product Catalog RAG**       | `product_rag` | `product_rag.py` → `terramind/rag/product/` | Excel catalog in Chroma                                      | `gpt-4o-mini` |
 | **Base LLM**                  | `base_llm`    | `base_llm.py`                                             | None (no retrieval)                                          | `gpt-4o-mini` |
 | **Advisory** (hidden UI)      | `advisory`    | `run_advisory()` in `__init__.py`                         | General then product (meta questions skip RAG)               | `gpt-4o-mini` |
 
@@ -168,7 +169,7 @@ Backend: `POST /api/ask/advisory/stream` (UI default) or `/query/advisory` on po
 
 | Index path                     | Built by                                      | Source data                                  |
 | ------------------------------ | --------------------------------------------- | -------------------------------------------- |
-| `vectorstore/chroma_products/` | `python Rag_Pc.py --reset`                    | Product Excel                                |
+| `vectorstore/chroma_products/` | `python -m terramind.rag.product.cli --reset`                    | Product Excel                                |
 | `vectorstore/chroma/`          | `python -m terramind.rag.general.cli --reset` | `data/raw/documents/*.pdf` (+ optional text) |
 
 Indexes are **persistent on disk**. Rebuild when Excel or documents change. At runtime, `get_product_db()` / `get_general_db()` load existing Chroma collections if present.
@@ -295,8 +296,8 @@ TerraMind/
 ├── terramind/
 │   ├── api/app.py               # Model API :8001
 │   ├── models/                  # auto, product, general, base, vision, router
-│   └── rag/general|product/     # General complete; product re-exports Rag_Pc
-├── Rag_Pc.py                    # Product RAG implementation
+│   └── rag/general|product/     # General complete; product package pipeline
+├── terramind/rag/product/       # Product RAG package implementation
 ├── rag_api.py                   # Shim → terramind.api.app
 ├── run_dev.py                   # Dev launcher (3 services)
 ├── data/                        # See data/README.md
@@ -347,7 +348,7 @@ TerraMind/
 | `RAG_SERVICE_URL` | `FrontPage/.env`           | Default `http://localhost:8001/query` |
 | `REQUEST_TIMEOUT` | `FrontPage/.env`           | HTTP timeout to model API             |
 
-Default chat/vision model: **`gpt-4o-mini`** in `Rag_Pc.py`, `terramind/rag/general/`, `terramind/models/base_llm.py`, `terramind/models/vision.py`.
+Default chat/vision model: **`gpt-4o-mini`** in `terramind/rag/product/`, `terramind/rag/general/`, `terramind/models/base_llm.py`, `terramind/models/vision.py`.
 
 ---
 

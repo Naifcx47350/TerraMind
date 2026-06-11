@@ -53,6 +53,12 @@ Product Name: {metadata["product_name"]}
 Product Type:
 {sections["product_type"]}
 
+Primary Category:
+{metadata.get("primary_category", "")}
+
+Secondary Category:
+{metadata.get("secondary_category", "")}
+
 Pack Size:
 {sections["specification"]}
 """.strip()
@@ -62,6 +68,8 @@ Pack Size:
         metadata={
             "product_id": metadata["product_id"],
             "product_name": metadata["product_name"],
+            "primary_category": metadata.get("primary_category", ""),
+            "secondary_category": metadata.get("secondary_category", ""),
             "chunk_type": "identity",
         },
     )
@@ -93,6 +101,12 @@ Product Name: {metadata["product_name"]}
 Product Type:
 {sections["product_type"]}
 
+Primary Category:
+{metadata.get("primary_category", "")}
+
+Secondary Category:
+{metadata.get("secondary_category", "")}
+
 Main Ingredients:
 {sections["ingredients"]}
 
@@ -108,6 +122,8 @@ Instructions:
         metadata={
             "product_id": metadata["product_id"],
             "product_name": metadata["product_name"],
+            "primary_category": metadata.get("primary_category", ""),
+            "secondary_category": metadata.get("secondary_category", ""),
             "chunk_type": "summary",
         },
     )
@@ -153,6 +169,8 @@ Usage and Dosage:
         metadata={
             "product_id": metadata["product_id"],
             "product_name": metadata["product_name"],
+            "primary_category": metadata.get("primary_category", ""),
+            "secondary_category": metadata.get("secondary_category", ""),
             "chunk_type": "usage",
         },
     )
@@ -212,6 +230,12 @@ Manual:
 
                     "product_name":
                         metadata["product_name"],
+
+                    "primary_category":
+                        metadata.get("primary_category", ""),
+
+                    "secondary_category":
+                        metadata.get("secondary_category", ""),
 
                     "chunk_type":
                         "manual",
@@ -384,7 +408,7 @@ if __name__ == "__main__":
 
     products = load_products(
         Path(
-            "data/raw/text/ProductCatalog(En).xlsx"
+            "data/raw/product_catalog/translated/product_catalog_en.xlsx"
         )
     )
 

@@ -12,7 +12,7 @@ _Last updated: June 2026_
 | ----------------------------- | ------------------ | --------------------------------------------------------------------------------------------- |
 | Web stack                     | Done               | `run_dev.py` → React :3000, FrontPage :8000, `terramind.api.app` :8001                        |
 | General RAG                   | Done               | `terramind/rag/general/` — PDF corpus, CLI, retrieval eval                                    |
-| Product RAG                   | Done (root script) | `Rag_Pc.py` — Excel → `vectorstore/chroma_products/`                                          |
+| Product RAG                   | Done               | `terramind/rag/product/` — translated Excel → `vectorstore/chroma_products/`                              |
 | **Auto RAG** (default)        | Done               | `auto_rag.py`, `router.py` — routes to product, general, or **base LLM** (meta questions)     |
 | Retrieval scores + confidence | Done               | `terramind/rag/scoring.py`, UI **Show scores**                                                |
 | **Streaming answers**         | Done               | `terramind/models/streaming.py`, `POST /api/ask/stream` — NDJSON status + tokens              |
@@ -28,7 +28,7 @@ _Last updated: June 2026_
 
 | Item                              | Notes                                                                                                                |
 | --------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| **Product RAG package migration** | Move logic from `Rag_Pc.py` into `terramind/rag/product/` modules; CLI `python -m terramind.rag.product.cli --reset` |
+| **Product catalog tools**     | Clarification classifier and SQL-like catalog agent are scaffolded; implementation still pending            |
 | **Deployment**                    | Not defined in repo (single host vs split services)                                                                  |
 | **Stronger PDF extraction**       | Optional (`pymupdf`) if a manual scores poorly on `--inspect`                                                        |
 
@@ -41,6 +41,7 @@ Bootcamp **Phase 1–4** plan (small Python RAG → React → Tri-RAG → eval d
 | Artifact                                           | Was                      | Now                                                                  |
 | -------------------------------------------------- | ------------------------ | -------------------------------------------------------------------- |
 | `Rag_Gen.py`                                       | General RAG monolith     | **`terramind/rag/general/`**                                         |
+| `Rag_Pc.py`                                        | Product RAG monolith     | **Archived as `archive/Rag_Pc_legacy.py`; active path is `terramind/rag/product/`** |
 | `doc/`                                             | PDF drop folder          | **`data/raw/documents/`**                                            |
 | `src/`                                             | Phase 1 modular pipeline | **Removed**                                                          |
 | `scripts/01_ingest_documents.py` … `05_run_rag.py` | Phase 1 CLI              | **Removed** — only `scripts/eval_general_rag.py` remains             |

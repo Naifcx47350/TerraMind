@@ -10,7 +10,7 @@ load_dotenv()
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
 GENERAL_DOCUMENTS_DIR = REPO_ROOT / "data/raw/documents"
-GENERAL_TEXT_DIR = REPO_ROOT / "data/raw/text"
+GENERAL_TEXT_DIR = REPO_ROOT / "data/raw/reference_text"
 GENERAL_SAMPLE_DIR = REPO_ROOT / "data/sample"
 EVAL_QUESTIONS_PATH = REPO_ROOT / "data/eval/general_rag_questions.json"
 

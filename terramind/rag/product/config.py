@@ -1,14 +1,4 @@
-"""
-Product RAG — configuration constants.
-
-TODO: Move from Rag_Pc.py (top ~50 lines):
-  - REPO_ROOT / PROJECT_ROOT pointing at TerraMind repo root
-  - CATALOG_PATH, CATEGORY_PATH, CHROMA_PATH (keep vectorstore/chroma_products)
-  - EMBEDDING_MODEL, CHAT_MODEL, RETRIEVAL_K
-  - Excel column names + PRODUCT_FIELDS dict
-Then update Rag_Pc.py to `from terramind.rag.product.config import ...` until Rag_Pc is removed.
-See docs/PROJECT_STATUS.md (product migration).
-"""
+"""Product RAG configuration constants."""
 
 from langchain_core.prompts import ChatPromptTemplate
 from pathlib import Path
@@ -24,14 +14,18 @@ PROJECT_ROOT = (
     .parents[3]
 )
 
+PRODUCT_CATALOG_DIR = PROJECT_ROOT / "data/raw/product_catalog"
+TRANSLATED_CATALOG_DIR = PRODUCT_CATALOG_DIR / "translated"
+ORIGINAL_CATALOG_DIR = PRODUCT_CATALOG_DIR / "original"
+
 CATALOG_PATH = (
-    PROJECT_ROOT
-    / "data/raw/text/ProductCatalog(En).xlsx"
+    TRANSLATED_CATALOG_DIR
+    / "product_catalog_en.xlsx"
 )
 
 CATEGORY_PATH = (
-    PROJECT_ROOT
-    / "data/raw/text/Product_catagorys(En).xlsx"
+    TRANSLATED_CATALOG_DIR
+    / "product_categories_en.xlsx"
 )
 
 CHROMA_PATH = (
@@ -73,14 +67,6 @@ COL_LEGACY_NAME = (
 COL_PRODUCT_NAME = (
     "English name"
 )
-
-
-
-
-CHAT_MODEL = "gpt-4o-mini"
-
-
-
 RAG_PROMPT = ChatPromptTemplate.from_template(
     """You are TerraMind product catalog assistant — helping growers choose and use
 products safely from the company catalog.

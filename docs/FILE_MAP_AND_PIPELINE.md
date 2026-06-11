@@ -100,34 +100,35 @@ App.jsx  POST /api/ask/compare
 | **`terramind/api/app.py`**        | Model API: `/query`, `/query/stream`, `/query/compare`, `/query/advisory`, `/models`, `/health` | FrontPage `rag_service.py` via HTTP            |
 | **`terramind/models/`**           | Registry, `streaming.py`, `auto_rag`, `router`, RAG adapters, vision                            | `terramind.api.app`                            |
 | **`terramind/meta_questions.py`** | Meta/identity detection (Auto → base LLM; Advisory short-circuit)                               | `router.py`, `run_advisory`, streaming         |
-| **`terramind/rag/llm_stream.py`** | OpenAI token streaming via LangChain                                                            | `streaming.py`, `generate.py`, `Rag_Pc.py`     |
+| **`terramind/rag/llm_stream.py`** | OpenAI token streaming via LangChain                                                            | `streaming.py`, `generate.py`                  |
 | **`terramind/rag/general/`**      | Full general pipeline + CLI + eval                                                              | `terramind.models.general_rag`                 |
-| **`terramind/rag/product/`**      | Re-exports **`Rag_Pc.py`** (migration in progress)                                              | `terramind.models.product_rag`                 |
+| **`terramind/rag/product/`**      | Package implementation for Product RAG                                                          | `terramind.models.product_rag`                 |
 | **`terramind/rag/scoring.py`**    | Retrieval scores + confidence                                                                   | RAG answer dicts                               |
-| **`Rag_Pc.py`**                   | Product RAG implementation (Excel → Chroma)                                                     | `terramind.rag.product`                        |
 | **`rag_api.py`**                  | Shim → `terramind.api.app`                                                                      | Legacy uvicorn target                          |
 | **`run_dev.py`**                  | Starts :8001, :8000, :3000                                                                      | Local dev                                      |
 | **`requirements.txt`**            | Python deps (full stack)                                                                        | `pip install -r requirements.txt` at repo root |
 | **`requirements-dev.txt`**        | Dev extras (pytest)                                                                             | `pip install -r requirements-dev.txt`          |
 
-Product RAG migration: **`docs/PROJECT_STATUS.md`** §2. General RAG is complete under **`terramind/rag/general/`**.
+Product RAG and General RAG are package-based under **`terramind/rag/product/`** and **`terramind/rag/general/`**.
 
 ### BUILD (one-off commands)
 
 | Command                                          | What it does                   |
 | ------------------------------------------------ | ------------------------------ |
-| `python Rag_Pc.py --reset`                       | Rebuild product vector index   |
+| `python -m terramind.rag.product.cli --reset`                       | Rebuild product vector index   |
 | `python -m terramind.rag.general.cli --reset`    | Rebuild general document index |
-| `python Rag_Pc.py "question"`                    | CLI test of product RAG only   |
+| `python -m terramind.rag.product.cli "question"` | CLI test of product RAG only   |
 | `python -m terramind.rag.general.cli "question"` | CLI test of general RAG only   |
 
 ### DATA
 
 | Path                                        | What it does                                                                     |
 | ------------------------------------------- | -------------------------------------------------------------------------------- |
-| **`data/raw/text/ProductCatalog(En).xlsx`** | Product catalog source (`Rag_Pc.py` `CATALOG_PATH`)                              |
+| **`data/raw/product_catalog/translated/product_catalog_en.xlsx`** | Translated product catalog source (`terramind.rag.product.config.CATALOG_PATH`)  |
+| **`data/raw/product_catalog/translated/product_categories_en.xlsx`** | Translated category source (`terramind.rag.product.config.CATEGORY_PATH`)        |
 | **`data/raw/documents/`**                   | General RAG PDFs (IPM, GAP, soil, pesticides) — see `docs/GENERAL_RAG_CORPUS.md` |
-| **`data/raw/text/`**                        | Product Excel; optional extra text for general RAG                               |
+| **`data/raw/product_catalog/translated/`**             | Translated product Excel files used by Product RAG                               |
+| **`data/raw/product_catalog/original/`**               | Original/source product workbook artifacts; preserved, not used at runtime       |
 | **`data/sample/`**                          | Allowlisted sample `.txt` (e.g. pesticide safety)                                |
 | **`data/eval/`**                            | Golden questions; `runs/` gitignored                                             |
 | **`data/README.md`**                        | What is tracked vs ignored                                                       |
@@ -245,7 +246,7 @@ Only remove after confirming nobody uses CLI demos:
 | `TM_Logo_o.png`                 | Backup                         |
 | `FrontPage/package-lock.json`   | If no `FrontPage/package.json` |
 
-**Do not remove:** `terramind/`, `rag_api.py`, `Rag_Pc.py`, `run_dev.py`, `FrontPage/`, corpus under `data/raw/`, local `vectorstore/` (rebuild if deleted).
+**Do not remove:** `terramind/`, `rag_api.py`, `run_dev.py`, `FrontPage/`, corpus under `data/raw/`, local `vectorstore/` (rebuild if deleted). `archive/Rag_Pc_legacy.py` is reference-only.
 
 ---
 
@@ -259,7 +260,7 @@ rag_service → /query/stream | /query/advisory/stream | /query/compare
 streaming → stream_model_events | stream_advisory_events
 run_model (JSON path) → auto_rag | product_rag | general_rag | base_llm
 auto_rag → router.route_question → product_rag | general_rag | base_llm
-product_rag → Rag_Pc.get_product_db + answer_with_rag
+product_rag → terramind.rag.product.get_product_db + answer_with_rag
 general_rag → terramind.rag.general.get_general_db + answer_with_rag
 run_model → resolve_image_analysis → vision.analyze_image (if image)
 product_rag/general_rag → conversation.build_prompt_question (if history/image text)

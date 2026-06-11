@@ -3,7 +3,7 @@ from pathlib import Path
 import pandas as pd
 
 catalog_path = Path(
-    "data/raw/text/ProductCatalog(En).xlsx"
+    "data/raw/product_catalog/translated/product_catalog_en.xlsx"
 )
 
 df = pd.read_excel(catalog_path)
@@ -40,7 +40,7 @@ for col in text_columns:
     print(df["English name"].duplicated().sum())
 
     categories_df = pd.read_excel(
-    "data/raw/text/Product_catagorys(En).xlsx"
+    "data/raw/product_catalog/translated/product_categories_en.xlsx"
     )
 
     print(categories_df.shape)

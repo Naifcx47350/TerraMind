@@ -1,4 +1,6 @@
 from rank_bm25 import BM25Okapi
+from langchain_core.documents import Document
+from langchain_chroma import Chroma
 
 from terramind.rag.product.load import (
     load_products,
@@ -11,6 +13,9 @@ from terramind.rag.product.chunk import (
 from terramind.rag.product.config import (
     CATALOG_PATH,
 )
+from terramind.rag.product.store import load_vector_store
+
+_BM25_CACHE: tuple[BM25Okapi, list[Document]] | None = None
 
 
 def build_bm25_index():
@@ -18,6 +23,10 @@ def build_bm25_index():
     Build a BM25 index from all
     Product RAG chunks.
     """
+
+    global _BM25_CACHE
+    if _BM25_CACHE is not None:
+        return _BM25_CACHE
 
     products = load_products(
         CATALOG_PATH
@@ -41,7 +50,16 @@ def build_bm25_index():
         tokenized_corpus
     )
 
-    return bm25, chunks
+    _BM25_CACHE = (bm25, chunks)
+    return _BM25_CACHE
+
+
+def reset_bm25_cache() -> None:
+    """Clear cached lexical index after rebuilding product chunks."""
+    global _BM25_CACHE
+    _BM25_CACHE = None
+
+
 def bm25_retrieve(
     question: str,
     k: int = 4,
@@ -162,15 +180,18 @@ def rrf_fusion(
         reverse=True,
     )
 
-    return [
-        documents[
-            chunk_id
-        ]
-        for chunk_id, _
-        in ranked[:k]
-    ]
+    top = ranked[:k]
+    best_score = top[0][1] if top else 1.0
+    out = []
+    for chunk_id, score in top:
+        doc = documents[chunk_id]
+        metadata = dict(doc.metadata)
+        metadata["relevance_score"] = score / best_score if best_score else 0.0
+        out.append(Document(page_content=doc.page_content, metadata=metadata))
+    return out
 
 def hybrid_retrieve(
+    db: Chroma,
     question: str,
     k: int = 4,
 ):
@@ -179,6 +200,7 @@ def hybrid_retrieve(
     """
 
     dense_results = retrieve_chunks(
+        db,
         question,
         k=k,
     )
@@ -199,6 +221,7 @@ def hybrid_retrieve(
 if __name__ == "__main__":
 
     results = hybrid_retrieve(
+        load_vector_store(),
         "fungal disease in citrus"
     )
 

@@ -1,12 +1,4 @@
-"""
-Product RAG — prompt template and LLM answer generation.
-
-TODO: Move from Rag_Pc.py:
-  - RAG_PROMPT ChatPromptTemplate (context + question + answer rules)
-  - Function: generate_answer(context, question) -> str (ChatOpenAI gpt-4o-mini)
-  - Keep “answer only from context” rules in the template
-See docs/PROJECT_STATUS.md (product migration).
-"""
+"""Product RAG — prompt template and LLM answer generation."""
 # Product Answer Generation
 # 
 # Responsible for generating grounded answers using:
@@ -25,6 +17,7 @@ See docs/PROJECT_STATUS.md (product migration).
 # The model must answer only from retrieved product information.
 
 from langchain_openai import ChatOpenAI
+from langchain_chroma import Chroma
 
 from terramind.rag.product.config import (
     CHAT_MODEL,
@@ -42,6 +35,7 @@ from terramind.rag.product.rerank import (
 from terramind.rag.product.rewrite import (
     rewrite_query,
 )
+from terramind.rag.product.store import load_vector_store
 
 # Context Builder
 # 
@@ -143,6 +137,7 @@ def create_llm():
 # Returns:
 # Final user-facing answer with source references.
 def generate_answer(
+    db: Chroma,
     question: str,
 ) -> str:
     """
@@ -163,6 +158,7 @@ def generate_answer(
     )
 
     candidates = hybrid_retrieve(
+        db,
         retrieval_query,
         k=8,
     )
@@ -221,6 +217,7 @@ def generate_answer(
 
 
 def generate_answer_with_metadata(
+    db: Chroma,
     question: str,
 ):
     """
@@ -240,6 +237,7 @@ def generate_answer_with_metadata(
     )
     
     candidates = hybrid_retrieve(
+        db,
         retrieval_query,
         k=8,
     )
@@ -293,6 +291,7 @@ if __name__ == "__main__":
     )
 
     answer = generate_answer(
+        load_vector_store(),
         question
     )
 

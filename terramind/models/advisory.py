@@ -8,16 +8,19 @@ from collections.abc import Iterator
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 
-from Rag_Pc import RETRIEVAL_K as PRODUCT_K
-from Rag_Pc import format_context as format_product_context
-from Rag_Pc import retrieve_products
 from terramind.models.conversation import build_prompt_question, build_retrieval_query
 from terramind.rag.general import get_general_db, sources_from_retrieved as general_sources
 from terramind.rag.general.config import CHAT_MODEL, RETRIEVAL_K as GENERAL_K
 from terramind.rag.general.retrieve import format_context as format_general_context
 from terramind.rag.general.retrieve import retrieve_chunks
 from terramind.rag.llm_stream import stream_chat_tokens
-from terramind.rag.product import get_product_db, sources_from_retrieved as product_sources
+from terramind.rag.product import (
+    format_context as format_product_context,
+    get_product_db,
+    retrieve_products,
+    sources_from_retrieved as product_sources,
+)
+from terramind.rag.product.config import RETRIEVAL_K as PRODUCT_K
 from terramind.rag.scoring import aggregate_retrieval_score, confidence_from_score
 
 ADVISORY_PROMPT = ChatPromptTemplate.from_template(

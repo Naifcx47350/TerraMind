@@ -57,7 +57,7 @@ flowchart TB
   subgraph knowledge ["On-disk knowledge"]
     CP[("chroma_products")]
     CG[("chroma general")]
-    Excel["data/raw/text catalog"]
+    Excel["data/raw/product_catalog"]
     PDFs["data/raw/documents"]
   end
 
@@ -154,7 +154,7 @@ Registry: `terramind/models/__init__.py` (`MODEL_REGISTRY`, `run_model`, `run_ad
 
 ### 5.1 General agriculture RAG (`terramind/rag/general/`)
 
-**Corpus:** `data/raw/documents/*.pdf`, optional `.md`/`.txt` from `data/raw/text/` (with exclusions), allowlisted sample under `data/sample/`.
+**Corpus:** `data/raw/documents/*.pdf`, optional `.md`/`.txt` from `data/raw/reference_text/` (with exclusions), allowlisted sample under `data/sample/`.
 
 **Pipeline:**
 
@@ -172,11 +172,11 @@ discover → load (pypdf) → chunk → embed → Chroma
 
 ### 5.2 Product catalog RAG (`terramind/rag/product/`)
 
-**Corpus:** Excel catalog in `data/raw/text/` (e.g. `ProductCatalog(En).xlsx`).
+**Corpus:** Translated Excel catalog in `data/raw/product_catalog/translated/` (`product_catalog_en.xlsx` + `product_categories_en.xlsx`). Original/source workbooks are kept under `data/raw/product_catalog/original/` and are not used at runtime.
 
 **Pipeline:** Same shape as general (load → chunk → store → retrieve → generate), exposed via `terramind.rag.product` and `terramind.models.product_rag`.
 
-**Index:** Built via product CLI / pipeline (see `terramind/rag/product/cli.py`). Legacy root script `Rag_Pc.py` may still exist for teammates during migration; **active path** is the `terramind.rag.product` package.
+**Index:** Built via product CLI / pipeline: `python -m terramind.rag.product.cli --reset`.
 
 ### 5.3 Separation of concerns
 
@@ -250,13 +250,14 @@ Config: `RAG_SERVICE_URL` (default `http://localhost:8001/query`), `USE_MOCK` fo
 │       └── source_display.py
 ├── data/
 │   ├── raw/documents/       # General PDF corpus
-│   ├── raw/text/            # Product Excel (+ optional general text)
+│   ├── raw/product_catalog/ # Product Excel (translated + original/source)
+│   ├── raw/reference_text/  # Optional general text references
 │   ├── sample/              # Allowlisted short references
 │   └── eval/                # Retrieval golden set
 ├── vectorstore/             # Chroma persistence (gitignored)
 ├── docs/                    # Developer docs (this file)
 ├── run_dev.py               # Start 8001 + 8000 + 3000
-└── Rag_Pc.py                # Legacy / migration (product)
+└── archive/Rag_Pc_legacy.py # Archived legacy Product RAG script
 ```
 
 ---
@@ -293,7 +294,7 @@ Secrets: repo-root `.env` (`OPENAI_API_KEY`, optional `RAG_SERVICE_URL` for loca
 | **Streaming chat**     | **Shipped** — NDJSON `/query/stream`; UI uses `/api/ask/stream`                          |
 | **Hidden Advisory UI** | **Shipped** — 6× logo click unlock; `/query/advisory/stream`                             |
 | **Scores in UI**       | **Shipped** — “Show scores” toggle; `retrieval_score` + `confidence`                     |
-| Product RAG migration  | Full move off root `Rag_Pc.py` — see PROJECT_STATUS §2                                   |
+| Product catalog tools   | Clarification classifier and SQL-like catalog agent scaffolds exist; implementation pending |
 | Deployment             | Not defined in repo yet                                                                  |
 | PDF extraction         | Optional `pymupdf` — see GENERAL_RAG_EVAL runbook                                        |
 

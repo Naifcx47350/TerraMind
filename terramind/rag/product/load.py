@@ -1,12 +1,4 @@
-"""
-Product RAG — load Excel catalog into LangChain Documents.
-
-TODO: Move from Rag_Pc.py:
-  - Read ProductCatalog(En).xlsx (and category sheet if used)
-  - Build one Document per product row with metadata: product_id, product_name, source file
-  - Export: load_catalog() -> list[Document]
-See docs/PROJECT_STATUS.md (product migration).
-"""
+"""Product RAG — load translated Excel catalog into LangChain Documents."""
 # Product Loading
 #
 # Load the product catalog from Excel and convert each product into a
@@ -26,14 +18,33 @@ from pathlib import Path
 import pandas as pd
 from langchain_core.documents import Document
 
+from terramind.rag.product.config import CATEGORY_PATH
+
+
+def _clean(value) -> str:
+    """Turn a cell into a trimmed string; NaN/None -> empty string."""
+    if pd.isna(value):
+        return ""
+    return str(value).strip()
+
 def load_catalog(
     catalog_path: Path,
+    category_path: Path | None = CATEGORY_PATH,
 ) -> pd.DataFrame:
-    """
-    Load the product catalog Excel file.
-    """
+    """Load the translated product catalog and attach category columns if present."""
+    catalog = pd.read_excel(catalog_path)
 
-    return pd.read_excel(catalog_path)
+    if category_path and category_path.exists():
+        categories = pd.read_excel(category_path)
+        if "English name" in catalog.columns and "Product Name" in categories.columns:
+            catalog = catalog.merge(
+                categories,
+                how="left",
+                left_on="English name",
+                right_on="Product Name",
+            )
+
+    return catalog
 
 
 # Map internal section names to Excel column names.
@@ -74,9 +85,9 @@ def build_products(
     # Process products one row at a time
     for _, row in catalog_df.iterrows():
 
-        product_name = str(
+        product_name = _clean(
             row["English name"]
-        ).strip()
+        )
         
         # Collect all product sections into a structured dictionary
         sections = {}
@@ -87,9 +98,9 @@ def build_products(
             column_name,
         ) in FIELD_MAPPING.items():
 
-            value = str(
+            value = _clean(
                 row[column_name]
-            ).strip()
+            )
 
             sections[section_name] = value
         
@@ -100,10 +111,20 @@ def build_products(
                 page_content="",
                 metadata={
                     "product_id": str(
-                        row["Product ID"]
-                    ).strip(),
+                        _clean(row["Product ID"])
+                    ),
 
                     "product_name": product_name,
+
+                    "primary_category": _clean(
+                        row.get("Primary Category")
+                    ),
+
+                    "secondary_category": _clean(
+                        row.get("Secondary Category")
+                    ),
+
+                    "source": catalog_path.name,
 
                     "sections": sections,
                 },
@@ -146,7 +167,7 @@ if __name__ == "__main__":
 
     products = load_products(
         Path(
-            "data/raw/text/ProductCatalog(En).xlsx"
+            "data/raw/product_catalog/translated/product_catalog_en.xlsx"
         )
     )
 

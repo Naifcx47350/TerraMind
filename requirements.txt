@@ -5,7 +5,7 @@
 #   conda activate terramind
 #   pip install -r requirements.txt
 #
-# Covers: terramind API (:8001), FrontPage (:8000), Rag_Pc, terramind.rag.general, run_dev.py
+# Covers: terramind API (:8001), FrontPage (:8000), terramind.rag.product, terramind.rag.general, run_dev.py
 # Node.js 18+ still required for the React UI (npm install in FrontPage/frontend-react).
 # =============================================================================
 

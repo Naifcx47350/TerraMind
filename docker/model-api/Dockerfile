@@ -22,7 +22,6 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY terramind/ terramind/
-COPY Rag_Pc.py .
 
 # Corpus (PDFs, product Excel) is mounted at runtime — see docker-compose.yml
 

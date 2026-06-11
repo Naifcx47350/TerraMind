@@ -13,7 +13,7 @@ Place **PDF**, **Markdown**, or **plain text** references here for the **Agricul
 | `Pest_Mangment_FAO.pdf` | FAO IPM Guidance for Major Crop Pests & Diseases (2025) |
 | `Training manual(GAP).pdf` | FAO Good Agricultural Practices (GAP) Training Manual |
 
-Also indexed when present: `.md`/`.txt` under `data/raw/text/` and `data/sample/`.
+Also indexed when present: `.md`/`.txt` under `data/raw/reference_text/` and `data/sample/`.
 
 Display names are defined in `terramind/rag/general/config.py` → `DOCUMENT_DISPLAY_NAMES`.
 

@@ -11,7 +11,8 @@
 | Path | Role |
 |------|------|
 | **`data/raw/documents/`** | **RAG source PDFs** (primary corpus) |
-| **`data/raw/text/`** | Product Excel + optional extra `.md`/`.txt` |
+| **`data/raw/reference_text/`** | Optional extra `.md`/`.txt` references for General RAG |
+| **`data/raw/product_catalog/`** | Product Excel files for Product RAG (`translated/` + `original/`) |
 | **`data/sample/`** | Short reference `.txt` (e.g. pesticide safety) |
 | **`data/eval/`** | Golden questions + eval run outputs |
 | **`docs/`** | Developer documentation (not ingested) |
@@ -27,7 +28,7 @@
 | `Training manual(GAP).pdf` | FAO Good Agricultural Practices (GAP) Training Manual |
 | `pesticide_safety_general.txt` | General Pesticide Safety Guidelines |
 
-**FAO IPM:** use `Pest_Mangment_FAO.pdf` only (the duplicate `Pest_Management_FAO.md` was removed from the repo). `EXCLUDED_FILENAMES` in config still blocks that filename if it is re-added under `data/raw/text/`.
+**FAO IPM:** use `Pest_Mangment_FAO.pdf` only (the duplicate `Pest_Management_FAO.md` was removed from the repo). `EXCLUDED_FILENAMES` in config still blocks that filename if it is re-added under `data/raw/reference_text/`.
 
 Labels: `terramind/rag/general/config.py` → `DOCUMENT_DISPLAY_NAMES` and `FILENAME_TO_TOPIC`.
 
@@ -54,4 +55,4 @@ python -m terramind.rag.general.cli --eval-retrieval
 
 ## Product RAG
 
-Company catalog remains **`product_rag`** from Excel in `data/raw/text/`.
+Company catalog remains **`product_rag`** from translated Excel in `data/raw/product_catalog/translated/`.

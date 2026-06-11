@@ -199,8 +199,8 @@ def _collect_from_dir(
 
 def discover_document_paths() -> list[Path]:
     """
-    PDFs and text from data/raw/documents/; optional .md/.txt from data/raw/text/.
-    Product Excel in text/ is excluded.
+    PDFs and text from data/raw/documents/; optional .md/.txt from data/raw/reference_text/.
+    Product Excel lives under data/raw/product_catalog/ and is excluded.
     """
     paths: list[Path] = []
     paths.extend(_collect_from_dir(GENERAL_DOCUMENTS_DIR, TEXT_EXTENSIONS | PDF_EXTENSIONS))
