@@ -19,7 +19,12 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# CPU-only PyTorch first — PyPI default torch on Linux pulls multi-GB NVIDIA/CUDA wheels.
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir \
+        --index-url https://download.pytorch.org/whl/cpu \
+        "torch>=2.0,<3" \
+    && pip install --no-cache-dir -r requirements.txt
 
 COPY terramind/ terramind/
 
