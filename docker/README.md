@@ -6,7 +6,6 @@
 
 ## 1. What Docker is doing here
 
-
 | Concept           | Plain English                              | TerraMind                              |
 | ----------------- | ------------------------------------------ | -------------------------------------- |
 | **Image**         | Frozen recipe + filesystem snapshot        | e.g. `terramind-model-api`             |
@@ -14,7 +13,6 @@
 | **Dockerfile**    | Instructions to build an image             | `docker/model-api/Dockerfile`          |
 | **Build context** | Files Docker can `COPY`                    | repo root (`.`), minus `.dockerignore` |
 | **Compose**       | Run several containers + network + volumes | `docker-compose.yml`                   |
-
 
 Locally you run **3 processes** (`run_dev.py`):
 
@@ -97,7 +95,6 @@ If `COPY` fails with "file not found", check whether `.dockerignore` excluded it
 
 ## 5. `docker-compose.yml` — the important keys
 
-
 | Key                                         | Purpose                                                |
 | ------------------------------------------- | ------------------------------------------------------ |
 | `services:`                                 | Each container (model-api, gateway, frontend)          |
@@ -107,7 +104,6 @@ If `COPY` fails with "file not found", check whether `.dockerignore` excluded it
 | `depends_on` + `condition: service_healthy` | Wait until `/health` OK                                |
 | `volumes:`                                  | Data that survives container restarts (Chroma indexes) |
 | `profiles: ["init"]`                        | Optional one-shot services (`init-indexes`)            |
-
 
 ---
 
@@ -144,20 +140,17 @@ docker compose build model-api # rebuild one image
 
 ## 7. Dev vs Docker production UI
 
-
 |            | Local dev                        | Docker                              |
 | ---------- | -------------------------------- | ----------------------------------- |
 | Frontend   | `npm run dev` (Vite, hot reload) | `npm run build` → nginx             |
 | API reload | `--reload` on uvicorn            | restart container after code change |
 | API URL    | Vite proxy `/api` → :8000        | nginx proxy `/api` → gateway        |
 
-
 For daily UI work, keep using `python run_dev.py`. Use Docker when you want **“clone repo → compose up → works”** on another machine.
 
 ---
 
 ## 8. Troubleshooting
-
 
 | Symptom                   | Likely cause                                                        |
 | ------------------------- | ------------------------------------------------------------------- |
@@ -167,10 +160,9 @@ For daily UI work, keep using `python run_dev.py`. Use Docker when you want **�
 | Frontend 502 on `/api`    | gateway not healthy yet; wait or check logs                         |
 | Build slow                | first build downloads base images + pip/npm; later builds use cache |
 
-
 ---
 
-## 9. What to try yourself next
+## 9. What to try next
 
 1. Change `gateway` `REQUEST_TIMEOUT` via Compose `environment`.
 2. Add a fourth service (e.g. Redis) in `docker-compose.yml`.
@@ -183,4 +175,3 @@ For daily UI work, keep using `python run_dev.py`. Use Docker when you want **�
 
 - Local run (no Docker): [FrontPage/RUN_LOCALLY.md](../FrontPage/RUN_LOCALLY.md)
 - Architecture: [docs/SYSTEM_ARCHITECTURE.md](../docs/SYSTEM_ARCHITECTURE.md)
-
