@@ -39,6 +39,10 @@ from terramind.rag.product.rerank import (
     rerank_chunks,
 )
 
+from terramind.rag.product.rewrite import (
+    rewrite_query,
+)
+
 # Context Builder
 # 
 # Convert retrieved chunks into a single context block that can be
@@ -146,9 +150,20 @@ def generate_answer(
     generate a grounded answer.
     """
     
-    # Hybrid Retrieval
+    retrieval_query = rewrite_query(
+    question
+    )
+
+    print(
+        f"\nOriginal Query: {question}"
+    )
+
+    print(
+        f"Rewritten Query: {retrieval_query}\n"
+    )
+
     candidates = hybrid_retrieve(
-        question,
+        retrieval_query,
         k=8,
     )
 
@@ -212,8 +227,20 @@ def generate_answer_with_metadata(
     Return answer together with retrieved chunks.
     """
 
+    retrieval_query = rewrite_query(
+    question
+    )
+
+    print(
+        f"\nOriginal Query: {question}"
+    )
+    
+    print(
+        f"Rewritten Query: {retrieval_query}\n"
+    )
+    
     candidates = hybrid_retrieve(
-        question,
+        retrieval_query,
         k=8,
     )
 
