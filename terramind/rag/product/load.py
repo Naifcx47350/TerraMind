@@ -74,6 +74,7 @@ FIELD_MAPPING = {
 # Chunk generation is intentionally deferred to chunk.py.
 def build_products(
     catalog_df: pd.DataFrame,
+    catalog_path: Path,
 ) -> list[Document]:
     """
     Convert each catalog row into
@@ -157,7 +158,8 @@ def load_products(
     )
 
     products = build_products(
-        catalog_df
+        catalog_df,
+        catalog_path,
     )
 
     return products
