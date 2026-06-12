@@ -1,8 +1,11 @@
 """Product RAG configuration constants."""
 
+from dotenv import load_dotenv
+
 from langchain_core.prompts import ChatPromptTemplate
 from pathlib import Path
 
+load_dotenv()
 
 # ---------------------------------------------------------------------
 # Project Paths
@@ -23,10 +26,6 @@ CATALOG_PATH = (
     / "product_catalog_en.xlsx"
 )
 
-CATEGORY_PATH = (
-    TRANSLATED_CATALOG_DIR
-    / "product_categories_en.xlsx"
-)
 
 CHROMA_PATH = (
     PROJECT_ROOT
