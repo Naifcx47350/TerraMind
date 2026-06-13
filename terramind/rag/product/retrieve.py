@@ -12,7 +12,10 @@ from terramind.rag.product.config import (
 )
 from terramind.rag.scoring import distance_to_relevance
 
-
+from terramind.rag.product.filters import (
+    detect_product_id,
+    detect_product_name,
+)
 
 # Retrieval
 # 
@@ -28,9 +31,56 @@ def retrieve_chunks(
     k: int = RETRIEVAL_K,
 ) -> list[Document]:
     """Retrieve product chunks with UI-compatible relevance scores."""
-    pairs = db.similarity_search_with_score(question, k=k)
-    results = []
+    # pairs = db.similarity_search_with_score(question, k=k)
+    # results = []
+    product_id = detect_product_id(
+    question
+    )
 
+    product_name = detect_product_name(    
+    question
+    )
+
+    if product_id:    
+
+        print(
+            f"Metadata Filter (ID): {product_id}"
+        )
+
+        pairs = db.similarity_search_with_score(
+            question,
+            k=k,
+            filter={
+                "product_id": product_id
+            },
+        )
+
+    elif product_name:
+
+        print(    
+        f"Metadata Filter (Name): {product_name}"
+        )
+
+        pairs = db.similarity_search_with_score(
+            question,
+            k=k,
+            filter={
+                "product_name": product_name
+            },
+        )
+
+    else:
+
+        pairs = db.similarity_search_with_score(
+            question,
+            k=k,
+        )
+    # for doc, _ in pairs:
+    #     print(
+    #         doc.metadata["product_id"]
+    #     )
+    results = []
+    
     for doc, distance in pairs:
         metadata = dict(doc.metadata)
         metadata["relevance_score"] = distance_to_relevance(distance)
@@ -61,7 +111,7 @@ def retrieve_products(
 if __name__ == "__main__":
 
     question = (
-        "fungal disease in citrus"
+        "How should I apply Citrus Bacteria Clear?"
     )
 
     # Retrieve relevant chunks from Chroma
@@ -93,7 +143,7 @@ if __name__ == "__main__":
         
         print(
             f"\nScore: "
-            f"{doc.metadata['retrieval_score']}"
+            f"{doc.metadata['relevance_score']}"
         )
 
         print(

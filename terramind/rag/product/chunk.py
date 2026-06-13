@@ -62,6 +62,7 @@ Pack Size:
         metadata={
             "product_id": metadata["product_id"],
             "product_name": metadata["product_name"],
+            "product_type": metadata["product_type"],
             "chunk_type": "identity",
         },
     )
@@ -108,6 +109,7 @@ Instructions:
         metadata={
             "product_id": metadata["product_id"],
             "product_name": metadata["product_name"],
+            "product_type": metadata["product_type"],
             "chunk_type": "summary",
         },
     )
@@ -153,6 +155,7 @@ Usage and Dosage:
         metadata={
             "product_id": metadata["product_id"],
             "product_name": metadata["product_name"],
+            "product_type": metadata["product_type"],
             "chunk_type": "usage",
         },
     )
@@ -212,6 +215,9 @@ Manual:
 
                     "product_name":
                         metadata["product_name"],
+                        
+                    "product_type":
+                        metadata["product_type"],
 
                     "chunk_type":
                         "manual",
