@@ -105,6 +105,10 @@ def build_products(
                     ),
 
                     "product_name": product_name,
+                    
+                    "product_type": _clean(
+                        row["Product Type"]
+                    ),
 
                     "source": catalog_path.name,
 
