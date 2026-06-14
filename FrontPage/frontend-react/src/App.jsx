@@ -940,6 +940,7 @@ export default function App() {
   const autoRouteTimerRef = useRef(null);
   const logoClickRef = useRef({ count: 0, lastAt: 0 });
   const [compareMode, setCompareMode] = useState(false);
+  const [activeRequestSessionId, setActiveRequestSessionId] = useState(null);
   const [convSearch, setConvSearch] = useState("");
   const [apiKeyReady, setApiKeyReady] = useState(false);
   const [apiConfigLoading, setApiConfigLoading] = useState(true);
@@ -1304,6 +1305,7 @@ export default function App() {
 
   const handleSubmit = async () => {
     if ((!text.trim() && !image) || loading || !apiKeyReady) return;
+    const requestSessionId = activeId;
     const q = text.trim() || "Analyze this image";
     const img = image;
     const timeStr = new Date().toLocaleTimeString([], {
@@ -1313,6 +1315,7 @@ export default function App() {
     setText("");
     setImage(null);
     setLoading(true);
+    setActiveRequestSessionId(requestSessionId);
     const modelForRequest = resolveRequestModel(selectedModel, advisoryUnlocked);
     if (modelForRequest === "auto_rag") {
       clearAutoRouteTimer();
@@ -1326,7 +1329,7 @@ export default function App() {
       imgPreview: img?.preview || null,
       time: timeStr,
     };
-    patch(activeId, (s) => ({
+    patch(requestSessionId, (s) => ({
       ...s,
       messages: [...s.messages, userMsg],
       name:
@@ -1363,7 +1366,7 @@ export default function App() {
         latency: 0,
         loading: true,
       }));
-      patch(activeId, (s) => ({
+      patch(requestSessionId, (s) => ({
         ...s,
         messages: [
           ...s.messages,
@@ -1399,7 +1402,7 @@ export default function App() {
           error: row.error,
           loading: false,
         }));
-        patch(activeId, (s) => {
+        patch(requestSessionId, (s) => {
           const msgs = [...s.messages];
           const last = msgs[msgs.length - 1];
           const compareMsg = {
@@ -1416,7 +1419,7 @@ export default function App() {
           return { ...s, messages: msgs };
         });
       } catch (e) {
-        patch(activeId, (s) => {
+        patch(requestSessionId, (s) => {
           const msgs = [...s.messages];
           if (
             msgs[msgs.length - 1]?.role === "compare" &&
@@ -1439,6 +1442,7 @@ export default function App() {
         });
       } finally {
         setLoading(false);
+        setActiveRequestSessionId((id) => (id === requestSessionId ? null : id));
         scroll();
       }
       return;
@@ -1450,7 +1454,7 @@ export default function App() {
           ? `${API}/ask/advisory/stream`
           : `${API}/ask/stream`;
 
-      patch(activeId, (s) => ({
+      patch(requestSessionId, (s) => ({
         ...s,
         messages: [
           ...s.messages,
@@ -1467,7 +1471,7 @@ export default function App() {
       scroll();
 
       const applyStreamPatch = (updateFn) => {
-        patch(activeId, (s) => {
+        patch(requestSessionId, (s) => {
           const msgs = [...s.messages];
           const last = msgs[msgs.length - 1];
           if (last?.role !== "bot" || !last?.streaming) return s;
@@ -1534,7 +1538,7 @@ export default function App() {
 
       if (streamError) throw streamError;
 
-      patch(activeId, (s) => {
+      patch(requestSessionId, (s) => {
         const msgs = [...s.messages];
         const last = msgs[msgs.length - 1];
         if (last?.role === "bot" && last?.streaming) {
@@ -1548,7 +1552,7 @@ export default function App() {
         return { ...s, messages: msgs };
       });
     } catch (e) {
-      patch(activeId, (s) => {
+      patch(requestSessionId, (s) => {
         const msgs = [...s.messages];
         if (
           msgs[msgs.length - 1]?.role === "bot" &&
@@ -1571,6 +1575,7 @@ export default function App() {
       });
     } finally {
       setLoading(false);
+      setActiveRequestSessionId((id) => (id === requestSessionId ? null : id));
       scroll();
     }
   };
@@ -1582,9 +1587,11 @@ export default function App() {
     language: uiSettings.language,
   });
   const hasCompareMessages = all.messages.some((m) => m.role === "compare");
-  const contentWide = compareMode || hasCompareMessages;
+  const messagesWide = compareMode || hasCompareMessages;
+  const composerWide = compareMode;
   const showBottomLoader =
     loading &&
+    activeRequestSessionId === all.id &&
     !(
       all.messages[all.messages.length - 1]?.role === "bot" &&
       all.messages[all.messages.length - 1]?.streaming
@@ -2250,7 +2257,7 @@ export default function App() {
             </div>
           ) : (
             <div
-              className={`tm-content-width${contentWide ? " tm-content-width--wide" : ""}`}
+              className={`tm-content-width${messagesWide ? " tm-content-width--wide" : ""}`}
               style={{
                 margin: "0 auto",
                 padding: "20px 24px 8px",
@@ -2543,7 +2550,7 @@ export default function App() {
           style={{ padding: "12px 16px 16px", flexShrink: 0 }}
         >
           <div
-            className={`tm-content-width${contentWide ? " tm-content-width--wide" : ""}`}
+            className={`tm-content-width${composerWide ? " tm-content-width--wide" : ""}`}
             style={{ margin: "0 auto" }}
           >
             <div className="tm-composer-wrap">

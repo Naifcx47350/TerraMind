@@ -56,6 +56,13 @@ def log_startup_config():
         mode = "LLM or mock fallback"
     logger.info("FrontPage API started — mode: %s", mode)
 
+    try:
+        from terramind.models.vision import warm_vision_model
+
+        warm_vision_model(settings.vision_api_key)
+    except Exception as exc:
+        logger.warning("Vision warmup skipped: %s", exc)
+
 
 @app.get("/")
 def root():
