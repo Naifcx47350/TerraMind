@@ -452,6 +452,37 @@ const I = {
       <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
     </svg>
   ),
+  mic: ({ c = "currentColor" } = {}) => (
+    <svg
+      width="17"
+      height="17"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={c}
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z" />
+      <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+      <path d="M12 19v3" />
+      <path d="M8 22h8" />
+    </svg>
+  ),
+  check: ({ c = "currentColor" } = {}) => (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={c}
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M20 6 9 17l-5-5" />
+    </svg>
+  ),
   moon: () => (
     <svg
       width="15"
@@ -942,6 +973,14 @@ export default function App() {
   const [compareMode, setCompareMode] = useState(false);
   const [activeRequestSessionId, setActiveRequestSessionId] = useState(null);
   const [convSearch, setConvSearch] = useState("");
+  const [voiceMenuOpen, setVoiceMenuOpen] = useState(false);
+  const [voiceDevices, setVoiceDevices] = useState([]);
+  const [selectedVoiceDeviceId, setSelectedVoiceDeviceId] = useState("");
+  const [holdToRecord, setHoldToRecord] = useState(true);
+  const [listening, setListening] = useState(false);
+  const [voiceLevel, setVoiceLevel] = useState(0);
+  const [voiceError, setVoiceError] = useState("");
+  const [interimTranscript, setInterimTranscript] = useState("");
   const [apiKeyReady, setApiKeyReady] = useState(false);
   const [apiConfigLoading, setApiConfigLoading] = useState(true);
   const [showApiKeyGate, setShowApiKeyGate] = useState(false);
@@ -954,6 +993,12 @@ export default function App() {
   const fileRef = useRef(null);
   const taRef = useRef(null);
   const modelRef = useRef(null);
+  const recognitionRef = useRef(null);
+  const micStreamRef = useRef(null);
+  const audioContextRef = useRef(null);
+  const meterRafRef = useRef(null);
+  const voiceMenuCloseTimerRef = useRef(null);
+  const voiceHoldActiveRef = useRef(false);
 
   const handleLogoSecretClick = () => {
     if (advisoryUnlocked) return;
@@ -1277,6 +1322,218 @@ export default function App() {
       preview: URL.createObjectURL(f),
     });
   };
+
+  const getSpeechRecognition = () =>
+    globalThis.SpeechRecognition || globalThis.webkitSpeechRecognition || null;
+
+  const openVoiceMenu = () => {
+    if (voiceMenuCloseTimerRef.current) {
+      clearTimeout(voiceMenuCloseTimerRef.current);
+      voiceMenuCloseTimerRef.current = null;
+    }
+    setVoiceMenuOpen(true);
+  };
+
+  const scheduleVoiceMenuClose = () => {
+    if (listening) return;
+    if (voiceMenuCloseTimerRef.current) {
+      clearTimeout(voiceMenuCloseTimerRef.current);
+    }
+    voiceMenuCloseTimerRef.current = setTimeout(() => {
+      setVoiceMenuOpen(false);
+      voiceMenuCloseTimerRef.current = null;
+    }, 260);
+  };
+
+  const toggleVoiceMenu = () => {
+    if (voiceMenuOpen) {
+      setVoiceMenuOpen(false);
+    } else {
+      openVoiceMenu();
+    }
+  };
+
+  const stopVoiceMeter = () => {
+    if (meterRafRef.current) {
+      cancelAnimationFrame(meterRafRef.current);
+      meterRafRef.current = null;
+    }
+    if (micStreamRef.current) {
+      micStreamRef.current.getTracks().forEach((track) => track.stop());
+      micStreamRef.current = null;
+    }
+    if (audioContextRef.current) {
+      audioContextRef.current.close().catch(() => {});
+      audioContextRef.current = null;
+    }
+    setVoiceLevel(0);
+  };
+
+  const refreshVoiceDevices = async () => {
+    if (!navigator.mediaDevices?.enumerateDevices) return;
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const inputs = devices.filter((device) => device.kind === "audioinput");
+      setVoiceDevices(inputs);
+      if (!selectedVoiceDeviceId && inputs[0]?.deviceId) {
+        setSelectedVoiceDeviceId(inputs[0].deviceId);
+      }
+    } catch {
+      /* Device labels may be unavailable until permission is granted. */
+    }
+  };
+
+  const startVoiceMeter = async (deviceId = selectedVoiceDeviceId) => {
+    if (!navigator.mediaDevices?.getUserMedia) return;
+    stopVoiceMeter();
+    const audio = deviceId
+      ? { deviceId: { exact: deviceId } }
+      : true;
+    const stream = await navigator.mediaDevices.getUserMedia({ audio });
+    micStreamRef.current = stream;
+    await refreshVoiceDevices();
+
+    const AudioCtx = globalThis.AudioContext || globalThis.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const analyser = ctx.createAnalyser();
+    analyser.fftSize = 256;
+    ctx.createMediaStreamSource(stream).connect(analyser);
+    audioContextRef.current = ctx;
+
+    const data = new Uint8Array(analyser.frequencyBinCount);
+    const tick = () => {
+      analyser.getByteTimeDomainData(data);
+      let sum = 0;
+      for (const value of data) {
+        const centered = (value - 128) / 128;
+        sum += centered * centered;
+      }
+      const rms = Math.sqrt(sum / data.length);
+      setVoiceLevel(Math.min(1, rms * 4));
+      meterRafRef.current = requestAnimationFrame(tick);
+    };
+    tick();
+  };
+
+  const stopVoiceInput = () => {
+    recognitionRef.current?.stop?.();
+    recognitionRef.current = null;
+    setListening(false);
+    setInterimTranscript("");
+    stopVoiceMeter();
+  };
+
+  const startVoiceInput = async () => {
+    const SpeechRecognition = getSpeechRecognition();
+    if (!SpeechRecognition) {
+      setVoiceError(copy("voiceUnsupported"));
+      openVoiceMenu();
+      return;
+    }
+
+    try {
+      setVoiceError("");
+      openVoiceMenu();
+      await startVoiceMeter();
+      if (holdToRecord && !voiceHoldActiveRef.current) {
+        stopVoiceMeter();
+        return;
+      }
+
+      const recognition = new SpeechRecognition();
+      recognition.lang = uiSettings.language === "ar" ? "ar-SA" : "en-US";
+      recognition.interimResults = true;
+      recognition.continuous = true;
+      recognition.onresult = (event) => {
+        let finalText = "";
+        let interim = "";
+        for (let i = event.resultIndex; i < event.results.length; i += 1) {
+          const transcript = event.results[i][0]?.transcript || "";
+          if (event.results[i].isFinal) finalText += transcript;
+          else interim += transcript;
+        }
+        if (finalText.trim()) {
+          setText((prev) =>
+            [prev.trimEnd(), finalText.trim()].filter(Boolean).join(" "),
+          );
+        }
+        setInterimTranscript(interim.trim());
+      };
+      recognition.onerror = (event) => {
+        const error = event.error || "";
+        if (error === "aborted" || error === "no-speech") {
+          setVoiceError("");
+          return;
+        }
+        if (error === "network") {
+          setVoiceError("Speech recognition is unavailable here. Try Chrome, check mic permission, or type instead.");
+          return;
+        }
+        if (error === "not-allowed" || error === "service-not-allowed") {
+          setVoiceError("Microphone permission is blocked for this page.");
+          return;
+        }
+        setVoiceError(error || "Microphone error");
+      };
+      recognition.onend = () => {
+        recognitionRef.current = null;
+        setListening(false);
+        setInterimTranscript("");
+        stopVoiceMeter();
+      };
+      recognitionRef.current = recognition;
+      recognition.start();
+      setListening(true);
+    } catch (err) {
+      setVoiceError(err?.message || "Microphone permission was denied");
+      setListening(false);
+      stopVoiceMeter();
+    }
+  };
+
+  const handleVoiceButtonClick = () => {
+    openVoiceMenu();
+    if (holdToRecord) return;
+    if (listening) stopVoiceInput();
+    else startVoiceInput();
+  };
+
+  const handleVoicePointerDown = (event) => {
+    if (!holdToRecord || event.button === 2) return;
+    event.preventDefault();
+    voiceHoldActiveRef.current = true;
+    startVoiceInput();
+  };
+
+  const handleVoicePointerUp = () => {
+    voiceHoldActiveRef.current = false;
+    if (holdToRecord) stopVoiceInput();
+  };
+
+  const selectVoiceDevice = async (deviceId) => {
+    setSelectedVoiceDeviceId(deviceId);
+    openVoiceMenu();
+    if (micStreamRef.current) {
+      setTimeout(() => {
+        startVoiceMeter(deviceId).catch(() => {});
+      }, 0);
+    }
+  };
+
+  useEffect(() => {
+    if (voiceMenuOpen) refreshVoiceDevices();
+  }, [voiceMenuOpen]);
+
+  useEffect(
+    () => () => {
+      if (voiceMenuCloseTimerRef.current) {
+        clearTimeout(voiceMenuCloseTimerRef.current);
+      }
+      stopVoiceInput();
+    },
+    [],
+  );
 
   const buildHistory = () =>
     all.messages
@@ -2695,20 +2952,159 @@ export default function App() {
                     <I.img c={image ? t.accent : t.text3} />
                   </button>
                 </div>
-                <button
-                  type="button"
-                  className={`tm-composer-send${canSend ? " tm-composer-send--ready" : ""}`}
-                  onClick={handleSubmit}
-                  disabled={!canSend}
-                  title={copy("sendHint")}
-                  style={{
-                    cursor: canSend ? "pointer" : "not-allowed",
-                    background: canSend ? t.accent : t.bgHover,
-                    color: canSend ? "#fff" : t.text4,
-                  }}
-                >
-                  <I.send on={!!canSend} c={canSend ? "#fff" : t.text4} />
-                </button>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div
+                    className={`tm-voice-control${voiceMenuOpen ? " tm-voice-control--open" : ""}`}
+                    onMouseEnter={openVoiceMenu}
+                    onMouseLeave={scheduleVoiceMenuClose}
+                    onFocus={openVoiceMenu}
+                  >
+                    <button
+                      type="button"
+                      className={`tm-voice-trigger${listening ? " tm-voice-trigger--active" : ""}`}
+                      onClick={handleVoiceButtonClick}
+                      onPointerDown={handleVoicePointerDown}
+                      onPointerUp={handleVoicePointerUp}
+                      onPointerCancel={handleVoicePointerUp}
+                      title={holdToRecord ? copy("voiceHoldToRecord") : copy("voiceClickToToggle")}
+                      aria-label={copy("voiceInput")}
+                      aria-pressed={listening}
+                      style={{
+                        color: listening ? t.accent : t.text3,
+                        borderColor: listening ? t.accent : t.border1,
+                      }}
+                    >
+                      <I.mic c={listening ? t.accent : t.text3} />
+                      <span
+                        className="tm-voice-trigger-arrow"
+                        onPointerDown={(event) => event.stopPropagation()}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          toggleVoiceMenu();
+                        }}
+                        aria-hidden="true"
+                      >
+                        ▾
+                      </span>
+                    </button>
+
+                    {voiceMenuOpen && (
+                      <div
+                        className="tm-voice-menu"
+                        role="menu"
+                        onMouseEnter={openVoiceMenu}
+                        onMouseLeave={scheduleVoiceMenuClose}
+                        style={{
+                          background: `color-mix(in srgb, ${t.bgCard} 92%, transparent)`,
+                          borderColor: t.border1,
+                          color: t.text1,
+                        }}
+                      >
+                        <div className="tm-voice-meter-row" style={{ color: t.text3 }}>
+                          <I.mic c={listening ? t.accent : t.text3} />
+                          <div
+                            className="tm-voice-meter"
+                            style={{
+                              background: `color-mix(in srgb, ${t.text4} 22%, transparent)`,
+                            }}
+                          >
+                            <div
+                              className="tm-voice-meter-fill"
+                              style={{
+                                width: `${Math.round(voiceLevel * 100)}%`,
+                                background: t.accent,
+                              }}
+                            />
+                          </div>
+                          {listening && (
+                            <span className="tm-voice-live" style={{ color: t.accent }}>
+                              {copy("voiceListening")}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="tm-voice-section-label" style={{ color: t.text3 }}>
+                          {copy("voiceDevices")}
+                        </div>
+                        <div className="tm-voice-device-list">
+                          {voiceDevices.length ? (
+                            voiceDevices.map((device, index) => {
+                              const selected = device.deviceId === selectedVoiceDeviceId;
+                              return (
+                                <button
+                                  key={device.deviceId || index}
+                                  type="button"
+                                  className="tm-voice-device"
+                                  onClick={() => selectVoiceDevice(device.deviceId)}
+                                  style={{
+                                    color: selected ? t.text1 : t.text2,
+                                  }}
+                                  role="menuitemradio"
+                                  aria-checked={selected}
+                                >
+                                  <span>{device.label || `Microphone ${index + 1}`}</span>
+                                  {selected && <I.check c={t.accent} />}
+                                </button>
+                              );
+                            })
+                          ) : (
+                            <div className="tm-voice-empty" style={{ color: t.text3 }}>
+                              {voiceError || copy("voiceNoDevices")}
+                            </div>
+                          )}
+                        </div>
+
+                        {interimTranscript && (
+                          <div className="tm-voice-interim" style={{ color: t.text3 }}>
+                            {interimTranscript}
+                          </div>
+                        )}
+                        {voiceError && voiceDevices.length > 0 && (
+                          <div className="tm-voice-error" style={{ color: t.text3 }}>
+                            {voiceError}
+                          </div>
+                        )}
+
+                        <button
+                          type="button"
+                          className="tm-voice-hold-row"
+                          onClick={() => setHoldToRecord((v) => !v)}
+                          role="menuitemcheckbox"
+                          aria-checked={holdToRecord}
+                          style={{
+                            borderTopColor: t.border1,
+                            color: t.text1,
+                          }}
+                        >
+                          <span>{holdToRecord ? copy("voiceHoldToRecord") : copy("voiceClickToToggle")}</span>
+                          <span
+                            className={`tm-voice-switch${holdToRecord ? " tm-voice-switch--on" : ""}`}
+                            style={{
+                              background: holdToRecord ? t.accent : t.bgHover,
+                            }}
+                          >
+                            <span />
+                          </span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    className={`tm-composer-send${canSend ? " tm-composer-send--ready" : ""}`}
+                    onClick={handleSubmit}
+                    disabled={!canSend}
+                    title={copy("sendHint")}
+                    style={{
+                      cursor: canSend ? "pointer" : "not-allowed",
+                      background: canSend ? t.accent : t.bgHover,
+                      color: canSend ? "#fff" : t.text4,
+                    }}
+                  >
+                    <I.send on={!!canSend} c={canSend ? "#fff" : t.text4} />
+                  </button>
+                </div>
               </div>
             </div>
             </div>
