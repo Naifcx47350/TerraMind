@@ -40,6 +40,12 @@ def apply_openai_key_local(api_key: str) -> None:
     settings.vision_api_key = key
     if not settings.vision_provider:
         settings.vision_provider = "openai"
+    try:
+        from terramind.models.vision import warm_vision_model
+
+        warm_vision_model(key)
+    except Exception as e:
+        logger.debug("Vision warmup after key update skipped: %s", e)
 
 
 async def sync_openai_key_to_model_api(api_key: str) -> None:
