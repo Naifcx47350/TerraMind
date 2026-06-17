@@ -206,11 +206,13 @@ Product RAG and General RAG are package-based under **`terramind/rag/product/`**
 | File                                    | What it does                                                                                              |
 | --------------------------------------- | --------------------------------------------------------------------------------------------------------- |
 | **`frontend-react/src/main.jsx`**       | React mount → `App`                                                                                       |
-| **`frontend-react/src/App.jsx`**        | Chat, streaming UI, Auto picker, hidden Advisory unlock (6× logo), compare, scores, startup `BootstrapOverlay`, `MarkdownMessage.jsx` |
+| **`frontend-react/src/App.jsx`**        | Chat, streaming UI, Auto picker, hidden Advisory unlock (6× logo), compare, scores, startup `BootstrapOverlay`, voice input mic (`SpeechRecognition` + mic meter), `MarkdownMessage.jsx` |
 | **`frontend-react/index.html`**         | HTML shell                                                                                                |
 | **`frontend-react/vite.config.js`**     | Dev server port 3000; proxy `/api` → 8000; alias `@assets` → repo-root `assets/` |
 | **`frontend-react/package.json`**       | npm deps & `dev` script                                                                                   |
 | **`frontend-react/public/TM_Logo.png`** | Logo at `/TM_Logo.png` (**this** is the file the browser loads)                                           |
+| **`frontend-react/src/theme/visuals.js`** | Shared UI CSS for glass theme, composer, compare, voice mic popover, live audio meter, and responsive behavior |
+| **`frontend-react/src/i18n/strings.js`** | EN/AR labels for composer, compare, voice input, settings, and common UI copy |
 
 ### OPTIONAL
 

@@ -13,10 +13,11 @@ For **system architecture only** (topology, services, RAG boundaries, API contra
 TerraMind is a **chat-style web assistant** for farmers and agronomy staff. From the browser, users can:
 
 - Ask questions in **any language** (English and Arabic are first-class; RTL layout is supported).
-- Choose **one of four AI modes** from a dropdown (top right), similar to model pickers in ChatGPT. **Advisory** is not listed by default — see **Advisory (hidden)** under [§4 Models](#4-models-modes).
+- Choose **one of four AI modes** from a dropdown (top right), similar to model pickers in ChatGPT. **Advisory** is not listed by default.
 - Turn on **Compare** to send the **same question to all three RAG/LLM backends** and read answers side-by-side in three columns.
 - See answers **stream in** with retrieval/routing status lines, then token-by-token generation (single-message chat).
 - **Upload a plant/crop photo** so vision analysis is included in every mode’s context.
+- Use **voice input** from the composer mic button (browser speech-to-text) instead of typing.
 - Browse **past conversations** in the sidebar; chats **persist in the browser** across refresh.
 - Toggle **Show sources** to see which catalog rows or documents grounded a RAG answer.
 - Switch **dark / light** theme.
@@ -61,13 +62,15 @@ Vite proxies `/api/*` to `http://localhost:8000`, so the frontend only talks to 
 
 ### Frontend
 
-| Tool                 | Purpose                                                                                   |
-| -------------------- | ----------------------------------------------------------------------------------------- |
-| **React 18**         | Single-page chat UI                                                                       |
-| **Vite**             | Dev server, HMR, `/api` proxy                                                             |
-| **Plain CSS-in-JSX** | Theming (dark/light), layout, compare grid                                                |
-| **localStorage**     | Session persistence (`terramind_sessions_v1`)                                             |
-| **Fetch API**        | `POST /api/ask/stream`, `/api/ask/advisory/stream`, `/api/ask/compare`, `GET /api/models` |
+| Tool                         | Purpose                                                                                   |
+| ---------------------------- | ----------------------------------------------------------------------------------------- |
+| **React 18**                 | Single-page chat UI                                                                       |
+| **Vite**                     | Dev server, HMR, `/api` proxy                                                             |
+| **Plain CSS-in-JSX**         | Theming (dark/light), layout, compare grid                                                |
+| **localStorage**             | Session persistence (`terramind_sessions_v1`)                                             |
+| **Fetch API**                | `POST /api/ask/stream`, `/api/ask/advisory/stream`, `/api/ask/compare`, `GET /api/models` |
+| **Web Speech API**           | Composer mic speech-to-text (`SpeechRecognition` / `webkitSpeechRecognition`)             |
+| **MediaDevices / Web Audio** | Mic device list and live voice level meter (`getUserMedia`, `AudioContext`)               |
 
 ### Backends
 
@@ -86,18 +89,18 @@ Vite proxies `/api/*` to `http://localhost:8000`, so the frontend only talks to 
 | **LangChain**        | Prompt templates, `ChatOpenAI`, message types                       |
 | **langchain-chroma** | Vector store wrapper                                                |
 | **ChromaDB**         | On-disk vector indexes under `vectorstore/`                         |
-| **pandas**           | Excel product catalog loading (`terramind/rag/product/`)                         |
+| **pandas**           | Excel product catalog loading (`terramind/rag/product/`)            |
 
 ### Data files
 
-| Location                                      | Content                                                                                              |
-| --------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `data/raw/product_catalog/translated/product_catalog_en.xlsx` | Translated client product catalog used by Product RAG                                                 |
-| `data/raw/product_catalog/translated/product_categories_en.xlsx` | Translated product category sheet joined during Product RAG indexing                                  |
-| `data/raw/documents/`                         | General agriculture PDFs (RAG mode 2) — see [docs/GENERAL_RAG_CORPUS.md](docs/GENERAL_RAG_CORPUS.md) |
-| `vectorstore/chroma/`                         | General document embeddings                                                                          |
-| `vectorstore/chroma_products/`                | Product catalog embeddings                                                                           |
-| `FrontPage/frontend-react/public/TM_Logo.png` | Logo served to the UI (not repo root copy)                                                           |
+| Location                                                         | Content                                                                                              |
+| ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `data/raw/product_catalog/translated/product_catalog_en.xlsx`    | Translated client product catalog used by Product RAG                                                |
+| `data/raw/product_catalog/translated/product_categories_en.xlsx` | Translated product category sheet joined during Product RAG indexing                                 |
+| `data/raw/documents/`                                            | General agriculture PDFs (RAG mode 2) — see [docs/GENERAL_RAG_CORPUS.md](docs/GENERAL_RAG_CORPUS.md) |
+| `vectorstore/chroma/`                                            | General document embeddings                                                                          |
+| `vectorstore/chroma_products/`                                   | Product catalog embeddings                                                                           |
+| `FrontPage/frontend-react/public/TM_Logo.png`                    | Logo served to the UI (not repo root copy)                                                           |
 
 ---
 
@@ -105,13 +108,13 @@ Vite proxies `/api/*` to `http://localhost:8000`, so the frontend only talks to 
 
 All modes share the same **response shape** (`answer`, `sources`, `confidence`, `retrieval_score`, `retrieved_chunks`, …). Implementation lives under **`terramind/models/`**.
 
-| UI name                       | ID            | Module                                                    | Knowledge                                                    | LLM           |
-| ----------------------------- | ------------- | --------------------------------------------------------- | ------------------------------------------------------------ | ------------- |
-| **Auto (recommended)**        | `auto_rag`    | `auto_rag.py` + `router.py`                               | Routes to product, general, or **base LLM** (meta questions) | `gpt-4o-mini` |
-| **Agriculture Knowledge RAG** | `general_rag` | `general_rag.py` → `terramind/rag/general/`               | Public PDFs in `data/raw/documents/`                         | `gpt-4o-mini` |
+| UI name                       | ID            | Module                                      | Knowledge                                                    | LLM           |
+| ----------------------------- | ------------- | ------------------------------------------- | ------------------------------------------------------------ | ------------- |
+| **Auto (recommended)**        | `auto_rag`    | `auto_rag.py` + `router.py`                 | Routes to product, general, or **base LLM** (meta questions) | `gpt-4o-mini` |
+| **Agriculture Knowledge RAG** | `general_rag` | `general_rag.py` → `terramind/rag/general/` | Public PDFs in `data/raw/documents/`                         | `gpt-4o-mini` |
 | **Product Catalog RAG**       | `product_rag` | `product_rag.py` → `terramind/rag/product/` | Excel catalog in Chroma                                      | `gpt-4o-mini` |
-| **Base LLM**                  | `base_llm`    | `base_llm.py`                                             | None (no retrieval)                                          | `gpt-4o-mini` |
-| **Advisory** (hidden UI)      | `advisory`    | `run_advisory()` in `__init__.py`                         | General then product (meta questions skip RAG)               | `gpt-4o-mini` |
+| **Base LLM**                  | `base_llm`    | `base_llm.py`                               | None (no retrieval)                                          | `gpt-4o-mini` |
+| **Advisory** (hidden UI)      | `advisory`    | `run_advisory()` in `__init__.py`           | General then product (meta questions skip RAG)               | `gpt-4o-mini` |
 
 ### Product Catalog RAG (`product_rag`)
 
@@ -169,7 +172,7 @@ Backend: `POST /api/ask/advisory/stream` (UI default) or `/query/advisory` on po
 
 | Index path                     | Built by                                      | Source data                                  |
 | ------------------------------ | --------------------------------------------- | -------------------------------------------- |
-| `vectorstore/chroma_products/` | `python -m terramind.rag.product.cli --reset`                    | Product Excel                                |
+| `vectorstore/chroma_products/` | `python -m terramind.rag.product.cli --reset` | Product Excel                                |
 | `vectorstore/chroma/`          | `python -m terramind.rag.general.cli --reset` | `data/raw/documents/*.pdf` (+ optional text) |
 
 Indexes are **persistent on disk**. Rebuild when Excel or documents change. At runtime, `get_product_db()` / `get_general_db()` load existing Chroma collections if present.

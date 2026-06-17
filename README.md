@@ -175,6 +175,7 @@ TerraMind/
 - **Streaming answers** — retrieval/routing status, then tokens (`POST /api/ask/stream`)
 - **Hidden Advisory** — click the logo **6 times** (within 2.5s) to unlock Advisory mode
 - **Show sources** / **Show scores**; plant **image upload** (vision → all modes)
+- **Voice input** — browser speech-to-text mic control with device list, live level meter, and hold-to-record mode
 - **Conversation history** + **localStorage** sessions + sidebar search
 - **OpenAI key prompt** if `OPENAI_API_KEY` is missing (syncs gateway + model API)
 - **Startup overlay** — brief “Starting TerraMind…” while the UI waits for `/api/config` (normal on cold start; longer in Docker)
