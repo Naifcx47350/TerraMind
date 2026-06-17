@@ -20,6 +20,7 @@ _Last updated: June 2026_
 | Meta / identity questions     | Done               | `terramind/meta_questions.py` — Auto → base LLM; Advisory short-circuit                       |
 | Compare mode                  | Done               | Product + general + base LLM (Auto excluded)                                                  |
 | Vision + history + sessions   | Done               | `terramind/models/vision.py`, `localStorage`                                                  |
+| Voice input                   | Done               | Browser speech-to-text mic in `FrontPage/frontend-react/src/App.jsx`; styled in `theme/visuals.js` |
 | General RAG validation        | Done               | [GENERAL_RAG_VALIDATION_REPORT.md](./GENERAL_RAG_VALIDATION_REPORT.md) — 20/20 retrieval eval |
 | **Product RAG package**       | Done               | `terramind/rag/product/` — replaces runtime `Rag_Pc.py`; Excel under `data/raw/product_catalog/translated/` |
 | **Docker Compose stack**      | Done               | `docker-compose.yml` — `model-api`, `gateway`, `frontend`; profile `init` → `init-indexes` |

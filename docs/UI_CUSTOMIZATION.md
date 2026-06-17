@@ -8,20 +8,20 @@ Quick index for TerraMind chat UI theming. Asset filenames and decor slots: **[.
 
 ```
 FrontPage/frontend-react/src/
-├── App.jsx                      Shell, sidebar, composer, message layout
+├── App.jsx                      Shell, sidebar, composer, message layout, voice input logic
 ├── settings/uiSettings.js       localStorage schema, decorTuning per appearance
 ├── theme/
 │   ├── index.js                 resolveTheme(), APPEARANCE_OPTIONS
 │   ├── classic.js               Field appearance tokens + base CSS animations
 │   ├── field.js … dusk.js       Forest/Harvest/Ocean/Dusk palettes
-│   ├── visuals.js               Glass, scrims, sidebar blur, composer z-index
+│   ├── visuals.js               Glass, scrims, sidebar blur, composer/voice input styling
 │   ├── backgroundAssets.js      Wallpaper + decor PNG resolution
 │   └── decorDefaults/           Per-theme decor position & default slots
 ├── components/
 │   ├── SettingsMenuContent.jsx  Appearance, layout, advanced decor sliders
 │   ├── SidebarWelcomeCard.jsx   Welcome card + asset 0
 │   └── UserProfileMenu.jsx      Profile decor on avatar
-└── i18n/strings.js              Labels (EN / AR)
+└── i18n/strings.js              Labels (EN / AR), including voice input copy
 ```
 
 ---
@@ -50,6 +50,19 @@ Defaults come from decor files; users override via **Settings → Advanced** (sa
 ### Startup overlay (“Starting TerraMind…”)
 
 Shown in `App.jsx` while `GET /api/config` is retrying (gateway not ready). Normal for a few seconds after `run_dev.py` or `docker compose up`. Restart Vite if decor PNGs fail to load after changing files under repo-root `assets/`.
+
+### Voice input mic control
+
+Voice input is frontend-only browser speech-to-text:
+
+- Logic: `App.jsx` → `SpeechRecognition` / `webkitSpeechRecognition`, `navigator.mediaDevices`, `AudioContext`.
+- Styling: `theme/visuals.js` → `.tm-voice-*` classes for the mic button, popover, device list, level meter, and hold-to-record switch.
+- Labels: `i18n/strings.js` → `voiceInput`, `voiceHoldToRecord`, `voiceDevices`, etc.
+
+Browser caveats:
+
+- Cursor/Electron and some Chrome setups may show `network` for speech recognition even when the mic meter works; that is a browser speech service limitation, not a TerraMind backend issue.
+- The device selector controls the live mic meter stream. Browser speech recognition itself may still use the OS/browser-selected input device depending on browser support.
 
 ### Widen sidebar (conversation list clipping)
 

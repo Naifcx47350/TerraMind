@@ -78,6 +78,8 @@ Corpus layout: [GENERAL_RAG_CORPUS.md](./GENERAL_RAG_CORPUS.md) · [data/README.
 | **Vite 5** | Dev server (:3000), HMR, production build | `FrontPage/frontend-react/vite.config.js`; local `npm run dev` via `run_dev.py` |
 | **react-markdown** + **remark-gfm** | Render assistant answers (headings, lists, bold) | Chat message components in `frontend-react/src/` |
 | **@fontsource/dm-sans** | UI typography | Loaded in `App.jsx` |
+| **Web Speech API** (`SpeechRecognition` / `webkitSpeechRecognition`) | Browser speech-to-text for the composer mic button | `FrontPage/frontend-react/src/App.jsx` — transcribes speech into the prompt before normal send |
+| **MediaDevices + Web Audio API** (`getUserMedia`, `enumerateDevices`, `AudioContext`) | Microphone permission, device list, and live voice level meter | `FrontPage/frontend-react/src/App.jsx`; visual styling in `src/theme/visuals.js` |
 | **Browser storage** | Saved chats and hidden Advisory unlock | `localStorage` / `sessionStorage` keys in `App.jsx`, `uiSettings.js` |
 | **Static UI assets** | Theme wallpapers and decor PNGs | Repo-root `assets/` via Vite alias `@assets` (`vite.config.js`); Docker frontend image copies `assets/` at build time |
 
@@ -116,6 +118,7 @@ Guides: [docker/QUICKSTART.md](../docker/QUICKSTART.md) · [docker/README.md](..
 | **OpenCV** | Not used in TerraMind (logo format in docs follows [Devicon](https://devicon.dev/) style only). |
 | **Redis / Postgres** | No server-side session DB — chats are browser `localStorage` only. |
 | **pymupdf** | Optional future PDF extractor — mentioned in [GENERAL_RAG_EVAL.md](./GENERAL_RAG_EVAL.md), not in `requirements.txt` today. |
+| **Server-side TTS/STT** | Not used. Voice input is frontend-only browser speech-to-text; no backend audio upload or speech service is configured. |
 
 ---
 
