@@ -287,18 +287,27 @@ def generate_answer_with_metadata(
 if __name__ == "__main__":
 
     question = (
-        "Which products contain Bacillus subtilis?"
+        #"What diseases does Bacteria Clear control and how should it be applied?"
+
+        "What are the active ingredients and target crops?"
+
     )
 
-    answer = generate_answer(
+    result = generate_answer_with_metadata(
         load_vector_store(),
         question
     )
 
-    print(
-        "\nAnswer:\n"
-    )
+    print("\nAnswer:\n")
+    print(result["answer"])
 
-    print(
-        answer
-    )
+    print("\n\nRetrieved Chunks:\n")
+
+    for chunk in result["retrieved"]:
+
+        print("\n---")
+        print(chunk.metadata)
+
+        print(
+            chunk.page_content[:1500]
+        )
