@@ -66,13 +66,97 @@ def warm_product_rag() -> None:
     log.info("Product RAG: CrossEncoder reranker ready")
 
 
+
+
+def expand_neighbor_chunks(
+    db: Chroma,
+    chunks: list[Document],
+) -> list[Document]:
+
+    expanded = []
+    seen = set()
+
+    for chunk in chunks:
+
+        expanded.append(chunk)
+
+        metadata = chunk.metadata
+
+        if metadata.get("chunk_type") != "manual":
+            continue
+
+        product_id = metadata.get("product_id")
+        chunk_index = metadata.get("chunk_index")
+
+        if chunk_index is None:
+            continue
+
+        results = db.get(
+            where={"product_id": product_id}
+        )
+
+        for doc, meta in zip(
+            results["documents"],
+            results["metadatas"],
+        ):
+
+            if meta.get("chunk_type") != "manual":
+                continue
+
+            neighbor_index = meta.get(
+                "chunk_index"
+            )
+
+            if neighbor_index is None:
+                continue
+
+            if abs(
+                neighbor_index - chunk_index
+            ) > 1:
+                continue
+
+            key = (
+                product_id,
+                neighbor_index,
+            )
+
+            if key in seen:
+                continue
+
+            seen.add(key)
+
+            expanded.append(
+                Document(
+                    page_content=doc,
+                    metadata=meta,
+                )
+            )
+
+    return expanded
+
+
 def _retrieve_ranked(db: Chroma, question: str, k: int = RETRIEVAL_K) -> list[Document]:
     retrieval_query = rewrite_query(question)
     print(f"\nOriginal Query: {question}")
     print(f"Rewritten Query: {retrieval_query}\n")
     candidates = hybrid_retrieve(db, retrieval_query, k=max(k * 2, 8))
-    return rerank_chunks(question, candidates, top_k=k)
+    # return rerank_chunks(question, candidates, top_k=k)
+    chunks = rerank_chunks(
+        question,
+        candidates,
+        top_k=k,
+    )
 
+    chunks = expand_neighbor_chunks(
+        db,
+        chunks,
+    )
+
+    print(
+        f"Expanded Chunks: {len(chunks)}"
+    )
+
+    return chunks
 
 def retrieve_products(
     db: Chroma,
