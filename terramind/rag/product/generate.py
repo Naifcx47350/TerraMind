@@ -287,7 +287,7 @@ def generate_answer_with_metadata(
 if __name__ == "__main__":
 
     question = (
-        "What is the dilution for Onion-Ginger-Garlic Bacteria Clear?"
+        "Which products contain Bacillus subtilis?"
     )
 
     answer = generate_answer(

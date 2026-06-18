@@ -49,7 +49,38 @@ def detect_product_id(
         return match.group().upper()
 
     return None
+def find_matching_products(
+    question: str,
+) -> list[str]:
 
+    q = question.lower()
+
+    matches = []
+    
+    words = [    
+        re.sub(r"[^a-z0-9]", "", word)
+        for word in q.split()
+    ]
+
+    words = [    
+        word
+        for word in words
+        if len(word) >= 4
+    ]    
+
+    for name in get_product_names():
+
+        name_lower = name.lower()
+
+        for word in words:
+
+            if word in name_lower:
+
+                matches.append(name)
+                break
+    print(words)
+    
+    return matches
 
 if __name__ == "__main__":
 
@@ -68,5 +99,23 @@ if __name__ == "__main__":
     print(
         detect_product_name(
             "How should I apply Citrus Bacteria Clear?"
+        )
+    )
+    
+    print(
+        find_matching_products(
+            "How should I apply glufosinate?"
+        )
+    )
+    
+    print(
+    find_matching_products(
+        "Tell me about imidacloprid"
+        )
+    )
+
+    print(
+        find_matching_products(
+            "How should I apply thrips killer?"
         )
     )
