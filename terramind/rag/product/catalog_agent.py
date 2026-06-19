@@ -213,6 +213,7 @@ Rules:
 - If the question has both crop and category, include both filters.
 - Use unsupported for application instructions, disease control, precautions, summaries, or manual explanation questions.
 - Return JSON only. No markdown.
+- Any question that asks "Which products contain X?" must use filter_by_ingredient, where X is the ingredient name.
 
 Examples:
 Question: Which products contain Bacillus subtilis?
@@ -226,6 +227,10 @@ JSON: {{"kind": "filter_by_crop", "filters": {{"crop": "chili pepper", "category
 
 Question: How should I apply Bacteria Clear?
 JSON: {{"kind": "unsupported", "filters": {{}}}}
+
+Question: Which products contain imidacloprid?
+JSON: {{"kind": "filter_by_ingredient", "filters": {{"ingredient": "imidacloprid"}}}}
+
 
 User question:
 {user_question}

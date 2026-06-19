@@ -89,6 +89,34 @@ def retrieve_products(
     return _retrieve_ranked(db, question, k=k)
 
 
+# def answer_with_rag(
+#     db: Chroma,
+#     question: str,
+#     k: int = RETRIEVAL_K,
+# ) -> dict:
+#     """Route structured catalog questions to Catalog Agent, otherwise use Product RAG."""
+
+#     catalog_request = build_catalog_request(
+#         question
+#     )
+
+#     route = route_product_question(
+#         catalog_request
+#     )
+
+#     if route == "catalog_agent":
+#         return {
+#             "answer": answer_catalog_question_from_request(
+#                 catalog_request
+#             ),
+#             "retrieved": [],
+#         }
+
+#     return generate_answer_with_metadata(
+#         db,
+#         question,
+#     )
+
 def answer_with_rag(
     db: Chroma,
     question: str,
@@ -110,12 +138,25 @@ def answer_with_rag(
                 catalog_request
             ),
             "retrieved": [],
+            "sources": [],
         }
 
-    return generate_answer_with_metadata(
+    result = generate_answer_with_metadata(
         db,
         question,
     )
+
+    retrieved = result.get(
+        "retrieved",
+        []
+    )
+
+    result["sources"] = sources_from_retrieved(
+        retrieved
+    )
+
+    return result
+
 
 def stream_answer_with_rag(
     db: Chroma,
