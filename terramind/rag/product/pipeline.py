@@ -18,6 +18,12 @@ from terramind.rag.product.rerank import rerank_chunks
 from terramind.rag.product.rewrite import rewrite_query
 from terramind.rag.product.store import build_vector_store, chroma_exists, load_vector_store
 from terramind.rag.scoring import sources_from_retrieved as _sources_from_retrieved
+from terramind.rag.product.catalog_agent import (
+    answer_catalog_question_from_request,
+    build_catalog_request,
+    route_product_question,
+)
+
 
 _DB: Chroma | None = None
 _INIT_LOCK = threading.Lock()
@@ -83,29 +89,82 @@ def retrieve_products(
     return _retrieve_ranked(db, question, k=k)
 
 
-def answer_with_rag(db: Chroma, question: str, k: int = RETRIEVAL_K) -> dict:
-    """Return the product answer and retrieved chunks in the existing app contract."""
-    return generate_answer_with_metadata(db, question)
+def answer_with_rag(
+    db: Chroma,
+    question: str,
+    k: int = RETRIEVAL_K,
+) -> dict:
+    """Route structured catalog questions to Catalog Agent, otherwise use Product RAG."""
 
+    catalog_request = build_catalog_request(
+        question
+    )
+
+    route = route_product_question(
+        catalog_request
+    )
+
+    if route == "catalog_agent":
+        return {
+            "answer": answer_catalog_question_from_request(
+                catalog_request
+            ),
+            "retrieved": [],
+        }
+
+    return generate_answer_with_metadata(
+        db,
+        question,
+    )
 
 def stream_answer_with_rag(
     db: Chroma,
     question: str,
     k: int = RETRIEVAL_K,
 ) -> tuple[list[Document], Iterator[str]]:
-    """Retrieve product chunks, then stream LLM tokens."""
-    chunks = _retrieve_ranked(db, question, k=k)
-    if not chunks:
-        return [], iter(["I could not find relevant information in the product catalog."])
+    """Route structured catalog questions to Catalog Agent, otherwise stream Product RAG."""
 
-    prompt = RAG_PROMPT.invoke({"context": format_context(chunks), "question": question})
+    catalog_request = build_catalog_request(
+        question
+    )
+
+    route = route_product_question(
+        catalog_request
+    )
+
+    if route == "catalog_agent":
+
+        answer = answer_catalog_question_from_request(
+            catalog_request
+        )
+
+        return [], iter([answer])
+
+    chunks = _retrieve_ranked(
+        db,
+        question,
+        k=k,
+    )
+
+    if not chunks:
+        return [], iter(
+            ["I could not find relevant information in the product catalog."]
+        )
+
+    prompt = RAG_PROMPT.invoke(
+        {
+            "context": format_context(chunks),
+            "question": question,
+        }
+    )
+
     token_gen = stream_chat_tokens(
         prompt.to_messages(),
         model=CHAT_MODEL,
         temperature=0,
     )
-    return chunks, token_gen
 
+    return chunks, token_gen
 
 def sources_from_retrieved(retrieved: list[Document]) -> list[dict]:
     """Format product source chips for API/UI response models."""
