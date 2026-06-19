@@ -2,14 +2,23 @@ import json
 from pathlib import Path
 
 from terramind.rag.product.generate import (
-    generate_answer,
+    generate_answer_with_chunks,
+    format_context,
 )
 
 from terramind.FullEvaluation.metrics.metrics import (
-    normalize,
     clean_answer,
     similarity_score,
     agri_score,
+    is_refusal,
+)
+
+from terramind.FullEvaluation.metrics.retrieval_metrics import (
+    retrieval_metrics,
+)
+
+from terramind.FullEvaluation.metrics.llm_judge import (
+    judge_answer,
 )
 
 
@@ -18,8 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent
 DATASET_PATH = (
     BASE_DIR /
     "datasets" /
-    # "Golden_Data_Client_after-Carlo.json"
-    "golden_dataset.json"
+    "Golden_Data_Client_after-Carlo.json"
 )
 
 REPORTS_DIR = (
@@ -48,17 +56,47 @@ def load_dataset():
         )
 
 
+def relevant_product_id(test: dict) -> str | None:
+    """
+    Extract the ground-truth product ID from the
+    "Source (catalog)" field, e.g. "PN0005 29%..." -> "PN0005".
+    """
+
+    source = test.get("Source (catalog)")
+
+    if not source:
+        return None
+
+    return source.strip().split()[0]
+
+
+def average(dicts: list[dict]) -> dict:
+    """
+    Average each numeric field across a
+    list of same-shaped dicts.
+    """
+
+    if not dicts:
+        return {}
+
+    keys = dicts[0].keys()
+
+    return {
+        key: sum(d[key] for d in dicts) / len(dicts)
+        for key in keys
+    }
+
+
 def run_evaluation():
 
     test_cases = load_dataset()
 
-    scores = []
-
-    agri_scores = []
-
-    passed = 0
-
     detailed_results = []
+
+    quality_scores = []
+    retrieval_scores = []
+    judge_scores = []
+    refusals = []
 
     for test in test_cases:
 
@@ -66,13 +104,11 @@ def run_evaluation():
             "\n" + "=" * 80
         )
 
-        question = test.get("question")
+        question = test.get("Question")
 
-        golden = test.get("golden", test.get("reference_answer"))
+        golden = test.get("Golden Answer")
 
-        # Check both capitalized and lowercase column names
-        # question = test.get("Question", test.get("question"))
-        # golden = test.get("Golden Answer", test.get("golden", test.get("reference_answer")))
+        product_id = relevant_product_id(test)
 
         print(
             f"Question: {question}"
@@ -82,7 +118,7 @@ def run_evaluation():
             f"Golden: {golden}"
         )
 
-        answer = generate_answer(
+        answer, chunks = generate_answer_with_chunks(
             question
         )
 
@@ -90,39 +126,48 @@ def run_evaluation():
             answer
         )
 
-        contains_golden = (
-            normalize(
-                golden
-            )
-            in
-            normalize(
-                generated
-            )
+        context = format_context(
+            chunks
         )
-
-        if contains_golden:
-
-            passed += 1
 
         similarity = similarity_score(
             golden,
             generated,
         )
 
-        agricultural_accuracy = (
-            agri_score(
-                golden,
-                generated,
-            )
+        agricultural_accuracy = agri_score(
+            golden,
+            generated,
         )
 
-        scores.append(
-            similarity
+        refused = is_refusal(
+            generated
         )
 
-        agri_scores.append(
-            agricultural_accuracy
+        retrieval = (
+            retrieval_metrics(chunks, product_id)
+            if product_id
+            else None
         )
+
+        judge = judge_answer(
+            question,
+            context,
+            golden,
+            generated,
+        )
+
+        quality = {
+            "similarity": similarity,
+            "agricultural_accuracy": agricultural_accuracy,
+        }
+
+        quality_scores.append(quality)
+        judge_scores.append(judge)
+        refusals.append(refused)
+
+        if retrieval is not None:
+            retrieval_scores.append(retrieval)
 
         print(
             f"\nGenerated:\n"
@@ -130,18 +175,20 @@ def run_evaluation():
         )
 
         print(
-            f"\nContains Golden: "
-            f"{contains_golden}"
+            f"Similarity: {similarity:.3f}"
         )
 
         print(
-            f"Similarity: "
-            f"{similarity:.3f}"
+            f"Agricultural Accuracy: {agricultural_accuracy:.3f}"
         )
 
+        if retrieval is not None:
+            print(
+                f"Retrieval: {retrieval}"
+            )
+
         print(
-            f"Agricultural Accuracy: "
-            f"{agricultural_accuracy:.3f}"
+            f"Judge: {judge}"
         )
 
         detailed_results.append(
@@ -149,56 +196,29 @@ def run_evaluation():
                 "question": question,
                 "golden": golden,
                 "generated": generated,
-                "contains_golden": contains_golden,
-                "similarity": similarity,
-                "agricultural_accuracy": agricultural_accuracy,
+                "relevant_product_id": product_id,
+                "refused": refused,
+                **quality,
+                "retrieval": retrieval,
+                "judge": judge,
             }
         )
 
-    average_similarity = (
-        sum(scores) /
-        len(scores)
-    )
-
-    average_agri_accuracy = (
-        sum(agri_scores) /
-        len(agri_scores)
-    )
-
-    pass_rate = (
-        passed /
-        len(test_cases)
-    ) * 100
+    summary = {
+        "total_questions": len(test_cases),
+        "refusal_rate": sum(refusals) / len(refusals),
+        **average(quality_scores),
+        "retrieval": average(retrieval_scores),
+        "judge": average(judge_scores),
+    }
 
     print(
         "\n" + "=" * 80
     )
 
     print(
-        f"Average Similarity: "
-        f"{average_similarity:.3f}"
+        json.dumps(summary, indent=2)
     )
-
-    print(
-        f"Average Agricultural Accuracy: "
-        f"{average_agri_accuracy:.3f}"
-    )
-
-    print(
-        f"Pass Rate: "
-        f"{pass_rate:.1f}%"
-    )
-
-    summary = {
-        "average_similarity":
-            average_similarity,
-        "average_agricultural_accuracy":
-            average_agri_accuracy,
-        "pass_rate":
-            pass_rate,
-        "total_questions":
-            len(test_cases),
-    }
 
     with open(
         REPORTS_DIR /

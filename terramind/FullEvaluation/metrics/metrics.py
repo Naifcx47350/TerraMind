@@ -10,21 +10,29 @@ model = SentenceTransformer(
 )
 
 
-def normalize(text: str) -> str:
+REFUSAL_PHRASES = (
+    "i could not find relevant",
+    "not available in the catalog",
+    "i don't have enough information",
+    "i do not have enough information",
+    "cannot find relevant information",
+    "no information available",
+)
+
+
+def is_refusal(text: str) -> bool:
     """
-    Lowercase and remove punctuation
-    for exact matching.
+    Heuristic check for whether the system
+    declined to answer instead of giving
+    a substantive response.
     """
 
-    text = text.lower()
+    lowered = text.lower()
 
-    text = re.sub(
-        r"[^\w\s]",
-        "",
-        text,
+    return any(
+        phrase in lowered
+        for phrase in REFUSAL_PHRASES
     )
-
-    return text.strip()
 
 
 def clean_answer(text: str) -> str:
