@@ -1,0 +1,1401 @@
+{
+    "summary": {
+        "total_questions": 55,
+        "refusal_rate": 0.0,
+        "similarity": 0.47894614447246897,
+        "agricultural_accuracy": 0.7303030303030302,
+        "retrieval": {
+            "precision_at_k": 0.8954545454545455,
+            "recall_at_k": 0.5020490620490621,
+            "hit_rate": 0.9272727272727272,
+            "ndcg_at_k": 0.9008496319078423
+        },
+        "judge": {
+            "faithfulness": 0.9927272727272728,
+            "answer_relevancy": 1.0,
+            "completeness_question": 0.9963636363636363,
+            "completeness_context": 0.9945454545454546,
+            "context_precision": 1.0,
+            "context_recall": 0.9945454545454546,
+            "correctness": 0.9618181818181818,
+            "coherence_tone": 1.0
+        }
+    },
+    "results": [
+        {
+            "question": "What is the dilution ratio for 29% Bisultap?",
+            "golden": "30g mixed with 30 jin of water.",
+            "generated": "### Dilution Ratio for 29% Bisultap\n\nThe dilution ratio for 29% Bisultap is **30 grams mixed with 30 jin of water**. \n\nIf you have any further questions about application or specific pest issues, feel free to ask!\n\n---",
+            "relevant_product_id": "PN0005",
+            "refused": false,
+            "similarity": 0.5896835327148438,
+            "agricultural_accuracy": 0.5,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.4,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "How do I dilute 45% Bifenazate + Etoxazole?",
+            "golden": "15g mixed with 30 jin of water.",
+            "generated": "### Dilution Instructions for 45% Bifenazate + Etoxazole\n\nTo dilute **45% Bifenazate + Etoxazole**, you should mix **15 grams** of the product with **30 jin** of water. This will create the appropriate solution for application.\n\n### Application Method\n\n- **Target Pest**: Red Spider Mites\n- **Application Method**: Spraying\n- **Dosage**: Use a dilution of **8000-12000 times** for effective pest control.\n\nIf you have any specific symptoms or issues with your crops, feel free to share, and I can provide more tailored advice!\n\n---",
+            "relevant_product_id": "PN0014",
+            "refused": false,
+            "similarity": 0.3789132535457611,
+            "agricultural_accuracy": 0.5,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.6666666666666666,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "What is the dilution for Spider Mite Killer No.1?",
+            "golden": "50g mixed with 30 jin of water (dilute 800-1000x).",
+            "generated": "### Dilution for Spider Mite Killer No.1\n\nTo dilute **Spider Mite Killer No.1**, you should:\n\n1. **Dilute the product 800-1000 times**. \n   - One capful is approximately equivalent to one sprayer of water.\n   - One 500g bottle is approximately equivalent to 400-500kg of water.\n\n2. **Mixing Instructions**:\n   - Thoroughly stir the product with water to create a foamy layer before foliar spraying.\n   - Ensure that the solution fully contacts both sides of the leaves and fruits for optimal results.\n\nIf you have any specific symptoms or issues with your crop, feel free to share, and I can help you further!\n\n---",
+            "relevant_product_id": "AF0039",
+            "refused": false,
+            "similarity": 0.46530041098594666,
+            "agricultural_accuracy": 0.0,
+            "retrieval": {
+                "precision_at_k": 0.75,
+                "recall_at_k": 0.3333333333333333,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 0.8318724637288826
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "How do I dilute Thrips No.1?",
+            "golden": "Dilute 800-1000x (one 500g bottle per 400-500kg water).",
+            "generated": "### How to Dilute Thrips No.1 (Jima 1 Hao)\n\nTo dilute **Thrips No.1 (Jima 1 Hao)**, follow these steps:\n\n1. **Dilution Ratio**: Dilute the product **800-1000 times** before use. \n   - One capful is approximately equivalent to one spray bottle of water.\n   - A **500g bottle** is approximately equivalent to **400-500kg of water**.\n\n2. **Mixing Instructions**:\n   - Thoroughly stir the product with water to create a foamy layer before foliar spraying.\n   - Ensure that the solution fully contacts both sides of the leaves and fruits for optimal results.\n\n3. **When Mixing with Other Pesticides**: Always stir the water to create foam before spraying for double the effect.\n\nIf you have any specific symptoms or issues with your crops, feel free to share, and I can provide more tailored advice!\n\n---",
+            "relevant_product_id": "AF0064",
+            "refused": false,
+            "similarity": 0.5972042679786682,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.5714285714285714,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "What is the dilution ratio for 24% Clethodim?",
+            "golden": "One 20ml sachet mixed with 30 jin of water.",
+            "generated": "### Dilution Ratio for 24% Clethodim\n\nThe dilution ratio for **24% Clethodim** is to mix **30-40 kg of water per acre** when preparing the foliar spray. \n\n### Application Overview\n\n- **Target Crop**: Spring Soybean Field\n- **Target Weeds**: Annual Grass Weeds\n- **Dosage**: 20-30 ml/acre\n- **Application Method**: Foliar Spray\n\nMake sure to apply the herbicide when grass weeds are at the 2-5 leaf stage after emergence, and avoid application on windy days or if rain is expected within one hour.\n\n---",
+            "relevant_product_id": "PN0015",
+            "refused": false,
+            "similarity": 0.37478107213974,
+            "agricultural_accuracy": 0.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.4444444444444444,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 0.8,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "How do I dilute 50% Benazolin?",
+            "golden": "One 12g sachet mixed with 30 jin of water.",
+            "generated": "### Dilution Instructions for 50% Benazolin\n\nTo dilute **50% Benazolin**, you should mix **1 packet (12 grams)** of the product with **30 jin (15 catties)** of water. \n\n### Application Tips\n- Ensure to mix well before use, especially if the pesticide has sediment.\n- Avoid applying on windy days or if rain is expected within 4 hours after application.\n\nIf you have any further questions or need assistance with application timing or safety precautions, feel free to ask!\n\n---",
+            "relevant_product_id": "PN0016",
+            "refused": false,
+            "similarity": 0.37084323167800903,
+            "agricultural_accuracy": 0.5,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.5,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "What is the dilution for Citrus Bacteria Clear?",
+            "golden": "1g mixed with 1 jin (500g) of water (1000x).",
+            "generated": "### Dilution for Citrus Bacteria Clear\n\nThe dilution for **Citrus Bacteria Clear** is **1000 times**. During the crop's growing season, you should spray the diluted solution evenly on the leaves. \n\nIf you have any specific conditions or symptoms you're observing in your crop, feel free to share, and I can provide more tailored advice!\n\n---",
+            "relevant_product_id": "AF0001",
+            "refused": false,
+            "similarity": 0.26574841141700745,
+            "agricultural_accuracy": 0.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.5,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "How do I dilute Hydroponic Treasure?",
+            "golden": "1g mixed with 1 jin (500g) of water.",
+            "generated": "### Dilution Instructions for Hydroponic Treasure\n\nTo dilute **Hydroponic Treasure**, you should mix **1 g of the product with 500 g (1 jin) of water**. This ratio ensures that the nutrients are properly dissolved for optimal absorption by your hydroponic crops.\n\n### Additional Information\n\n- **Target Crops**: This product is suitable for hydroponic vegetables (like lettuce and romaine lettuce), foliage plants (such as pothos and lucky bamboo), and flowering plants (including water lilies and daffodils).\n- **Core Benefits**: It helps prevent nutrient deficiencies, promotes root development, and enhances the quality and yield of your plants.\n\nIf you have any specific symptoms or issues with your crops, feel free to share, and I can provide more tailored advice!\n\n---",
+            "relevant_product_id": "AF0027",
+            "refused": false,
+            "similarity": 0.47686609625816345,
+            "agricultural_accuracy": 0.3333333333333333,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 1.0,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "What is the dilution ratio for Pyraclostrobin (Kairun)?",
+            "golden": "10g mixed with 30 jin of water.",
+            "generated": "### Dilution Ratio for Pyraclostrobin (Kairun)\n\nThe dilution ratio for **Pyraclostrobin (Kairun)** is **10 grams mixed with 30 jin of water**. \n\nIf you have any further questions about application or safety, feel free to ask!\n\n---",
+            "relevant_product_id": "PN0002",
+            "refused": false,
+            "similarity": 0.5754730105400085,
+            "agricultural_accuracy": 0.5,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.8,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "How do I dilute 5% Imidacloprid?",
+            "golden": "30g mixed with 30 jin of water.",
+            "generated": "### How to Dilute 5% Imidacloprid\n\nTo dilute **5% Imidacloprid**, you should mix **30 grams** of the product with **30 jin** (approximately 15 kg) of water. This mixture is intended for effective application against target pests, particularly rice planthoppers.\n\n### Application Tips\n- **Dosage**: For rice, apply **12-24 g/acre** of the diluted solution.\n- **Timing**: It's best to apply during the initial peak of rice planthopper infestation.\n- **Conditions**: Avoid application on windy days or if rain is expected within one hour.\n\nIf you have any specific symptoms or issues with your crop, feel free to share, and I can provide more tailored advice!\n\n---",
+            "relevant_product_id": "PN0024",
+            "refused": false,
+            "similarity": 0.4487268328666687,
+            "agricultural_accuracy": 0.5,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.8,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "What is the dilution ratio for 10% Imidacloprid?",
+            "golden": "10g mixed with 30 jin of water.",
+            "generated": "### Dilution Ratio for 10% Imidacloprid\n\nThe dilution ratio for 10% Imidacloprid is not explicitly stated in the catalog. However, it is recommended to use **30-45 kg of water per acre** when applying the pesticide. Make sure to fully dissolve the pesticide before spraying evenly.\n\n### Application Guidance\n\n- **Crops**: Effective for Rice (targeting Planthopper) and Wheat (targeting Aphid).\n- **Dosage**: Apply **10-20 g/acre**.\n- **Application Method**: Spray evenly at the initial stage of pest infestation.\n\n### Safety Precautions\n\n- Wear protective clothing and gloves during application.\n- Avoid application on windy days or if rain is expected within one hour.\n- Do not eat or drink during application, and wash hands and change clothes promptly afterward.\n\nIf you have any further questions or need assistance with application timing or safety, feel free to ask!\n\n---",
+            "relevant_product_id": "PN0025",
+            "refused": false,
+            "similarity": 0.38080233335494995,
+            "agricultural_accuracy": 0.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.4444444444444444,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 0.9,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 0.9,
+                "context_precision": 1.0,
+                "context_recall": 0.9,
+                "correctness": 0.9,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "How do I dilute 24% Bifenazate (Happy Citrus Garden)?",
+            "golden": "15g mixed with 40 jin of water.",
+            "generated": "### Dilution Instructions for 24% Bifenazate (Happy Citrus Garden)\n\nTo dilute **24% Bifenazate (Happy Citrus Garden)** for use on citrus trees against spider mites, follow these steps:\n\n1. **Dilution Rate**: Dilute **1000-1500 times**.\n2. **Mixing**: For example, if you are using 15 grams of the product, mix it with **40 jin of water** (approximately 20 kg or 44 lbs).\n\n### Application Tips\n\n- **Timing**: Apply at the initial stage of spider mite infestation.\n- **Method**: Spray evenly and thoroughly, especially on the undersides of leaves.\n- **Weather Conditions**: Avoid application on windy days or if rain is expected within one hour.\n- **Safety Interval**: The safe interval for using this product on citrus trees is **21 days**, with a maximum of **one application per season**.\n\nIf you have any further questions or need assistance with your crop, feel free to ask!\n\n---",
+            "relevant_product_id": "PN0013",
+            "refused": false,
+            "similarity": 0.24260948598384857,
+            "agricultural_accuracy": 0.5,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.5714285714285714,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "Does Plant Revival Liquid need to be diluted?",
+            "golden": "No. It is used directly without dilution.",
+            "generated": "### Does Plant Revival Liquid Need to Be Diluted?\n\nNo, **Plant Revival Liquid** does not need to be diluted. It is designed to be used **dilution-free**, meaning you can spray it directly onto the plants without mixing it with water.\n\n### Application Instructions\n\n- **Shake well before use.**\n- **Spray directly onto the leaves** until the leaf surface is completely wet, avoiding the flowers.\n- **Frequency:** Spray once every 7-10 days.\n\nIf you have any specific symptoms or issues with your plants, feel free to share, and I can provide more tailored advice!\n\n---",
+            "relevant_product_id": "AF0034",
+            "refused": false,
+            "similarity": 0.4984411597251892,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.5714285714285714,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "What is the dilution for Onion-Ginger-Garlic Bacteria Clear?",
+            "golden": "1g mixed with 1 jin (500g) of water (1000x).",
+            "generated": "### Dilution for Onion-Ginger-Garlic Bacteria Clear\n\nTo dilute **Onion-Ginger-Garlic Bacteria Clear**, you should mix **1 g of the product with 500 g (1 jin) of water**. This solution should then be diluted **1000 times** during the crop's growing season before spraying it evenly on the leaves.\n\nIf you have any specific symptoms or issues with your crop, feel free to share, and I can help you further!\n\n---",
+            "relevant_product_id": "AF0002",
+            "refused": false,
+            "similarity": 0.3502843976020813,
+            "agricultural_accuracy": 0.3333333333333333,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.4444444444444444,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "How much water does one 500g bottle of Spider No.1 cover?",
+            "golden": "About 400-500kg of water (supports one mu of spraying).",
+            "generated": "### Water Coverage for Spider Mite Killer No.1\n\nOne **500g bottle** of **Spider Mite Killer No.1** is approximately equivalent to **400-500kg of water** when diluted. \n\nIf you have any further questions about application or need assistance with your crops, feel free to ask!\n\n---",
+            "relevant_product_id": "AF0039",
+            "refused": false,
+            "similarity": 0.6249889731407166,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.4444444444444444,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "How is 29% Bisultap applied?",
+            "golden": "Spray. Mix with 30-60kg water per mu and spray evenly.",
+            "generated": "### Application of 29% Bisultap\n\nTo apply **29% Bisultap**, follow these guidelines:\n\n- **Target Crops**: It is effective on rice and sugarcane, specifically targeting the rice stem borer and sugarcane stem borer.\n- **Dosage**: Use **155-185 ml per acre**.\n- **Application Method**: Apply using a **spray** method.\n\n### Mixing Instructions\n\nFor mixing, you can prepare the solution by mixing **30 grams of 29% Bisultap with 30 jin of water**. \n\n### Safety Precautions\n\n- Store the product in a **dry, cool, ventilated, and rainproof place**, away from heat sources and out of reach of children and animals.\n- Avoid storing or transporting it with food, beverages, grains, or animal feed.\n\nIf you have any specific symptoms or issues with your crops, feel free to share, and I can provide more tailored advice!\n\n---",
+            "relevant_product_id": "PN0005",
+            "refused": false,
+            "similarity": 0.4083855450153351,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.4,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "How is 24% Clethodim applied?",
+            "golden": "Stem-and-leaf spray, 30-40kg water per mu, applied once.",
+            "generated": "### Application of 24% Clethodim\n\nTo apply **24% Clethodim**, follow these steps:\n\n1. **Target Crop**: Use it in **spring soybean fields** to control **annual grass weeds**.\n2. **Dosage**: Apply **20-30 ml per acre**.\n3. **Dilution**: Dilute the herbicide in **30-40 kg of water per acre**.\n4. **Application Method**: Use a **foliar spray** when the grass weeds are at the **2-5 leaf stage** after emergence.\n5. **Timing**: Ensure that you do not apply on windy days or if rain is expected within one hour.\n6. **Frequency**: You can apply it **once per crop season**.\n\n### Safety Precautions\n\n- Avoid contact with skin and eyes, as the product is irritating.\n- Prevent water contamination and avoid inhaling the mist.\n- Do not apply or harvest near drinking water sources.\n\nIf you have any specific symptoms or issues with your crop, feel free to share, and I can provide more tailored advice!\n\n---",
+            "relevant_product_id": "PN0015",
+            "refused": false,
+            "similarity": 0.5835162401199341,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.4444444444444444,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "How is Citrus Bacteria Clear applied?",
+            "golden": "Dilute 1000x and spray evenly on the leaf surface during the growth period.",
+            "generated": "### Application of Citrus Bacteria Clear\n\n**Citrus Bacteria Clear** is applied by diluting the solution **1000 times** during the crop's growing season. Here’s how to apply it:\n\n1. **Dilution**: Mix the product with water at a ratio of 1:1000.\n2. **Spraying**: Spray the diluted solution evenly on the leaves of the citrus plants.\n3. **Adjustment**: You can adjust the dosage and frequency of application based on local crop growth conditions and fertilization habits.\n\n### Product Benefits\n\nThis product helps in:\n- Balancing nutrition and regulating crop growth.\n- Promoting root development and robust plant growth.\n- Increasing soil organic matter and improving nutrient absorption.\n- Reducing the incidence of fungal and bacterial diseases, while enhancing plant immunity against viral diseases.\n\nIf you have specific symptoms or issues with your citrus crop, please share, and I can provide more tailored advice!\n\n---",
+            "relevant_product_id": "AF0001",
+            "refused": false,
+            "similarity": 0.5320828557014465,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.5,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "How is Plant Revival Liquid applied?",
+            "golden": "Shake, spray directly on leaves until wet, once every 7-10 days; avoid midday heat and flowers.",
+            "generated": "### Application of Plant Revival Liquid\n\n**Plant Revival Liquid** is applied directly to the leaves of your plants. Here’s how to use it effectively:\n\n1. **Shake well before use.** There is no need to dilute the product; it can be sprayed directly.\n2. **Spray directly onto the leaves** until the leaf surface is completely wet. Be careful to avoid spraying the flowers.\n3. **Timing:** Apply the product once every 7-10 days. It’s best to avoid spraying during the midday heat to prevent leaf burn.\n\n### Observations on Crop Health\n\nIf you have specific symptoms like wilting, yellowing leaves, or stunted growth, **Plant Revival Liquid** can help. It rapidly penetrates the plant's roots and stems, activating damaged cells and promoting recovery.\n\nIf you have any further questions or need assistance with specific symptoms, feel free to ask!\n\n---",
+            "relevant_product_id": "AF0034",
+            "refused": false,
+            "similarity": 0.5873327255249023,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.5714285714285714,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "How many times per season can 24% Clethodim be used?",
+            "golden": "At most once per season.",
+            "generated": "### Application Frequency for 24% Clethodim\n\nYou can use **24% Clethodim** a **maximum of once per crop season** in your spring soybean fields. \n\nIf you have any further questions about application or need assistance with other products, feel free to ask!\n\n---",
+            "relevant_product_id": "PN0015",
+            "refused": false,
+            "similarity": 0.32625117897987366,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.4444444444444444,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "How many times per season can 50% Benazolin be used?",
+            "golden": "At most once per season.",
+            "generated": "### Application Frequency for 50% Benazolin\n\nYou can use **50% Benazolin** a maximum of **once per crop season** for rapeseed fields. \n\nIf you have any specific concerns about your crop or need further assistance with application timing or methods, feel free to ask!\n\n---",
+            "relevant_product_id": "PN0016",
+            "refused": false,
+            "similarity": 0.2902788519859314,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.5,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "How many times per season can 10% Imidacloprid be used?",
+            "golden": "At most 3 times per season.",
+            "generated": "### Application Frequency for 10% Imidacloprid\n\nYou can use **10% Imidacloprid** a maximum of **3 times per season**, with a **safety interval of 14 days** between applications. \n\nIf you have any specific concerns about your crop or need guidance on application methods, feel free to ask!\n\n---",
+            "relevant_product_id": "PN0025",
+            "refused": false,
+            "similarity": 0.32247135043144226,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 0.5,
+                "recall_at_k": 0.2222222222222222,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 0.6366824387328317
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "How many times can 50% Carbendazim be used per season?",
+            "golden": "At most 3 times per season.",
+            "generated": "You can use **50% Carbendazim WP** a maximum of **3 times per season**. \n\nIf you have any specific concerns about your crop or need guidance on application, feel free to ask!\n\n---",
+            "relevant_product_id": "PN0042",
+            "refused": false,
+            "similarity": 0.36351174116134644,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.6666666666666666,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "Which crops is 29% Bisultap registered for?",
+            "golden": "Rice, cruciferous vegetables (cabbage, Chinese cabbage), sugarcane, tea, corn.",
+            "generated": "### Registered Crops for 29% Bisultap\n\n29% Bisultap is registered for the following crops:\n\n- **Rice**\n- **Cruciferous vegetables** (such as cabbage and Chinese cabbage)\n- **Sugarcane**\n- **Tea**\n- **Corn**\n\nIf you have any specific concerns about your crops or need guidance on application, feel free to ask!\n\n---",
+            "relevant_product_id": "PN0005",
+            "refused": false,
+            "similarity": 0.4366611838340759,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.4,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "What pest does 45% Bifenazate + Etoxazole target on citrus?",
+            "golden": "Red spider mite.",
+            "generated": "### Target Pest for Citrus\n\nThe **45% Bifenazate + Etoxazole** product targets **red spider mites** on citrus trees. \n\n### Application Details\n\n- **Dosage**: Use a dilution of **8000-12000 times**.\n- **Application Method**: Apply by **spraying**.\n\nThis product effectively controls red spider mites throughout their life cycle, including eggs, larvae, nymphs, and adults. If you have any specific symptoms or concerns about your crop, feel free to share!\n\n---",
+            "relevant_product_id": "PN0014",
+            "refused": false,
+            "similarity": 0.4845987558364868,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.6666666666666666,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "What does Spider Mite Killer No.1 control?",
+            "golden": "Red, yellow and white spider mites and mites on fruit trees and vegetables.",
+            "generated": "### What Does Spider Mite Killer No.1 Control?\n\n**Spider Mite Killer No.1** is effective against a variety of pests, particularly:\n\n- **Spider Mites**: Red, yellow, and white spider mites\n- **Aphids**: Cabbage aphids, vegetable aphids, cotton aphids\n- **Thrips**: Melon thrips, onion thrips\n- **Other Pests**: Citrus spider mites, strawberry spider mites, cotton spider mites, wheat spider mites, rice stem leafminers, whiteflies, pear psyllids, and leafhoppers\n\nThis product is designed to enhance the efficacy of other pesticides when used in conjunction, making it particularly useful for controlling resistant pest populations.\n\n### Application Instructions\n\nTo use **Spider Mite Killer No.1**, mix **50 grams** of the product with **30 jin** of water. This mixture can be applied to target crops such as fruit trees and vegetables.\n\nIf you have specific symptoms or a photo of your crop, feel free to share, and I can provide more tailored advice!\n\n---",
+            "relevant_product_id": "AF0039",
+            "refused": false,
+            "similarity": 0.6743881702423096,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.4444444444444444,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "What pest does Thrips No.1 control?",
+            "golden": "Thrips, on fruit trees and vegetables.",
+            "generated": "### Pest Control with Thrips No.1\n\n**Thrips No.1 (Jima 1 Hao)** is specifically designed to control **rice planthoppers, melon thrips, and thrips eggs**. It is effective against highly resistant and stubborn thrips, making it a suitable choice for your pest problem.\n\n### Application Instructions\n\n- **Dilution**: Dilute **800-1000 times** before use. For example, one capful is approximately equivalent to one spray bottle of water, and one 500g bottle can treat approximately **400-500kg of water**.\n- **Usage**: This product is an agricultural adjuvant and should be used in conjunction with insecticides for optimal results.\n\n### Safety and Storage\n\n- Store in a sealed container in a well-ventilated, dry place out of reach of children.\n- This product leaves no residue, making it suitable for use on green and pollution-free crops.\n\nIf you have any specific symptoms or severity details from your crop photo, please share, and I can provide more tailored advice!\n\n---",
+            "relevant_product_id": "AF0064",
+            "refused": false,
+            "similarity": 0.5473892688751221,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.5714285714285714,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "Which weeds does 24% Clethodim control?",
+            "golden": "Annual grass-family weeds (e.g. barnyard grass, crabgrass).",
+            "generated": "### Weeds Controlled by 24% Clethodim\n\nThe **24% Clethodim** herbicide is effective against a variety of grassy weeds, including:\n\n- **Annual Grassy Weeds**: \n  - Barnyard grass\n  - Wild oats\n  - Crabgrass\n  - Foxtail grass\n  - Goosegrass\n\n- **Perennial Grassy Weeds**: \n  - Bermudagrass\n  - Reeds\n  - False sorghum\n  - Cogongrass\n\nThis product is particularly suitable for use in **spring soybean fields** targeting annual grass weeds. \n\nIf you have any specific symptoms or observations about your crop, feel free to share, and I can provide more tailored advice!\n\n---",
+            "relevant_product_id": "PN0015",
+            "refused": false,
+            "similarity": 0.6666214466094971,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.4444444444444444,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "Which weeds does 50% Benazolin control?",
+            "golden": "Annual broadleaf weeds in rapeseed fields.",
+            "generated": "### Weeds Controlled by 50% Benazolin\n\n50% Benazolin is effective against **annual broadleaf weeds**, including:\n- Cleavers\n- Chickweed\n- Cowherb\n- Shepherd's purse\n\n### Application Guidance\n\nFor optimal results, apply 50% Benazolin in **rapeseed fields** at the **3-5 leaf stage** of direct-seeded rapeseed. Be cautious as the crop is sensitive to this herbicide before the **10-leaf stage**. \n\nIf you have any specific symptoms or observations from your crop photo, please share, and I can provide more tailored advice!\n\n---",
+            "relevant_product_id": "PN0016",
+            "refused": false,
+            "similarity": 0.5980099439620972,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.5,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "Can 50% Benazolin be used on mustard-type rapeseed?",
+            "golden": "Use with caution; it is registered for cabbage-type winter rapeseed.",
+            "generated": "### Can 50% Benazolin be used on mustard-type rapeseed?\n\nNo, **50% Benazolin** should be used with caution on mustard-type rapeseed. The product is specifically designed for rapeseed fields, but it is noted that direct-seeded rapeseed is sensitive to this herbicide before the 10-leaf stage, and mustard-type rapeseed may also be affected. \n\n### Application Guidelines\n\n- **Target Crop**: Primarily for Brassica napus winter rapeseed.\n- **Dosage**: 30-40 ml/acre as a foliar spray.\n- **Timing**: Apply before winter when temperatures are high or during the rapeseed greening stage after winter when temperatures rise.\n- **Caution**: Do not apply on windy days or if rain is expected within 4 hours.\n\nIf you have any further questions or need assistance with application, feel free to ask!\n\n---",
+            "relevant_product_id": "PN0016",
+            "refused": false,
+            "similarity": 0.4769318103790283,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.5,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "What pest does 5% Imidacloprid control on rice?",
+            "golden": "Planthopper (rice flea/飞虱).",
+            "generated": "### Pest Control on Rice\n\nThe **5% Imidacloprid** is effective against **planthoppers** on rice. This systemic insecticide works by targeting the nervous system of the pests, leading to paralysis and death.\n\n### Application Instructions\n\n- **Dosage**: Use **12-24 g/acre**.\n- **Dilution**: Mix with **30-50 kg of water**.\n- **Method**: Apply as a **spray** during the initial peak of the rice planthopper infestation.\n- **Timing**: Avoid application on windy days or if rain is expected within one hour.\n\nIf you have any specific symptoms or observations from your crop, feel free to share, and I can provide more tailored advice!\n\n---",
+            "relevant_product_id": "PN0024",
+            "refused": false,
+            "similarity": 0.5740190744400024,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.8,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "What is the active ingredient of Pyraclostrobin (Kairun)?",
+            "golden": "Pyraclostrobin 250 g/L.",
+            "generated": "The active ingredient of **Pyraclostrobin (Kairun)** is **Pyraclostrobin 250 g/L**. \n\nIf you have any specific questions about how to use this product or its application, feel free to ask!\n\n---",
+            "relevant_product_id": "PN0002",
+            "refused": false,
+            "similarity": 0.7000524997711182,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.8,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "What is the active ingredient of 29% Bisultap?",
+            "golden": "Bisultap 29%.",
+            "generated": "The active ingredient of **29% Bisultap** is **Insecticidal 29%**. This product is a nereistoxin-based insecticide that acts on the central nervous system of insects, leading to their death. \n\nIf you have any further questions about its use or application, feel free to ask!\n\n---",
+            "relevant_product_id": "PN0005",
+            "refused": false,
+            "similarity": 0.6509960293769836,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.4,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "What are the active ingredients of 45% Bifenazate + Etoxazole?",
+            "golden": "Bifenazate 30% + Etoxazole 15% (total 45%).",
+            "generated": "### Active Ingredients of 45% Bifenazate + Etoxazole\n\nThe active ingredients in **45% Bifenazate + Etoxazole** are:\n- **Bifenazate**: 30%\n- **Etoxazole**: 15%\n\nThis formulation combines these two active ingredients to effectively control various mite populations throughout their life cycle. If you have any specific concerns about your crops or need guidance on application, feel free to ask!\n\n---",
+            "relevant_product_id": "PN0014",
+            "refused": false,
+            "similarity": 0.7180445790290833,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.6666666666666666,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "What is the per-mu dose of 29% Bisultap on rice?",
+            "golden": "155-185 ml per mu.",
+            "generated": "### Per-Mu Dose of 29% Bisultap on Rice\n\nThe per-mu dose of **29% Bisultap** for rice is **155-185 ml/acre**. Since 1 acre is approximately 15 mu, the per-mu dosage would be about **10.3 to 12.3 ml/mu**.\n\n### Application Instructions\n\n- **Dilution**: Mix with **30-60 kg of water per acre**.\n- **Application Method**: Spray evenly during the peak hatching period of rice stem borer eggs to the early borer stage.\n- **Safety Interval**: The safe interval for rice is **15 days**, with a maximum of **3 applications per season**.\n\nIf you have any specific symptoms or issues with your crop, feel free to share, and I can provide more tailored advice!\n\n---",
+            "relevant_product_id": "PN0005",
+            "refused": false,
+            "similarity": 0.4005298614501953,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.4,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "What is the per-mu dose of 24% Clethodim in spring soybean field?",
+            "golden": "20-30 ml per mu.",
+            "generated": "### Per-Mu Dose of 24% Clethodim in Spring Soybean Field\n\nThe per-mu (1/15 hectare) dose of 24% Clethodim for spring soybean fields is **1.33 to 2 ml**. This is based on the recommended dosage of **20-30 ml per acre**. \n\n### Application Details\n\n- **Dilution**: Dilute with **30-40 kg of water per acre**.\n- **Application Method**: Apply as a **foliar spray** when annual grass weeds are at the **2-5 leaf stage**.\n\nIf you have any further questions or need assistance with application timing or safety precautions, feel free to ask!\n\n---",
+            "relevant_product_id": "PN0015",
+            "refused": false,
+            "similarity": 0.5140961408615112,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.4444444444444444,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 0.8,
+                "answer_relevancy": 1.0,
+                "completeness_question": 0.8,
+                "completeness_context": 0.9,
+                "context_precision": 1.0,
+                "context_recall": 0.9,
+                "correctness": 0.4,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "What is the per-mu dose of 50% Benazolin in rapeseed field?",
+            "golden": "30-40 ml per mu.",
+            "generated": "### Per-Mu Dose of 50% Benazolin in Rapeseed Field\n\nThe per-mu dose of **50% Benazolin** for rapeseed fields is **30-40 ml/acre**. \n\nTo convert this to per-mu (1 mu = 0.0667 acres), the dosage would be approximately **2-3 ml/mu**. \n\n### Application Guidelines\n\n- **Application Method**: Foliar Spray\n- **Timing**: Apply at the 3-5 leaf stage of direct-seeded rapeseed, preferably before winter when temperatures are high or during the rapeseed greening stage after winter when temperatures rise.\n- **Caution**: Do not apply on windy days or if rain is expected within 4 hours. \n\nIf you have any further questions or need assistance with application, feel free to ask!\n\n---",
+            "relevant_product_id": "PN0016",
+            "refused": false,
+            "similarity": 0.5021324157714844,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.5,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "What is the per-mu dose of 5% Imidacloprid on rice?",
+            "golden": "12-24 g per mu.",
+            "generated": "### Per-Mu Dose of 5% Imidacloprid on Rice\n\nThe per-mu dose of **5% Imidacloprid** for rice is **12-24 grams per acre**. Since 1 acre is approximately 15 mu, the per-mu dosage would be:\n\n- **0.8 to 1.6 grams per mu**.\n\n### Application Instructions\n\n- **Dilution**: Mix with **30-50 kg of water**.\n- **Application Method**: Spray evenly during the initial peak of rice planthopper infestation.\n- **Timing**: Avoid application on windy days or if rain is expected within one hour.\n\nIf you have any further questions or need assistance with application, feel free to ask!\n\n---",
+            "relevant_product_id": "PN0024",
+            "refused": false,
+            "similarity": 0.4280701279640198,
+            "agricultural_accuracy": 0.0,
+            "retrieval": {
+                "precision_at_k": 0.75,
+                "recall_at_k": 0.6,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 0.8318724637288826
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "What is the per-mu dose of 50% Carbendazim on wheat head blight?",
+            "golden": "100-150 g per mu.",
+            "generated": "### Per-Mu Dose of 50% Carbendazim on Wheat Head Blight\n\nThe recommended dosage of **50% Carbendazim WP** for controlling **Fusarium Head Blight** in wheat is **100-150 g/acre**. Since 1 acre is approximately 15 mu, the per-mu dose would be:\n\n- **6.67 - 10 g/mu** (100-150 g/acre divided by 15 mu).\n\n### Application Instructions\n\n- **Timing**: Apply at the early flowering stage.\n- **Dilution**: Dilute with approximately **30 kg of water** and spray evenly.\n\n### Safety Precautions\n\n- Avoid contact with skin and eyes during application.\n- Clean spraying equipment promptly after use.\n- Pregnant and breastfeeding women should not come into contact with this product.\n\nIf you have any further questions or need assistance with application, feel free to ask!\n\n---",
+            "relevant_product_id": "PN0042",
+            "refused": false,
+            "similarity": 0.3279271721839905,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.6666666666666666,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "What is the safety interval of 24% Bifenazate on citrus?",
+            "golden": "21 days; maximum 1 application per season.",
+            "generated": "### Safety Interval for 24% Bifenazate on Citrus\n\nThe **safe interval** for using **24% Bifenazate (Happy Citrus Garden)** on citrus trees is **21 days**. This means you should wait at least 21 days between applications to ensure safety for the crop.\n\nIf you have any further questions about application or need assistance with pest management, feel free to ask!\n\n---",
+            "relevant_product_id": "PN0013",
+            "refused": false,
+            "similarity": 0.4343279004096985,
+            "agricultural_accuracy": 0.5,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.5714285714285714,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "What is the safety interval of 10% Imidacloprid?",
+            "golden": "14 days.",
+            "generated": "### Safety Interval for 10% Imidacloprid\n\nThe safety interval for **10% Imidacloprid** is **14 days**. This means you should wait at least 14 days between applications of this product. \n\nIf you have any further questions about its application or need assistance with pest management, feel free to ask!\n\n---",
+            "relevant_product_id": "PN0025",
+            "refused": false,
+            "similarity": 0.38537800312042236,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.4444444444444444,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "When should pesticide spraying be avoided?",
+            "golden": "On windy days or when rain is expected within 1 hour.",
+            "generated": "### When to Avoid Pesticide Spraying\n\nPesticide spraying should be avoided under the following conditions:\n\n1. **Strong Winds**: If there are strong winds, it can lead to pesticide drift, affecting non-target areas.\n2. **Heavy Rain**: Avoid spraying if heavy rain is expected, as it can wash away the pesticide and reduce its effectiveness.\n3. **Waterlogging**: If the area is waterlogged, it can affect the quality of the spray application.\n\nFor specific products from the catalog:\n\n- **10% Glufosinate-P Ammonium**: Stop spraying if strong winds, heavy rain, or waterlogging occur during application.\n- **14-Hydroxylated Brassinosteroid**: Do not apply on windy days or when rain is expected within one hour.\n\nIf you have any symptoms or issues with your crop that you would like to discuss, please share more details!\n\n---",
+            "relevant_product_id": "PN0024",
+            "refused": false,
+            "similarity": 0.3868863582611084,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 0.0,
+                "recall_at_k": 0.0,
+                "hit_rate": 0.0,
+                "ndcg_at_k": 0.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "What should you do if 24% Bifenazate contacts the skin?",
+            "golden": "Remove contaminated clothing, wipe off the agent, and rinse with plenty of water and soap.",
+            "generated": "### What to Do if 24% Bifenazate Contacts the Skin\n\nIf 24% Bifenazate (Happy Citrus Garden) comes into contact with your skin, follow these steps:\n\n1. **Remove Contaminated Clothing**: Take off any clothing that has been in contact with the pesticide.\n2. **Wipe Off Residue**: Use a soft cloth to wipe off the pesticide from your skin.\n3. **Wash Thoroughly**: Immediately wash the affected area with plenty of water and soap.\n\nIf you feel unwell after exposure, stop working immediately, take first aid measures, and bring the pesticide label to a hospital for treatment.\n\n### Additional Notes\n\nIf you have any symptoms or concerns about your crop, feel free to share more details or a photo for further assistance!\n\n---",
+            "relevant_product_id": "PN0013",
+            "refused": false,
+            "similarity": 0.6132627725601196,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 0.75,
+                "recall_at_k": 0.42857142857142855,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 0.8048099750039491
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "What is the package size of 24% Clethodim?",
+            "golden": "20 ml.",
+            "generated": "### Package Size of 24% Clethodim\n\nThe package size of **24% Clethodim** is **20 ml**. \n\nIf you have any further questions about its use or application, feel free to ask!\n\n---",
+            "relevant_product_id": "PN0015",
+            "refused": false,
+            "similarity": 0.5607171058654785,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.4444444444444444,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "What is the package size of 50% Benazolin?",
+            "golden": "12 g.",
+            "generated": "The package size of **50% Benazolin** is **12 grams**. \n\nIf you have any further questions about its use or application, feel free to ask!\n\n---",
+            "relevant_product_id": "PN0016",
+            "refused": false,
+            "similarity": 0.34099963307380676,
+            "agricultural_accuracy": 0.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.5,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "What is the active-ingredient concentration of Pyraclostrobin (Kairun)?",
+            "golden": "250 g/L pyraclostrobin.",
+            "generated": "### Active Ingredient Concentration\n\nThe active ingredient concentration of **Pyraclostrobin (Kairun)** is **250 g/L**. \n\nIf you have any further questions about its use or application, feel free to ask!\n\n---",
+            "relevant_product_id": "PN0002",
+            "refused": false,
+            "similarity": 0.6774653196334839,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.8,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "What is the main ingredient of Spider Mite Killer No.1?",
+            "golden": "Herbal (Chinese medicinal) plant extract.",
+            "generated": "The main ingredient of **Spider Mite Killer No.1** is extracts of traditional Chinese medicine. This product is designed to effectively combat various spider mites and other pests by enhancing the efficacy of pesticides when used in combination. \n\nIf you have any specific questions about application or need assistance with a particular crop issue, feel free to ask!\n\n---",
+            "relevant_product_id": "AF0039",
+            "refused": false,
+            "similarity": 0.44766804575920105,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.4444444444444444,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "What is the main ingredient of Thrips No.1?",
+            "golden": "Cinnamaldehyde >=5%.",
+            "generated": "The main ingredient of **Thrips No.1 (Jima 1 Hao)** is **Cinnamaldehyde**, which is present at a concentration of **≥5%**. \n\nIf you have any specific questions about how to use this product or if you need assistance with a particular crop issue, feel free to ask!\n\n---",
+            "relevant_product_id": "AF0064",
+            "refused": false,
+            "similarity": 0.4268219470977783,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.5714285714285714,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "What crops is Pyraclostrobin (Kairun) used on?",
+            "golden": "Wheat, rice, corn, soybean, peanut, fruit trees, vegetables.",
+            "generated": "### Crops for Pyraclostrobin (Kairun)\n\nPyraclostrobin (Kairun) is effective on the following crops:\n\n- **Wheat**\n- **Rice**\n- **Corn**\n- **Soybeans**\n- **Peanuts**\n- **Fruit Trees** (such as apples and citrus fruits)\n- **Vegetables and Fruits** (including cucumbers, tomatoes, cabbage, and scallions)\n\nIf you have any specific symptoms or issues with your crops, feel free to share, and I can help you determine the best course of action!\n\n---",
+            "relevant_product_id": "PN0002",
+            "refused": false,
+            "similarity": 0.4679754972457886,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.8,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "What is the active ingredient of 5% Imidacloprid?",
+            "golden": "Imidacloprid 5%.",
+            "generated": "The active ingredient of **5% Imidacloprid** is **Imidacloprid 5%**. \n\nIf you have any specific concerns about your crops or need guidance on how to use this product, feel free to ask!\n\n---",
+            "relevant_product_id": "PN0024",
+            "refused": false,
+            "similarity": 0.6481018662452698,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 1.0,
+                "recall_at_k": 0.8,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 1.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "What should I spray for red spider mites on citrus?",
+            "golden": "Use **45% Bifenazate + Etoxazole** (or **24% Bifenazate**), 15g mixed with 30 jin of water.",
+            "generated": "To address your issue with red spider mites on citrus trees, I recommend using **18% D-Limonene**. This product is specifically designed to target red spider mites and is suitable for your crop.\n\n### Application Details:\n- **Dilution**: 500-700 times with water.\n- **Dosage**: Apply the diluted solution at a rate of 500-700 times per acre.\n- **Method**: Spray evenly, focusing on the undersides of the leaves.\n\n### Timing and Frequency:\n- Apply at the **initial stage** of the red spider mite infestation.\n- You can use this product **no more than twice per season**, with a **safety interval of 7 days** between applications.\n\n### Safety Precautions:\n- Do not apply on windy days or if rain is expected within one hour.\n- Wear protective clothing, gloves, and a mask during application.\n- Avoid contaminating water sources and keep away from bee colonies, as it is toxic to bees.\n\nMake sure to follow these guidelines for effective and safe use of the product. If you have any further questions or need assistance, feel free to ask!\n\n---",
+            "relevant_product_id": "PN0014",
+            "refused": false,
+            "similarity": 0.21374180912971497,
+            "agricultural_accuracy": 0.0,
+            "retrieval": {
+                "precision_at_k": 0.0,
+                "recall_at_k": 0.0,
+                "hit_rate": 0.0,
+                "ndcg_at_k": 0.0
+            },
+            "judge": {
+                "faithfulness": 0.9,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 0.9,
+                "context_precision": 1.0,
+                "context_recall": 0.9,
+                "correctness": 0.8,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "What should I spray for spider mites on fruit trees and vegetables?",
+            "golden": "Use **Spider Mite Killer No.1**, 50g mixed with 30 jin of water (diluted 800-1000x).",
+            "generated": "### Recommended Product for Spider Mites\n\nFor spider mites on your fruit trees and vegetables, I recommend using **Spider Mite Killer No.1**. This product is specifically designed to target spider mites and is suitable for the crops you mentioned.\n\n### Usage Instructions\n\n1. **Dilution**: Dilute the product **800-1000 times**. For example, one capful is approximately equivalent to one sprayer of water, and one 500g bottle can be mixed with about **400-500kg of water**.\n   \n2. **Application**: \n   - Thoroughly stir the diluted solution to create a foamy layer before foliar spraying.\n   - Ensure that the solution fully contacts both sides of the leaves and fruits for optimal effectiveness.\n\n3. **Mixing with Other Pesticides**: If you are mixing with other pesticides, always stir the water to create foam before spraying to enhance the effect.\n\n### Precautions\n\n- Stir the mixture for several minutes until a foamy layer appears before use.\n- Alternatively, you can use a two-stage dilution method: first dissolve in a small amount of water, then pour into the sprayer, add more water, stir to create foam, and then use.\n\nThis product is effective against red, yellow, and white spider mites, making it a suitable choice for your needs. If you have any further questions or need additional assistance, feel free to ask!\n\n---",
+            "relevant_product_id": "AF0039",
+            "refused": false,
+            "similarity": 0.6958568096160889,
+            "agricultural_accuracy": 0.0,
+            "retrieval": {
+                "precision_at_k": 0.75,
+                "recall_at_k": 0.3333333333333333,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 0.8318724637288826
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "What should I spray for thrips?",
+            "golden": "Use **Thrips No.1**, diluted 800-1000x, sprayed on the leaf surface.",
+            "generated": "To effectively control thrips on your crops, I recommend using **Thrips No.1 (Jima 1 Hao)**. This product is specifically designed for thrips control and is suitable for fruit trees and vegetables.\n\n### Application Instructions:\n1. **Dilution**: Dilute the product **800-1000 times** before use. For example, one capful is approximately equivalent to one spray bottle of water, and one 500g bottle can treat approximately **400-500kg of water**.\n2. **Mixing**: Because this product is highly concentrated, thoroughly stir it with water to create a foamy layer before foliar spraying. This ensures optimal contact with the insects and eggs.\n3. **Coverage**: When spraying, ensure that both sides of the leaves and fruits are thoroughly covered.\n\n### Additional Tips:\n- If you are mixing it with other pesticides, make sure to stir the water to create foam before spraying for enhanced effectiveness.\n\nIf you have any specific symptoms or severity details from your crop photo, please share, and I can provide more tailored advice!\n\n---",
+            "relevant_product_id": "AF0064",
+            "refused": false,
+            "similarity": 0.7593098878860474,
+            "agricultural_accuracy": 1.0,
+            "retrieval": {
+                "precision_at_k": 0.75,
+                "recall_at_k": 0.42857142857142855,
+                "hit_rate": 1.0,
+                "ndcg_at_k": 0.6096199500078984
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "What should I spray for planthoppers on rice?",
+            "golden": "Use **5% Imidacloprid**, 30g mixed with 30 jin of water (12-24 g per mu).",
+            "generated": "To control planthoppers on rice, I recommend using **10% Imidacloprid WP (Bangsaike)**. This product is specifically designed for this purpose and is effective against rice planthoppers.\n\n### Application Details:\n- **Dosage**: 10-15 grams per acre\n- **Application Method**: Spray\n\n### Mixing Instructions:\n- Mix the recommended dosage with water as per your sprayer's requirements.\n\n### Safety:\nThis product has low toxicity, making it safer for use in your crops. Always follow safety guidelines when handling pesticides.\n\nIf you have any specific symptoms or severity of the infestation you'd like to discuss, feel free to share!\n\n---",
+            "relevant_product_id": "PN0024",
+            "refused": false,
+            "similarity": 0.32121771574020386,
+            "agricultural_accuracy": 0.0,
+            "retrieval": {
+                "precision_at_k": 0.0,
+                "recall_at_k": 0.0,
+                "hit_rate": 0.0,
+                "ndcg_at_k": 0.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 0.0,
+                "coherence_tone": 1.0
+            }
+        },
+        {
+            "question": "What should I use for powdery mildew / strawberry powdery mildew?",
+            "golden": "Use **Pyraclostrobin (Kairun)**, 10g mixed with 30 jin of water.",
+            "generated": "### Recommendation for Powdery Mildew on Strawberries\n\nFor controlling powdery mildew, I recommend using **Strawberry Bacteria Clear**. This product is effective against various fungal diseases, including those affecting strawberries.\n\n#### Why It Fits:\n- **Target Crop**: Specifically designed for strawberries.\n- **Core Target Diseases**: Includes control for fungal diseases like gray mold, which is similar to powdery mildew.\n\n#### Usage Instructions:\n1. **Dilution**: Dilute the solution **1000 times** during the crop's growing season.\n2. **Application**: Spray it evenly on the leaves. Adjust the dosage and frequency based on local crop growth conditions and fertilization habits.\n\n### Additional Notes:\n- Ensure thorough coverage of the leaves for optimal results.\n- Monitor the crop regularly to assess the effectiveness and adjust applications as needed.\n\nIf you have any further questions or need assistance with application timing, feel free to ask!\n\n---",
+            "relevant_product_id": "PN0002",
+            "refused": false,
+            "similarity": 0.20734183490276337,
+            "agricultural_accuracy": 0.0,
+            "retrieval": {
+                "precision_at_k": 0.0,
+                "recall_at_k": 0.0,
+                "hit_rate": 0.0,
+                "ndcg_at_k": 0.0
+            },
+            "judge": {
+                "faithfulness": 1.0,
+                "answer_relevancy": 1.0,
+                "completeness_question": 1.0,
+                "completeness_context": 1.0,
+                "context_precision": 1.0,
+                "context_recall": 1.0,
+                "correctness": 1.0,
+                "coherence_tone": 1.0
+            }
+        }
+    ]
+}

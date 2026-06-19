@@ -132,24 +132,22 @@ def create_llm():
 #
 # Returns:
 # Final user-facing answer with source references.
-def generate_answer(
+def generate_answer_with_chunks(
     question: str,
-) -> str:
+):
     """
     Retrieve relevant chunks and
     generate a grounded answer.
+
+    Returns the final answer together with the
+    retrieved chunks, so callers (e.g. evaluation)
+    can inspect what was used as context.
     """
-    
+
     # Retrieve relevant product information
     chunks = retrieve_chunks(
         question
     )
-    
-    # Convert retrieved chunks into prompt context
-    context = format_context(
-        chunks
-    )
-    
 
     if not chunks:
 
@@ -158,13 +156,18 @@ def generate_answer(
             "information in the product catalog.\n\n"
             "Please rephrase your question "
             "or provide more details."
-        )
+        ), chunks
+
+    # Convert retrieved chunks into prompt context
+    context = format_context(
+        chunks
+    )
 
     # Build source references for answer transparency
     sources = format_sources(
         chunks
     )
-    
+
     # Inject context and user question into the Product RAG prompt
     prompt = RAG_PROMPT.format(
         context=context,
@@ -172,7 +175,7 @@ def generate_answer(
     )
 
     llm = create_llm()
-    
+
     # Debug helper:
     # print("\n=== CONTEXT ===\n")
     # print(context)
@@ -181,15 +184,32 @@ def generate_answer(
     response = llm.invoke(
         prompt
     )
-    
+
 
     # Return answer together with retrieval sources
-    return (
+    answer = (
         f"{response.content}\n\n"
         f"---\n\n"
         f"### Sources\n"
         f"{sources}"
     )
+
+    return answer, chunks
+
+
+def generate_answer(
+    question: str,
+) -> str:
+    """
+    Retrieve relevant chunks and
+    generate a grounded answer.
+    """
+
+    answer, _chunks = generate_answer_with_chunks(
+        question
+    )
+
+    return answer
 
 
 # Development Test
