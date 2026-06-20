@@ -167,7 +167,7 @@ def generate_answer(
     chunks = rerank_chunks(
         question,
         candidates,
-        top_k=4,
+        top_k=3,
     )
 
     
@@ -245,7 +245,7 @@ def generate_answer_with_metadata(
     chunks = rerank_chunks(
         question,
         candidates,
-        top_k=4,
+        top_k=3,
     )
 
     context = format_context(

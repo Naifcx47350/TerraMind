@@ -13,6 +13,10 @@ from terramind.rag.product.chunk import (
 from terramind.rag.product.config import (
     CATALOG_PATH,
 )
+from terramind.rag.product.filters import (
+    detect_product_id,
+    detect_product_name,
+)
 from terramind.rag.product.store import load_vector_store
 
 _BM25_CACHE: tuple[BM25Okapi, list[Document]] | None = None
@@ -63,9 +67,14 @@ def reset_bm25_cache() -> None:
 def bm25_retrieve(
     question: str,
     k: int = 4,
+    product_id: str | None = None,
+    product_name: str | None = None,
 ):
     """
-    Retrieve top-k chunks using BM25.
+    Retrieve top-k chunks using BM25, optionally
+    restricted to a single product (same metadata
+    filter dense retrieval applies) so lexical matches
+    can't pull in another product's chunks.
     """
 
     bm25, chunks = (
@@ -80,8 +89,28 @@ def bm25_retrieve(
         query_tokens
     )
 
+    pairs = list(
+        zip(chunks, scores)
+    )
+
+    if product_id:
+
+        pairs = [
+            (chunk, score)
+            for chunk, score in pairs
+            if chunk.metadata.get("product_id") == product_id
+        ]
+
+    elif product_name:
+
+        pairs = [
+            (chunk, score)
+            for chunk, score in pairs
+            if chunk.metadata.get("product_name") == product_name
+        ]
+
     ranked = sorted(
-        zip(chunks, scores),
+        pairs,
         key=lambda x: x[1],
         reverse=True,
     )
@@ -197,6 +226,11 @@ def hybrid_retrieve(
 ):
     """
     Combine Dense Retrieval and BM25 Retrieval.
+
+    Both branches are restricted to the same product
+    (when one is detected in the question) so the BM25
+    branch can't fuse in another product's chunks that
+    the dense branch's metadata filter already excludes.
     """
 
     dense_results = retrieve_chunks(
@@ -205,9 +239,21 @@ def hybrid_retrieve(
         k=k,
     )
 
+    product_id = detect_product_id(
+        question
+    )
+
+    product_name = (
+        None
+        if product_id
+        else detect_product_name(question)
+    )
+
     bm25_results = bm25_retrieve(
         question,
         k=k,
+        product_id=product_id,
+        product_name=product_name,
     )
 
     return rrf_fusion(
