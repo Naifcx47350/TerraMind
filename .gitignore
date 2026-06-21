@@ -1,6 +1,6 @@
 # TerraMind — local/generated paths (see data/README.md for corpus layout)
 
-# === Vector indexes (rebuild with terramind.rag.product.cli / terramind.rag.general.cli) ===
+# === Vector indexes (rebuild with core.rag.product.cli / core.rag.general.cli) ===
 vectorstore/
 
 # === Generated outputs ===
@@ -30,7 +30,7 @@ data/raw/Fine tuning data/
 .cursorignore
 
 # === Docker ===
-# .env is local only (use docker/env.example as template).
+# .env is local only (use .env.example as template).
 # Chroma indexes: vectorstore/ (above) + Compose volume terramind-vectorstore — not committed.
 
 # === Python ===
@@ -43,7 +43,7 @@ __pycache__/
 # === VS Code ===
 .vscode/
 
-# === Node (FrontPage + frontend-react) ===
+# === Node (web + frontend-react) ===
 node_modules/
 dist/
 .vite/

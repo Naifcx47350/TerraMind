@@ -1,5 +1,5 @@
 # =============================================================================
-# Gateway API — FrontPage FastAPI (port 8000)
+# Gateway API — web FastAPI (port 8000)
 # =============================================================================
 # Proxies the React UI to the model API. Needs repo root on PYTHONPATH for vision/RAG helpers.
 
@@ -19,15 +19,15 @@ RUN pip install --no-cache-dir --upgrade pip \
         "torch>=2.0,<3" \
     && pip install --no-cache-dir -r requirements.txt
 
-COPY terramind/ terramind/
-COPY FrontPage/ FrontPage/
+COPY core/ core/
+COPY web/ web/
 
 ENV PYTHONUNBUFFERED=1
 # Compose overrides this; default matches local dev
 ENV RAG_SERVICE_URL=http://model-api:8001/query
 ENV USE_MOCK=false
 
-WORKDIR /app/FrontPage
+WORKDIR /app/web
 
 EXPOSE 8000
 

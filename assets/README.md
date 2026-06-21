@@ -28,15 +28,15 @@ After adding or renaming PNGs, restart the Vite dev server (or run `npm run buil
 | Goal | Edit |
 |------|------|
 | Replace dark/light wallpaper | Drop PNG in `assets/backgrounds/{appearance}/` with names above |
-| Default decor slot / rotation / position (per theme) | `FrontPage/frontend-react/src/theme/decorDefaults/{appearance}.js` |
-| Text colors (dark/light palettes) | `FrontPage/frontend-react/src/theme/{appearance}.js` or `classic.js` (Field uses classic tokens) |
-| Ambient gradients, glass CSS, sidebar width | `FrontPage/frontend-react/src/theme/visuals.js` |
-| Which wallpaper loads | `FrontPage/frontend-react/src/theme/backgroundAssets.js` → `resolveThemeBackground()` |
-| Advanced slider labels / i18n | `FrontPage/frontend-react/src/i18n/strings.js` |
+| Default decor slot / rotation / position (per theme) | `web/frontend-react/src/theme/decorDefaults/{appearance}.js` |
+| Text colors (dark/light palettes) | `web/frontend-react/src/theme/{appearance}.js` or `classic.js` (Field uses classic tokens) |
+| Ambient gradients, glass CSS, sidebar width | `web/frontend-react/src/theme/visuals.js` |
+| Which wallpaper loads | `web/frontend-react/src/theme/backgroundAssets.js` → `resolveThemeBackground()` |
+| Advanced slider labels / i18n | `web/frontend-react/src/i18n/strings.js` |
 | Per-user decor overrides (saved) | Browser `localStorage` key `terramind_ui_settings_v2` → `decorTuning.{appearance}` |
-| Theme swatches / appearance list | `FrontPage/frontend-react/src/theme/index.js` → `APPEARANCE_OPTIONS` |
-| Welcome card copy | `FrontPage/frontend-react/src/i18n/strings.js` |
-| Sidebar width constant | `FrontPage/frontend-react/src/App.jsx` → `SIDEBAR_WIDTH` |
+| Theme swatches / appearance list | `web/frontend-react/src/theme/index.js` → `APPEARANCE_OPTIONS` |
+| Welcome card copy | `web/frontend-react/src/i18n/strings.js` |
+| Sidebar width constant | `web/frontend-react/src/App.jsx` → `SIDEBAR_WIDTH` |
 
 Full UI customization index: [../docs/UI_CUSTOMIZATION.md](../docs/UI_CUSTOMIZATION.md)
 
