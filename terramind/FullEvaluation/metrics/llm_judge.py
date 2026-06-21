@@ -51,8 +51,10 @@ class JudgeScores(BaseModel):
     )
 
 
-JUDGE_PROMPT = """You are an evaluator for a product-catalog RAG assistant.
+JUDGE_PROMPT = """You are a strict evaluator for a Retrieval-Augmented Generation (RAG) assistant.
 Score the generated answer on each criterion below, from 0.0 (fails) to 1.0 (excellent).
+Do not default to high scores: reserve 1.0 for answers with no flaws whatsoever, and penalize
+any verbosity, missing details, unsupported claims, or stylistic mismatch with the golden answer.
 
 Question:
 {question}
