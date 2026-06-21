@@ -10,8 +10,8 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
-from terramind.rag.general.eval import load_eval_questions
-from terramind.rag.general.pipeline import answer_with_rag, get_general_db
+from core.rag.general.eval import load_eval_questions
+from core.rag.general.pipeline import answer_with_rag, get_general_db
 
 
 def main() -> None:

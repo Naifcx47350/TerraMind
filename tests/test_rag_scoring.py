@@ -1,8 +1,8 @@
-"""Tests for terramind.rag.scoring."""
+"""Tests for core.rag.scoring."""
 
 from langchain_core.documents import Document
 
-from terramind.rag.scoring import (
+from core.rag.scoring import (
     aggregate_retrieval_score,
     confidence_from_retrieval,
     distance_to_relevance,

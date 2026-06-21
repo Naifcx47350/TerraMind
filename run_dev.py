@@ -7,7 +7,7 @@ Usage (from <repo-root>):
 
 Opens:
     - Model API  http://localhost:8001
-    - FrontPage  http://localhost:8000
+    - web  http://localhost:8000
     - React UI   http://localhost:3000
 
 Press Ctrl+C to stop all services.
@@ -23,8 +23,8 @@ import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-FRONTPAGE = ROOT / "FrontPage"
-FRONTEND = FRONTPAGE / "frontend-react"
+WEB = ROOT / "web"
+FRONTEND = WEB / "frontend-react"
 
 PROCS: list[subprocess.Popen] = []
 
@@ -87,7 +87,7 @@ def main() -> int:
                     sys.executable,
                     "-m",
                     "uvicorn",
-                    "terramind.api.app:app",
+                    "core.api.app:app",
                     "--reload",
                     "--port",
                     "8001",
@@ -106,21 +106,21 @@ def main() -> int:
                     "--port",
                     "8000",
                 ],
-                FRONTPAGE,
+                WEB,
             )
         )
         PROCS.append(_spawn(_npm_cmd(), FRONTEND, shell=sys.platform == "win32"))
 
-        print("[run_dev] Model API  → http://localhost:8001  (terramind.api.app)")
-        print("[run_dev] FrontPage  → http://localhost:8000  (app.main)")
-        print("[run_dev] React UI   → http://localhost:3000  (npm run dev)")
+        print("[run_dev] Model API  -> http://localhost:8001  (core.api.app)")
+        print("[run_dev] web        -> http://localhost:8000  (app.main)")
+        print("[run_dev] React UI   -> http://localhost:3000  (npm run dev)")
         print("\n[run_dev] Open http://localhost:3000 in your browser.")
         print("[run_dev] Press Ctrl+C to stop all.\n")
 
         while True:
             for i, p in enumerate(PROCS):
                 if p.poll() is not None:
-                    names = ["Model API (8001)", "FrontPage (8000)", "React UI (3000)"]
+                    names = ["Model API (8001)", "web (8000)", "React UI (3000)"]
                     print(f"[run_dev] {names[i]} exited with code {p.returncode}. Stopping others.")
                     _stop_all()
                     return p.returncode or 1
