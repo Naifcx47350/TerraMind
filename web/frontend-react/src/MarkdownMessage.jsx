@@ -13,7 +13,7 @@ export function MarkdownMessage({ content, theme: t, dir = "ltr" }) {
     h1: ({ children }) => (
       <h1
         style={{
-          fontSize: 20,
+          fontSize: "calc(var(--tm-chat-font-size, 14px) * 1.43)",
           fontWeight: 700,
           color: t.text1,
           margin: "16px 0 8px",
@@ -27,7 +27,7 @@ export function MarkdownMessage({ content, theme: t, dir = "ltr" }) {
     h2: ({ children }) => (
       <h2
         style={{
-          fontSize: 17,
+          fontSize: "calc(var(--tm-chat-font-size, 14px) * 1.21)",
           fontWeight: 700,
           color: t.text1,
           margin: "14px 0 6px",
@@ -41,7 +41,7 @@ export function MarkdownMessage({ content, theme: t, dir = "ltr" }) {
     h3: ({ children }) => (
       <h3
         style={{
-          fontSize: 15,
+          fontSize: "calc(var(--tm-chat-font-size, 14px) * 1.07)",
           fontWeight: 600,
           color: t.text1,
           margin: "12px 0 4px",
@@ -140,7 +140,7 @@ export function MarkdownMessage({ content, theme: t, dir = "ltr" }) {
             background: t.bgHover,
             borderRadius: 8,
             overflow: "auto",
-            fontSize: 13,
+            fontSize: "calc(var(--tm-chat-font-size, 14px) * 0.93)",
             lineHeight: 1.5,
           }}
         >
@@ -176,6 +176,7 @@ export function MarkdownMessage({ content, theme: t, dir = "ltr" }) {
       style={{
         direction: dir,
         wordBreak: "break-word",
+        fontSize: "var(--tm-chat-font-size, 14px)",
       }}
     >
       <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>

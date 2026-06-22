@@ -20,6 +20,7 @@ import signal
 import subprocess
 import sys
 import time
+from urllib.request import urlopen
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -44,6 +45,25 @@ def _npm_cmd() -> list[str]:
     if sys.platform == "win32":
         return ["cmd", "/c", "npm", "run", "dev"]
     return ["npm", "run", "dev"]
+
+
+def _wait_for_http(url: str, label: str, timeout_s: int = 180) -> None:
+    print(f"[run_dev] Waiting for {label}...")
+    deadline = time.time() + timeout_s
+    last_error = ""
+    while time.time() < deadline:
+        for p in PROCS:
+            if p.poll() is not None:
+                raise RuntimeError(f"{label} did not start because a service exited.")
+        try:
+            with urlopen(url, timeout=1.5) as response:
+                if 200 <= response.status < 500:
+                    print(f"[run_dev] {label} is ready.")
+                    return
+        except OSError as e:
+            last_error = str(e)
+        time.sleep(1)
+    raise TimeoutError(f"{label} was not ready after {timeout_s}s: {last_error}")
 
 
 def _stop_all() -> None:
@@ -109,10 +129,12 @@ def main() -> int:
                 WEB,
             )
         )
-        PROCS.append(_spawn(_npm_cmd(), FRONTEND, shell=sys.platform == "win32"))
-
         print("[run_dev] Model API  -> http://localhost:8001  (core.api.app)")
         print("[run_dev] web        -> http://localhost:8000  (app.main)")
+        _wait_for_http("http://localhost:8001/health", "Model API (8001)")
+        _wait_for_http("http://localhost:8000/api/health", "web API (8000)")
+
+        PROCS.append(_spawn(_npm_cmd(), FRONTEND, shell=sys.platform == "win32"))
         print("[run_dev] React UI   -> http://localhost:3000  (npm run dev)")
         print("\n[run_dev] Open http://localhost:3000 in your browser.")
         print("[run_dev] Press Ctrl+C to stop all.\n")

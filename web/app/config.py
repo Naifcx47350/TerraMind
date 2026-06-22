@@ -1,12 +1,18 @@
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
 from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-# Always load web/.env (not repo root), even if the shell cwd differs
-_FRONT_PAGE_DIR = Path(__file__).resolve().parent.parent
-_ENV_FILE = _FRONT_PAGE_DIR / ".env"
+# Load repo-root .env first, then web/.env for local gateway-specific overrides.
+_WEB_DIR = Path(__file__).resolve().parent.parent
+_REPO_ROOT = _WEB_DIR.parent
+_ROOT_ENV_FILE = _REPO_ROOT / ".env"
+_ENV_FILE = _WEB_DIR / ".env"
+
+load_dotenv(_ROOT_ENV_FILE, override=False)
+load_dotenv(_ENV_FILE, override=True)
 
 
 class Settings(BaseSettings):
@@ -28,7 +34,7 @@ class Settings(BaseSettings):
     rag_service_url: str = "http://localhost:8001/query"
 
     model_config = SettingsConfigDict(
-        env_file=str(_ENV_FILE),
+        env_file=(str(_ROOT_ENV_FILE), str(_ENV_FILE)),
         env_file_encoding="utf-8",
         extra="ignore",
     )

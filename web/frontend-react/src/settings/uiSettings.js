@@ -17,6 +17,7 @@ export const DEFAULT_UI_SETTINGS = {
   developerLabels: false,
   showSources: false,
   showConfidence: false,
+  textScale: 2,
   stylizedLayout: true,
   decorTuning: buildDefaultDecorTuningByAppearance(),
 };
@@ -73,11 +74,27 @@ function normalizeSettings(parsed) {
   if (version < 2) {
     appearance = migrateLegacyAppearance(appearance);
   }
+  const legacyTextSizeMap = {
+    default: 2,
+    large: 3,
+    presentation: 4,
+  };
+  const savedTextScale =
+    typeof parsed.textScale === "number"
+      ? parsed.textScale
+      : legacyTextSizeMap[parsed.textSize];
+  let migratedTextScale = DEFAULT_UI_SETTINGS.textScale;
+  if (typeof savedTextScale === "number") {
+    migratedTextScale = version < 4 ? savedTextScale + 1 : savedTextScale;
+  }
+  const textScale =
+    Math.min(6, Math.max(0, migratedTextScale));
   return {
     ...DEFAULT_UI_SETTINGS,
     ...parsed,
-    _v: 3,
+    _v: 4,
     appearance,
+    textScale,
     decorTuning: mergeDecorTuningByAppearance(parsed.decorTuning, appearance),
   };
 }
@@ -117,7 +134,7 @@ export function saveUiSettings(settings) {
   try {
     localStorage.setItem(
       UI_SETTINGS_KEY,
-      JSON.stringify({ ...settings, _v: 3 }),
+      JSON.stringify({ ...settings, _v: 4 }),
     );
     localStorage.setItem(
       LEGACY_SCORES_KEY,

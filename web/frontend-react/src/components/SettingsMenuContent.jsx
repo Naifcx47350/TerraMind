@@ -138,6 +138,92 @@ function LayoutModeToggle({ value, onChange, uiSettings, t, rtl }) {
   );
 }
 
+function TextSizeSlider({ value, onChange, uiSettings, t, rtl }) {
+  const selected = Number.isFinite(Number(value)) ? Number(value) : 1;
+  const options = [
+    tr(uiSettings, "textSizeTiny"),
+    tr(uiSettings, "textSizeSmall"),
+    tr(uiSettings, "textSizeDefault"),
+    tr(uiSettings, "textSizeLarge"),
+    tr(uiSettings, "textSizeExtraLarge"),
+    tr(uiSettings, "textSizeVeryLarge"),
+    tr(uiSettings, "textSizeMaximum"),
+  ];
+  const max = options.length - 1;
+  const clamped = Math.min(max, Math.max(0, Math.round(selected)));
+
+  return (
+    <div style={{ marginBottom: 12 }}>
+      <div
+        style={{
+          fontSize: 11,
+          color: t.text3,
+          letterSpacing: "0.06em",
+          textTransform: "uppercase",
+          marginBottom: 8,
+          textAlign: rtl ? "right" : "left",
+        }}
+      >
+        {tr(uiSettings, "textSize")}
+      </div>
+      <div
+        style={{
+          padding: "10px 10px 8px",
+          background: t.bgInput,
+          border: `1px solid ${t.border1}`,
+          borderRadius: 8,
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 8,
+            marginBottom: 6,
+            flexDirection: rtl ? "row-reverse" : "row",
+          }}
+        >
+          <span style={{ fontSize: 12, color: t.text2, fontWeight: 600 }}>
+            {options[clamped]}
+          </span>
+          <span style={{ fontSize: 10, color: t.text4 }}>
+            {clamped + 1}/{options.length}
+          </span>
+        </div>
+        <input
+          type="range"
+          min={0}
+          max={max}
+          step={1}
+          value={clamped}
+          aria-label={tr(uiSettings, "textSize")}
+          onChange={(e) => onChange(Number(e.target.value))}
+          style={{
+            width: "100%",
+            accentColor: t.accent,
+            cursor: "pointer",
+          }}
+        />
+        <div
+          aria-hidden
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            marginTop: 2,
+            color: t.text4,
+            fontSize: 9,
+            flexDirection: rtl ? "row-reverse" : "row",
+          }}
+        >
+          <span>A</span>
+          <span style={{ fontSize: 14 }}>A</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function AppearanceLayoutSection({
   uiSettings,
   onChange,
@@ -394,6 +480,14 @@ export function SettingsMenuContent({
           );
         })}
       </div>
+
+      <TextSizeSlider
+        value={uiSettings.textScale}
+        onChange={(v) => patch("textScale", v)}
+        uiSettings={uiSettings}
+        t={t}
+        rtl={rtl}
+      />
 
       <CheckRow
         checked={uiSettings.developerLabels}
