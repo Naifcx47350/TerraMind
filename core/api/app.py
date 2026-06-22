@@ -8,6 +8,7 @@ Run from repo root:
 
 import asyncio
 import logging
+import re
 import time
 from contextlib import asynccontextmanager
 
@@ -30,6 +31,18 @@ from core.models import (
 )
 
 _log = logging.getLogger(__name__)
+_OPENAI_KEY_RE = re.compile(r"^sk-(?:proj-)?[A-Za-z0-9_-]{20,}$")
+_PLACEHOLDER_MARKERS = ("your", "here", "example", "placeholder", "***", "...")
+
+
+def _validate_openai_key(api_key: str) -> str:
+    key = (api_key or "").strip()
+    lower = key.lower()
+    if any(marker in lower for marker in _PLACEHOLDER_MARKERS):
+        raise ValueError("Paste the full OpenAI API key, not the placeholder or masked value.")
+    if not _OPENAI_KEY_RE.match(key):
+        raise ValueError("Invalid OpenAI API key format.")
+    return key
 
 
 @asynccontextmanager
@@ -401,7 +414,11 @@ def openai_status():
     import os
 
     key = os.getenv("OPENAI_API_KEY", "").strip()
-    return {"openai_configured": bool(key)}
+    try:
+        _validate_openai_key(key)
+    except ValueError:
+        return {"openai_configured": False}
+    return {"openai_configured": True}
 
 
 @app.post("/internal/openai-key")
@@ -409,8 +426,9 @@ def set_openai_key(body: OpenAIKeyIn):
     """Local dev: apply key for this Model API process (called by web BFF)."""
     import os
 
-    key = body.api_key.strip()
-    if not key.startswith(("sk-", "sk-proj-")):
-        raise HTTPException(status_code=400, detail="Invalid OpenAI API key format")
+    try:
+        key = _validate_openai_key(body.api_key)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
     os.environ["OPENAI_API_KEY"] = key
     return {"ok": True, "openai_configured": True}

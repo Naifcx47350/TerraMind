@@ -1,5 +1,7 @@
 """Format prior turns for RAG and combined prompts."""
 
+import re
+
 from core.models.image_context import question_with_image_context
 
 
@@ -33,6 +35,43 @@ def build_retrieval_query(
     if len(vision) > max_image_chars:
         vision = vision[:max_image_chars].rstrip() + "…"
     return f"{q}\n\nImage context: {vision}"
+
+
+_FOLLOWUP_RE = re.compile(
+    r"\b("
+    r"it|this|that|they|them|those|same|previous|above|earlier|"
+    r"more|details|detail|explain|continue|also|what about|how about|"
+    r"dose|dosage|rate|sources?|confidence|product|recommend"
+    r")\b",
+    re.IGNORECASE,
+)
+
+
+def looks_like_contextual_followup(question: str) -> bool:
+    """True when a short message likely depends on previous chat context."""
+    q = (question or "").strip()
+    if not q or len(q) > 120:
+        return False
+    return bool(_FOLLOWUP_RE.search(q)) or len(q.split()) <= 4
+
+
+def build_contextual_retrieval_query(
+    question: str,
+    history: list | None = None,
+    image_analysis: str | None = None,
+    max_history_chars: int = 700,
+) -> str:
+    """Use recent chat context for short follow-ups, without diluting standalone queries."""
+    base = build_retrieval_query(question, image_analysis)
+    if not history or not looks_like_contextual_followup(question):
+        return base
+
+    context = format_conversation_history(history, max_turns=2)
+    if not context:
+        return base
+    if len(context) > max_history_chars:
+        context = context[-max_history_chars:].lstrip()
+    return f"{base}\n\nRecent conversation context:\n{context}"
 
 
 def build_prompt_question(
