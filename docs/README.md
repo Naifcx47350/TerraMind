@@ -4,7 +4,7 @@ Start here: **[PROJECT_STATUS.md](./PROJECT_STATUS.md)** â€” what shipped, whatâ
 
 | Topic                     | Doc                                                        |
 | ------------------------- | ---------------------------------------------------------- |
-| Run the app               | [../FrontPage/RUN_LOCALLY.md](../FrontPage/RUN_LOCALLY.md) |
+| Run the app               | [../web/RUN_LOCALLY.md](../web/RUN_LOCALLY.md) |
 | Docker (Compose)          | [../docker/QUICKSTART.md](../docker/QUICKSTART.md)         |
 | Architecture              | [SYSTEM_ARCHITECTURE.md](./SYSTEM_ARCHITECTURE.md)         |
 | Technology stack          | [TECH_STACK.md](./TECH_STACK.md)                           |
@@ -12,7 +12,7 @@ Start here: **[PROJECT_STATUS.md](./PROJECT_STATUS.md)** â€” what shipped, whatâ
 | Full product guide        | [../PROJECT_OVERVIEW.md](../PROJECT_OVERVIEW.md)           |
 | Shipped features / status | [PROJECT_STATUS.md](./PROJECT_STATUS.md)                   |
 | UI theming & assets       | [UI_CUSTOMIZATION.md](./UI_CUSTOMIZATION.md)               |
-| Backend package (RAG/API) | [../terramind/README.md](../terramind/README.md)           |
+| Backend package (RAG/API) | [../core/README.md](../core/README.md)           |
 | General RAG corpus        | [GENERAL_RAG_CORPUS.md](./GENERAL_RAG_CORPUS.md)           |
 
 Repo entry: [../README.md](../README.md).

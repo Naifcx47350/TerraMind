@@ -2,7 +2,7 @@
 
 This guide walks through **every important file**, which of the **three servers** use it, **what calls what**, and what is **legacy / safe to remove** vs **required for the live web app**.
 
-**Paths:** **`<repo-root>`** = your TerraMind git clone. All folder names below are relative to it (`FrontPage/`, `terramind/`, `data/`, `vectorstore/`).
+**Paths:** **`<repo-root>`** = your TerraMind git clone. All folder names below are relative to it (`web/`, `core/`, `data/`, `vectorstore/`).
 
 For product features and architecture, see [PROJECT_OVERVIEW.md](../PROJECT_OVERVIEW.md) and [SYSTEM_ARCHITECTURE.md](./SYSTEM_ARCHITECTURE.md). Status and removed files: [PROJECT_STATUS.md](./PROJECT_STATUS.md).
 
@@ -14,12 +14,12 @@ These are the **only** processes needed to run the webpage today.
 
 | #     | Command (where to run)                               | Port     | Entry file                                    | Purpose                             |
 | ----- | ---------------------------------------------------- | -------- | --------------------------------------------- | ----------------------------------- |
-| **1** | `uvicorn terramind.api.app:app --reload --port 8001` | **8001** | `terramind/api/app.py` (or shim `rag_api.py`) | Auto + RAG modes, compare, advisory |
-| **2** | `uvicorn app.main:app --reload --port 8000`          | **8000** | `FrontPage/app/main.py`                       | API for UI: proxy, vision, mock     |
-| **3** | `npm run dev` in `FrontPage/frontend-react/`         | **3000** | `frontend-react/src/main.jsx` → `App.jsx`     | React chat in the browser           |
+| **1** | `uvicorn core.api.app:app --reload --port 8001` | **8001** | `core/api/app.py`  | Auto + RAG modes, compare, advisory |
+| **2** | `uvicorn app.main:app --reload --port 8000`          | **8000** | `web/app/main.py`                       | API for UI: proxy, vision, mock     |
+| **3** | `npm run dev` in `web/frontend-react/`         | **3000** | `frontend-react/src/main.jsx` → `App.jsx`     | React chat in the browser           |
 
 ```text
-Browser :3000  ──proxy /api──►  FrontPage :8000  ──HTTP──►  Model API :8001
+Browser :3000  ──proxy /api──►  web :8000  ──HTTP──►  Model API :8001
                                     │                         │
                                     │                         ├── auto_rag → router → product | general | base_llm
                                     │                         ├── product_rag / general_rag / base_llm (manual)
@@ -27,7 +27,7 @@ Browser :3000  ──proxy /api──►  FrontPage :8000  ──HTTP──►  
                                     └── vision (optional, before stream)
 ```
 
-**Not used for the web app:** Phase 1 `scripts/01_*` … `05_*` (removed), `data/processed/` JSONL, fine-tuning JSONL under `data/raw/Fine tuning data/`.
+**Not used for the web app:** Phase 1 `scripts/01_*` … `05_*` (removed) and fine-tuning JSONL under `data/raw/Fine tuning data/`.
 
 ---
 
@@ -40,10 +40,10 @@ App.jsx
   POST /api/ask/stream  { question, model, history, image_base64?, image_mime? }
     │
     ▼
-FrontPage/app/routers/ask.py  →  ask_stream()
+web/app/routers/ask.py  →  ask_stream()
     │
     ▼
-FrontPage/app/services/rag_service.py  →  stream_rag() | stream_rag_advisory()
+web/app/services/rag_service.py  →  stream_rag() | stream_rag_advisory()
     │   • detect language
     │   • _analyze_image() if image  →  models/vision.py (gpt-4o-mini)
     │   • proxy NDJSON from :8001
@@ -51,9 +51,9 @@ FrontPage/app/services/rag_service.py  →  stream_rag() | stream_rag_advisory()
 HTTP POST  http://localhost:8001/query/stream  (or /query/advisory/stream)
     │
     ▼
-terramind.api.app  →  query_stream() | query_advisory_stream()
+core.api.app  →  query_stream() | query_advisory_stream()
     ▼
-terramind.models.streaming  →  stream_model_events() | stream_advisory_events()
+core.models.streaming  →  stream_model_events() | stream_advisory_events()
     │
     ├── auto_rag     →  router  →  product_rag | general_rag | base_llm
     ├── product_rag  →  retrieve + stream LLM tokens
@@ -72,7 +72,7 @@ Legacy non-streaming path: `POST /api/ask` → `call_rag()` → `POST /query`.
 App.jsx  POST /api/ask/compare
   → rag_service.call_rag_compare()
   → POST http://localhost:8001/query/compare
-  → rag_api.query_compare()  (3× run_model in parallel, one shared image analysis)
+  → core.api.app query_compare()  (3× run_model in parallel, one shared image analysis)
   → App.jsx renders 3-column ComparePanels
 ```
 
@@ -97,22 +97,21 @@ App.jsx  POST /api/ask/compare
 
 | File / folder                     | What it does                                                                                    | Called by                                      |
 | --------------------------------- | ----------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| **`terramind/api/app.py`**        | Model API: `/query`, `/query/stream`, `/query/compare`, `/query/advisory`, `/models`, `/health` | FrontPage `rag_service.py` via HTTP            |
-| **`terramind/models/`**           | Registry, `streaming.py`, `auto_rag`, `router`, RAG adapters, vision                            | `terramind.api.app`                            |
-| **`terramind/meta_questions.py`** | Meta/identity detection (Auto → base LLM; Advisory short-circuit)                               | `router.py`, `run_advisory`, streaming         |
-| **`terramind/rag/llm_stream.py`** | OpenAI token streaming via LangChain                                                            | `streaming.py`, `generate.py`                  |
-| **`terramind/rag/general/`**      | Full general pipeline + CLI + eval                                                              | `terramind.models.general_rag`                 |
-| **`terramind/rag/product/`**      | Product RAG package — Excel → Chroma → hybrid retrieve → answer | `terramind.models.product_rag` via `pipeline.py` |
+| **`core/api/app.py`**        | Model API: `/query`, `/query/stream`, `/query/compare`, `/query/advisory`, `/models`, `/health` | web `rag_service.py` via HTTP            |
+| **`core/models/`**           | Registry, `streaming.py`, `auto_rag`, `router`, RAG adapters, vision                            | `core.api.app`                            |
+| **`core/meta_questions.py`** | Meta/identity detection (Auto → base LLM; Advisory short-circuit)                               | `router.py`, `run_advisory`, streaming         |
+| **`core/rag/llm_stream.py`** | OpenAI token streaming via LangChain                                                            | `streaming.py`, `generate.py`                  |
+| **`core/rag/general/`**      | Full general pipeline + CLI + eval                                                              | `core.models.general_rag`                 |
+| **`core/rag/product/`**      | Product RAG package — Excel → Chroma → hybrid retrieve → answer | `core.models.product_rag` via `pipeline.py` |
 | **`docker-compose.yml`**          | Docker: three services + `terramind-vectorstore` volume + `init-indexes` profile | `docker compose up --build` |
-| **`terramind/rag/scoring.py`**    | Retrieval scores + confidence                                                                   | RAG answer dicts                               |
-| **`rag_api.py`**                  | Shim → `terramind.api.app`                                                                      | Legacy uvicorn target                          |
+| **`core/rag/scoring.py`**    | Retrieval scores + confidence                                                                   | RAG answer dicts                               |
 | **`run_dev.py`**                  | Starts :8001, :8000, :3000                                                                      | Local dev                                      |
 | **`requirements.txt`**            | Python deps (full stack)                                                                        | `pip install -r requirements.txt` at repo root |
 | **`requirements-dev.txt`**        | Dev extras (pytest)                                                                             | `pip install -r requirements-dev.txt`          |
 
-Product RAG and General RAG are package-based under **`terramind/rag/product/`** and **`terramind/rag/general/`**.
+Product RAG and General RAG are package-based under **`core/rag/product/`** and **`core/rag/general/`**.
 
-**Product RAG modules (`terramind/rag/product/`):**
+**Product RAG modules (`core/rag/product/`):**
 
 | Module | Role |
 | --- | --- |
@@ -133,17 +132,17 @@ Product RAG and General RAG are package-based under **`terramind/rag/product/`**
 
 | Command                                          | What it does                   |
 | ------------------------------------------------ | ------------------------------ |
-| `python -m terramind.rag.product.cli --reset`                       | Rebuild product vector index   |
-| `python -m terramind.rag.general.cli --reset`    | Rebuild general document index |
-| `python -m terramind.rag.product.cli "question"` | CLI test of product RAG only   |
-| `python -m terramind.rag.general.cli "question"` | CLI test of general RAG only   |
+| `python -m core.rag.product.cli --reset`                       | Rebuild product vector index   |
+| `python -m core.rag.general.cli --reset`    | Rebuild general document index |
+| `python -m core.rag.product.cli "question"` | CLI test of product RAG only   |
+| `python -m core.rag.general.cli "question"` | CLI test of general RAG only   |
 
 ### DATA
 
 | Path                                        | What it does                                                                     |
 | ------------------------------------------- | -------------------------------------------------------------------------------- |
-| **`data/raw/product_catalog/translated/product_catalog_en.xlsx`** | Translated product catalog source (`terramind.rag.product.config.CATALOG_PATH`)  |
-| **`data/raw/product_catalog/translated/product_categories_en.xlsx`** | Translated category source (`terramind.rag.product.config.CATEGORY_PATH`)        |
+| **`data/raw/product_catalog/translated/product_catalog_en.xlsx`** | Translated product catalog source (`core.rag.product.config.CATALOG_PATH`)  |
+| **`data/raw/product_catalog/translated/product_categories_en.xlsx`** | Translated category source (`core.rag.product.config.CATEGORY_PATH`)        |
 | **`data/raw/documents/`**                   | General RAG PDFs (IPM, GAP, soil, pesticides) — see `docs/GENERAL_RAG_CORPUS.md` |
 | **`data/raw/product_catalog/translated/`**             | Translated product Excel files used by Product RAG                               |
 | **`data/raw/product_catalog/original/`**               | Original/source product workbook artifacts; preserved, not used at runtime       |
@@ -159,11 +158,10 @@ Product RAG and General RAG are package-based under **`terramind/rag/product/`**
 | Item                              | Notes                                                   |
 | --------------------------------- | ------------------------------------------------------- |
 | **`src/`**                        | Phase 1 package — **removed** from repo                 |
-| **`Rag_Gen.py`**                  | General RAG — **removed**; use `terramind/rag/general/` |
+| **`Rag_Gen.py`**                  | General RAG — **removed**; use `core/rag/general/` |
 | **`doc/`**                        | Old PDF folder — **removed**; use `data/raw/documents/` |
 | **`scripts/01_*` … `05_*`**       | Phase 1 CLI — **removed**                               |
 | **`scripts/eval_general_rag.py`** | Optional full-answer eval export (still present)        |
-| **`data/processed/`**             | Generated JSONL — gitignored                            |
 
 ### OPTIONAL / docs / assets
 
@@ -183,7 +181,7 @@ Product RAG and General RAG are package-based under **`terramind/rag/product/`**
 
 ---
 
-## 5. FrontPage — file by file
+## 5. web — file by file
 
 ### ACTIVE — backend (:8000)
 
@@ -224,7 +222,6 @@ Product RAG and General RAG are package-based under **`terramind/rag/product/`**
 | **`tests/test_api.py`**                      | Gateway smoke tests (health, config, ask)                      |
 | **`../tests/`** (repo root)                  | Router, scoring, advisory meta, auto question battery (64 tests) |
 | **`pyrightconfig.json`**                     | IDE typing                                                     |
-| **`package-lock.json`** (under `FrontPage/`) | Orphan lockfile if no `package.json` there — **likely UNUSED** |
 
 ---
 
@@ -233,13 +230,12 @@ Product RAG and General RAG are package-based under **`terramind/rag/product/`**
 These exist in the repo but are **not** on the path from browser → answer:
 
 ```text
-data/processed/                 (generated JSONL — gitignored)
 data/raw/Fine tuning data/      (training JSONL — gitignored)
 data/eval/runs/                 (eval exports — gitignored)
 vectorstore/                    (rebuild locally — gitignored)
 docs/                           (developer docs only — not ingested)
-FrontPage GET /api/history      (global log; UI uses localStorage)
-TM_Logo at repo root assets/    (UI uses FrontPage/frontend-react/public/TM_Logo.png)
+web GET /api/history      (global log; UI uses localStorage)
+TM_Logo at repo root assets/    (UI uses web/frontend-react/public/TM_Logo.png)
 ```
 
 ---
@@ -248,8 +244,8 @@ TM_Logo at repo root assets/    (UI uses FrontPage/frontend-react/public/TM_Logo
 
 | Issue                                        | Detail                                                                                                   |
 | -------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| **`terramind/models` vs old root `models/`** | Use **`terramind/models/`** only; root `models/` shim removed.                                           |
-| **Two logo paths**                           | Update **`FrontPage/frontend-react/public/TM_Logo.png`** for the site; bump `LOGO_SRC ?v=` in `App.jsx`. |
+| **`core/models` vs old root `models/`** | Use **`core/models/`** only; root `models/` shim removed.                                           |
+| **Two logo paths**                           | Update **`web/frontend-react/public/TM_Logo.png`** for the site; bump `LOGO_SRC ?v=` in `App.jsx`. |
 | **Two Chroma folders**                       | `chroma_products` = products; `chroma` = general docs.                                                   |
 | **`docs/` vs root docs**                     | Overview may live as `PROJECT_OVERVIEW.md` at root; this file is under `docs/`.                          |
 
@@ -265,9 +261,8 @@ Only remove after confirming nobody uses CLI demos:
 | `app.py` (root)                 | Empty if present               |
 | Phase 1 `scripts/01_*` … `05_*` | Already removed                |
 | `TM_Logo_o.png`                 | Backup                         |
-| `FrontPage/package-lock.json`   | If no `FrontPage/package.json` |
 
-**Do not remove:** `terramind/`, `rag_api.py`, `run_dev.py`, `FrontPage/`, corpus under `data/raw/`, local `vectorstore/` (rebuild if deleted). `archive/Rag_Pc_legacy.py` is reference-only.
+**Do not remove:** `core/`, `run_dev.py`, `web/`, corpus under `data/raw/`, local `vectorstore/` (rebuild if deleted).
 
 ---
 
@@ -281,8 +276,8 @@ rag_service → /query/stream | /query/advisory/stream | /query/compare
 streaming → stream_model_events | stream_advisory_events
 run_model (JSON path) → auto_rag | product_rag | general_rag | base_llm
 auto_rag → router.route_question → product_rag | general_rag | base_llm
-product_rag → terramind.rag.product.get_product_db + answer_with_rag
-general_rag → terramind.rag.general.get_general_db + answer_with_rag
+product_rag → core.rag.product.get_product_db + answer_with_rag
+general_rag → core.rag.general.get_general_db + answer_with_rag
 run_model → resolve_image_analysis → vision.analyze_image (if image)
 product_rag/general_rag → conversation.build_prompt_question (if history/image text)
 ```
@@ -295,7 +290,7 @@ product_rag/general_rag → conversation.build_prompt_question (if history/image
 | ------------- | --------------------------------------------------------- |
 | Model API up  | http://localhost:8001/health                              |
 | Models list   | http://localhost:8001/models                              |
-| FrontPage up  | http://localhost:8000/api/health → `"backend": "rag"`     |
+| web up  | http://localhost:8000/api/health → `"backend": "rag"`     |
 | UI up         | http://localhost:3000                                     |
 | Indexes exist | health shows `product_vectors` / `general_vectors` counts |
 

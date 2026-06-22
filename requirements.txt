@@ -5,8 +5,8 @@
 #   conda activate terramind
 #   pip install -r requirements.txt
 #
-# Covers: terramind API (:8001), FrontPage (:8000), terramind.rag.product, terramind.rag.general, run_dev.py
-# Node.js 18+ still required for the React UI (npm install in FrontPage/frontend-react).
+# Covers: terramind API (:8001), web (:8000), core.rag.product, core.rag.general, run_dev.py
+# Node.js 18+ still required for the React UI (npm install in web/frontend-react).
 # =============================================================================
 
 # --- Environment ---
@@ -15,7 +15,7 @@ python-dotenv>=1.0.0
 # --- OpenAI (embeddings + chat + vision via LangChain) ---
 openai>=1.40.0
 
-# --- Web API (FastAPI + FrontPage gateway + model API) ---
+# --- Web API (FastAPI + web gateway + model API) ---
 fastapi>=0.115.0
 uvicorn[standard]>=0.30.0
 pydantic>=2.9.0

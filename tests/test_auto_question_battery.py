@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import pytest
 
-from terramind.models.router import build_retrieval_query_for_route, route_question
+from core.models.router import build_retrieval_query_for_route, route_question
 
 # (question, expected_route, category)
 AUTO_QUESTION_BATTERY: list[tuple[str, str, str]] = [

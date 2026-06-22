@@ -2,7 +2,7 @@
 
 This document describes how the TerraMind agriculture assistant works end-to-end: what the user sees in the web app, which tools and models power it, how knowledge is stored, and how features such as **compare mode**, **image upload**, and **conversation history** fit together.
 
-For local setup, see [FrontPage/RUN_LOCALLY.md](FrontPage/RUN_LOCALLY.md). Commands use **`<repo-root>`** for your clone path (not a fixed machine path).
+For local setup, see [web/RUN_LOCALLY.md](web/RUN_LOCALLY.md). Commands use **`<repo-root>`** for your clone path (not a fixed machine path).
 
 For **system architecture only** (topology, services, RAG boundaries, API contracts), see **[docs/SYSTEM_ARCHITECTURE.md](docs/SYSTEM_ARCHITECTURE.md)**.
 
@@ -33,13 +33,13 @@ Three processes run in development:
 | Layer             | Port | Technology                                   | Role                                                                    |
 | ----------------- | ---- | -------------------------------------------- | ----------------------------------------------------------------------- |
 | **React UI**      | 3000 | Vite + React (`App.jsx`)                     | Chat UI, sessions, model picker, compare layout                         |
-| **FrontPage API** | 8000 | FastAPI (`FrontPage/app/`)                   | Auth-less BFF: vision pre-processing, proxy to model API, mock fallback |
-| **Model API**     | 8001 | FastAPI (`terramind.api.app` / `rag_api.py`) | `terramind.models` → auto / product / general / base LLM                |
+| **web API** | 8000 | FastAPI (`web/app/`)                   | Auth-less BFF: vision pre-processing, proxy to model API, mock fallback |
+| **Model API**     | 8001 | FastAPI (`core.api.app`) | `core.models` → auto / product / general / base LLM                |
 
 ```mermaid
 flowchart LR
   User["Browser port 3000"]
-  FP["FrontPage API port 8000"]
+  FP["web API port 8000"]
   RAG["Model API port 8001"]
   PC[("chroma_products")]
   GEN[("chroma general")]
@@ -78,7 +78,7 @@ Vite proxies `/api/*` to `http://localhost:8000`, so the frontend only talks to 
 | ----------------- | -------------------------------- |
 | **FastAPI**       | HTTP APIs on 8000 and 8001       |
 | **Pydantic**      | Request/response schemas         |
-| **httpx**         | FrontPage → model API async HTTP |
+| **httpx**         | web → model API async HTTP |
 | **python-dotenv** | API keys and URLs from `.env`    |
 
 ### AI / RAG stack
@@ -89,7 +89,7 @@ Vite proxies `/api/*` to `http://localhost:8000`, so the frontend only talks to 
 | **LangChain**        | Prompt templates, `ChatOpenAI`, message types                       |
 | **langchain-chroma** | Vector store wrapper                                                |
 | **ChromaDB**         | On-disk vector indexes under `vectorstore/`                         |
-| **pandas**           | Excel product catalog loading (`terramind/rag/product/`)            |
+| **pandas**           | Excel product catalog loading (`core/rag/product/`)            |
 
 ### Data files
 
@@ -100,19 +100,19 @@ Vite proxies `/api/*` to `http://localhost:8000`, so the frontend only talks to 
 | `data/raw/documents/`                                            | General agriculture PDFs (RAG mode 2) — see [docs/GENERAL_RAG_CORPUS.md](docs/GENERAL_RAG_CORPUS.md) |
 | `vectorstore/chroma/`                                            | General document embeddings                                                                          |
 | `vectorstore/chroma_products/`                                   | Product catalog embeddings                                                                           |
-| `FrontPage/frontend-react/public/TM_Logo.png`                    | Logo served to the UI (not repo root copy)                                                           |
+| `web/frontend-react/public/TM_Logo.png`                    | Logo served to the UI (not repo root copy)                                                           |
 
 ---
 
 ## 4. Models (modes)
 
-All modes share the same **response shape** (`answer`, `sources`, `confidence`, `retrieval_score`, `retrieved_chunks`, …). Implementation lives under **`terramind/models/`**.
+All modes share the same **response shape** (`answer`, `sources`, `confidence`, `retrieval_score`, `retrieved_chunks`, …). Implementation lives under **`core/models/`**.
 
 | UI name                       | ID            | Module                                      | Knowledge                                                    | LLM           |
 | ----------------------------- | ------------- | ------------------------------------------- | ------------------------------------------------------------ | ------------- |
 | **Auto (recommended)**        | `auto_rag`    | `auto_rag.py` + `router.py`                 | Routes to product, general, or **base LLM** (meta questions) | `gpt-4o-mini` |
-| **Agriculture Knowledge RAG** | `general_rag` | `general_rag.py` → `terramind/rag/general/` | Public PDFs in `data/raw/documents/`                         | `gpt-4o-mini` |
-| **Product Catalog RAG**       | `product_rag` | `product_rag.py` → `terramind/rag/product/` | Excel catalog in Chroma                                      | `gpt-4o-mini` |
+| **Agriculture Knowledge RAG** | `general_rag` | `general_rag.py` → `core/rag/general/` | Public PDFs in `data/raw/documents/`                         | `gpt-4o-mini` |
+| **Product Catalog RAG**       | `product_rag` | `product_rag.py` → `core/rag/product/` | Excel catalog in Chroma                                      | `gpt-4o-mini` |
 | **Base LLM**                  | `base_llm`    | `base_llm.py`                               | None (no retrieval)                                          | `gpt-4o-mini` |
 | **Advisory** (hidden UI)      | `advisory`    | `run_advisory()` in `__init__.py`           | General then product (meta questions skip RAG)               | `gpt-4o-mini` |
 
@@ -154,7 +154,7 @@ Backend: `POST /api/ask/advisory/stream` (UI default) or `/query/advisory` on po
 
 ### Model registry
 
-`terramind/models/__init__.py` exposes:
+`core/models/__init__.py` exposes:
 
 - `list_models()` — for `GET /models` and the UI dropdown
 - `run_model(model_id, question, history, …)` — dispatches to the correct backend
@@ -172,14 +172,14 @@ Backend: `POST /api/ask/advisory/stream` (UI default) or `/query/advisory` on po
 
 | Index path                     | Built by                                      | Source data                                  |
 | ------------------------------ | --------------------------------------------- | -------------------------------------------- |
-| `vectorstore/chroma_products/` | `python -m terramind.rag.product.cli --reset` | Product Excel                                |
-| `vectorstore/chroma/`          | `python -m terramind.rag.general.cli --reset` | `data/raw/documents/*.pdf` (+ optional text) |
+| `vectorstore/chroma_products/` | `python -m core.rag.product.cli --reset` | Product Excel                                |
+| `vectorstore/chroma/`          | `python -m core.rag.general.cli --reset` | `data/raw/documents/*.pdf` (+ optional text) |
 
 Indexes are **persistent on disk**. Rebuild when Excel or documents change. At runtime, `get_product_db()` / `get_general_db()` load existing Chroma collections if present.
 
 ### 5.2 In-memory server log (optional)
 
-`FrontPage/app/routers/history.py` keeps a simple **global list** of recent Q&A snippets for `GET /api/history`. This is **not** per-user session storage; it is a dev-friendly audit log.
+`web/app/routers/history.py` keeps a simple **global list** of recent Q&A snippets for `GET /api/history`. This is **not** per-user session storage; it is a dev-friendly audit log.
 
 ### 5.3 Browser session storage (conversation UI)
 
@@ -223,7 +223,7 @@ On every message send, the client builds a **`history` array** (last 20 turns) a
 **UI:** “Compare” button next to the image attach control. When enabled:
 
 - The model dropdown is disabled (all three run automatically).
-- `POST /api/ask/compare` → FrontPage → `POST /query/compare` on port 8001.
+- `POST /api/ask/compare` → web → `POST /query/compare` on port 8001.
 - The model API runs **three backends in parallel** (`asyncio.gather`).
 - **Vision runs once**; the same `image_analysis` text is passed to each model (no triple vision cost).
 
@@ -243,20 +243,20 @@ Chat width expands (~1280px) so columns remain readable.
 
 1. User attaches an image (file picker or drag-and-drop).
 2. Frontend sends `image_base64` + `image_mime` with the question.
-3. **FrontPage** (`rag_service._analyze_image`) or **model API** (`models/vision.py`) calls **gpt-4o-mini** with the image.
+3. **web** (`rag_service._analyze_image`) or **model API** (`models/vision.py`) calls **gpt-4o-mini** with the image.
 4. Vision output is agronomy-focused: symptoms, affected parts, severity, initial advice.
 5. That text is injected into **all three** backends via `models/image_context.py` and `build_prompt_question()`.
 
 ### Configuration
 
-If `OPENAI_API_KEY` is set (`<repo-root>/.env` or `<repo-root>/FrontPage/.env`), vision defaults to **OpenAI + gpt-4o-mini** without extra env vars. Optional overrides: `VISION_PROVIDER`, `VISION_API_KEY`, `VISION_MODEL`.
+If `OPENAI_API_KEY` is set (`<repo-root>/.env` or `<repo-root>/web/.env`), vision defaults to **OpenAI + gpt-4o-mini** without extra env vars. Optional overrides: `VISION_PROVIDER`, `VISION_API_KEY`, `VISION_MODEL`.
 
 ### Logo asset (separate from chat vision)
 
 The header logo is a static file:
 
 ```text
-FrontPage/frontend-react/public/TM_Logo.png
+web/frontend-react/public/TM_Logo.png
 ```
 
 Referenced in `App.jsx` as `/TM_Logo.png?v=2` (version query busts browser cache). Replacing the logo requires updating **this** `public/` file, not only `TM_Logo.png` at `<repo-root>`.
@@ -270,10 +270,10 @@ Referenced in `App.jsx` as `/TM_Logo.png?v=2` (version query busts browser cache
 ```text
 1. User submits → App.jsx POST /api/ask/stream { question, model, history, image? }
 2. UI adds a streaming bot placeholder (status line + empty answer)
-3. FrontPage: detect language; analyze image if present
-4. FrontPage proxies NDJSON from http://localhost:8001/query/stream (or /query/advisory/stream)
+3. web: detect language; analyze image if present
+4. web proxies NDJSON from http://localhost:8001/query/stream (or /query/advisory/stream)
 5. Events: status → token(s) → done (sources, routed_to, latency)
-6. terramind.models.streaming → run_model path (auto / product / general / base) or run_advisory
+6. core.models.streaming → run_model path (auto / product / general / base) or run_advisory
 7. UI finalizes bot message; localStorage session update
 ```
 
@@ -283,8 +283,8 @@ Non-streaming **`POST /api/ask`** and **`POST /query`** remain available for scr
 
 ```text
 1. User enables Compare → POST /api/ask/compare
-2. FrontPage resolves vision once → POST /query/compare
-3. rag_api runs three run_model() calls in parallel (shared image_analysis)
+2. web resolves vision once → POST /query/compare
+3. the model API runs three `run_model()` calls in parallel (shared image_analysis)
 4. UI replaces loading skeleton with three column cards
 ```
 
@@ -296,16 +296,14 @@ Non-streaming **`POST /api/ask`** and **`POST /query`** remain available for scr
 TerraMind/
 ├── PROJECT_OVERVIEW.md          ← this file
 ├── docs/                        # Developer docs (not RAG corpus)
-├── terramind/
+├── core/
 │   ├── api/app.py               # Model API :8001
 │   ├── models/                  # auto, product, general, base, vision, router
 │   └── rag/general|product/     # General complete; product package pipeline
-├── terramind/rag/product/       # Product RAG package implementation
-├── rag_api.py                   # Shim → terramind.api.app
 ├── run_dev.py                   # Dev launcher (3 services)
 ├── data/                        # See data/README.md
 ├── vectorstore/                 # Chroma (gitignored)
-├── FrontPage/                   # :8000 API + :3000 React
+├── web/                         # :8000 API + :3000 React
 ├── scripts/eval_general_rag.py
 └── tests/
 ```
@@ -314,7 +312,7 @@ TerraMind/
 
 ## 10. API reference (web stack)
 
-### FrontPage — port 8000
+### web — port 8000
 
 | Method | Path                       | Description                                                |
 | ------ | -------------------------- | ---------------------------------------------------------- |
@@ -346,18 +344,18 @@ TerraMind/
 
 | Variable          | Where                      | Purpose                               |
 | ----------------- | -------------------------- | ------------------------------------- |
-| `OPENAI_API_KEY`  | `.env` (root or FrontPage) | Embeddings, chat, vision              |
-| `USE_MOCK`        | `FrontPage/.env`           | Canned answers (no 8001)              |
-| `RAG_SERVICE_URL` | `FrontPage/.env`           | Default `http://localhost:8001/query` |
-| `REQUEST_TIMEOUT` | `FrontPage/.env`           | HTTP timeout to model API             |
+| `OPENAI_API_KEY`  | `.env` or `web/.env` | Embeddings, chat, vision              |
+| `USE_MOCK`        | `web/.env`           | Canned answers (no 8001)              |
+| `RAG_SERVICE_URL` | `web/.env`           | Default `http://localhost:8001/query` |
+| `REQUEST_TIMEOUT` | `web/.env`           | HTTP timeout to model API             |
 
-Default chat/vision model: **`gpt-4o-mini`** in `terramind/rag/product/`, `terramind/rag/general/`, `terramind/models/base_llm.py`, `terramind/models/vision.py`.
+Default chat/vision model: **`gpt-4o-mini`** in `core/rag/product/`, `core/rag/general/`, `core/models/base_llm.py`, `core/models/vision.py`.
 
 ---
 
 ## 12. Design choices (why it is built this way)
 
-- **Two FastAPI layers:** FrontPage can add CORS, vision, mocks, and stable `/api` for the UI without reloading heavy Chroma indexes on every UI deploy.
+- **Two FastAPI layers:** web can add CORS, vision, mocks, and stable `/api` for the UI without reloading heavy Chroma indexes on every UI deploy.
 - **One folder per model:** Easy to swap Excel vs PDF pipelines while keeping the same HTTP contract.
 - **Compare + baseline LLM:** Supports bootcamp evaluation — same question, measured difference between RAG and non-RAG.
 - **localStorage sessions:** Simple MVP without accounts or a database; good for demos and single-machine use.
@@ -369,10 +367,10 @@ Default chat/vision model: **`gpt-4o-mini`** in `terramind/rag/product/`, `terra
 
 | Document                                                | Audience                                        |
 | ------------------------------------------------------- | ----------------------------------------------- |
-| [FrontPage/RUN_LOCALLY.md](../FrontPage/RUN_LOCALLY.md) | Step-by-step terminals and ports                |
+| [web/RUN_LOCALLY.md](web/RUN_LOCALLY.md)                | Step-by-step terminals and ports                |
 | [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md)        | Shipped work, legacy artifacts, remaining tasks |
-| [FrontPage/README.md](../FrontPage/README.md)           | FrontPage quick start and API examples          |
-| [README.md](../README.md)                               | Repo root index and index build commands        |
+| [web/README.md](web/README.md)                          | web quick start and API examples                |
+| [README.md](README.md)                                  | Repo root index and index build commands        |
 
 ---
 

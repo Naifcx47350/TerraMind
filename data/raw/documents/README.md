@@ -15,13 +15,13 @@ Place **PDF**, **Markdown**, or **plain text** references here for the **Agricul
 
 Also indexed when present: `.md`/`.txt` under `data/raw/reference_text/` and `data/sample/`.
 
-Display names are defined in `terramind/rag/general/config.py` → `DOCUMENT_DISPLAY_NAMES`.
+Display names are defined in `core/rag/general/config.py` → `DOCUMENT_DISPLAY_NAMES`.
 
 ## Rebuild index after changes
 
 ```powershell
 cd <repo-root>
-python -m terramind.rag.general.cli --reset
+python -m core.rag.general.cli --reset
 ```
 
 Index output: `vectorstore/chroma/`

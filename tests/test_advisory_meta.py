@@ -1,6 +1,6 @@
 """Advisory mode — meta / identity questions should not run full RAG."""
 
-from terramind.meta_questions import advisory_meta_answer, is_meta_question
+from core.meta_questions import advisory_meta_answer, is_meta_question
 
 
 def test_is_meta_question_identity():
@@ -20,14 +20,14 @@ def test_is_meta_question_not_field_task():
 
 
 def test_image_describe_question():
-    from terramind.meta_questions import is_image_describe_question
+    from core.meta_questions import is_image_describe_question
 
     assert is_image_describe_question("what can u see in this image")
     assert not is_image_describe_question("how do I treat tomato blight")
 
 
 def test_strong_product_intent():
-    from terramind.meta_questions import has_strong_product_intent
+    from core.meta_questions import has_strong_product_intent
 
     assert has_strong_product_intent("what product is best for soil")
     assert has_strong_product_intent(
@@ -42,7 +42,7 @@ def test_meta_greeting_and_summary():
 
 
 def test_clarification_and_gibberish():
-    from terramind.meta_questions import is_clarification_question, has_strong_product_intent
+    from core.meta_questions import is_clarification_question, has_strong_product_intent
 
     assert is_clarification_question("dadada")
     assert is_clarification_question("noncess")
@@ -62,7 +62,7 @@ def test_hypothetical_questions_are_meta():
 
 
 def test_arabic_meta_and_clarification():
-    from terramind.meta_questions import is_clarification_question
+    from core.meta_questions import is_clarification_question
 
     assert is_meta_question("كيف تستطيع مساعدتي؟")
     assert is_meta_question("ماذا؟")

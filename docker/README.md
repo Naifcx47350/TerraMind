@@ -19,7 +19,7 @@ Locally you run **3 processes** (`run_dev.py`):
 ```
 Browser → :3000 React (Vite)
             ↓ /api/*
-          :8000 FrontPage gateway
+          :8000 web gateway
             ↓ HTTP
           :8001 Model API (RAG)
 ```
@@ -47,7 +47,7 @@ TerraMind/
 ├── docker/
 │   ├── README.md            ← this file
 │   ├── model-api/Dockerfile ← Python RAG API (:8001)
-│   ├── gateway/Dockerfile   ← FrontPage FastAPI (:8000)
+│   ├── gateway/Dockerfile   ← web FastAPI (:8000)
 │   └── frontend/
 │       ├── Dockerfile       ← Node build + nginx (:80 → host :3000)
 │       └── nginx.conf       ← proxy /api to gateway
@@ -67,7 +67,7 @@ WORKDIR /app                   # All following paths are inside /app
 RUN apt-get update && ...      # Run shell commands (install compilers)
 COPY requirements.txt .        # Copy from build context → image
 RUN pip install -r ...         # Creates a layer (cached until requirements change)
-COPY terramind/ terramind/     # Your source code layer
+COPY core/ core/     # Your source code layer
 EXPOSE 8001                    # Documentation port (does not publish by itself)
 CMD ["python", "-m", "uvicorn", ...]  # Default command when container starts
 ```
@@ -117,15 +117,15 @@ From repo root:
 
 ```bash
 # 1. Secrets
-cp docker/env.example .env
+cp .env.example .env
 # Edit .env → set OPENAI_API_KEY
 
 # 2. Build model API image once (CPU torch — much smaller/faster than CUDA wheels)
 docker compose build model-api
 
 # 3. Build vector indexes (reuses terramind-model-api:local — no second pip install)
-# Runs: python -m terramind.rag.product.cli --reset
-#       python -m terramind.rag.general.cli --reset
+# Runs: python -m core.rag.product.cli --reset
+#       python -m core.rag.general.cli --reset
 docker compose --profile init run --rm init-indexes
 
 # 4. Build remaining services + start stack
@@ -194,5 +194,5 @@ For daily UI work, keep using `python run_dev.py`. Use Docker when you want **�
 
 ## 10. Relation to local docs
 
-- Local run (no Docker): [FrontPage/RUN_LOCALLY.md](../FrontPage/RUN_LOCALLY.md)
+- Local run (no Docker): [web/RUN_LOCALLY.md](web/RUN_LOCALLY.md)
 - Architecture: [docs/SYSTEM_ARCHITECTURE.md](../docs/SYSTEM_ARCHITECTURE.md)

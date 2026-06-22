@@ -22,11 +22,11 @@ Product RAG currently reads the translated files:
 - `raw/product_catalog/translated/product_catalog_en.xlsx`
 - `raw/product_catalog/translated/product_categories_en.xlsx`
 
-After catalog path or filename changes, rebuild the product index: `python -m terramind.rag.product.cli --reset` (local) or `docker compose --profile init run --rm init-indexes` (Docker).
+After catalog path or filename changes, rebuild the product index: `python -m core.rag.product.cli --reset` (local) or `docker compose --profile init run --rm init-indexes` (Docker).
 
 ## Runtime relevance
 
-- `sample/` is used by General RAG, but only allowlisted files are indexed. Today that allowlist is `pesticide_safety_general.txt` in `terramind/rag/general/config.py`.
+- `sample/` is used by General RAG, but only allowlisted files are indexed. Today that allowlist is `pesticide_safety_general.txt` in `core/rag/general/config.py`.
 - `eval/` is used by General RAG evaluation (`general_rag_questions.json`); generated answer exports go to ignored `eval/runs/`.
 - `processed/` is not used by the current web app or RAG pipelines. It is reserved for legacy/generated artifacts and remains gitignored.
 
