@@ -4,12 +4,16 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 
 import httpx
 
 from app.config import settings
 
 logger = logging.getLogger(__name__)
+
+_OPENAI_KEY_RE = re.compile(r"^sk-(?:proj-)?[A-Za-z0-9_-]{20,}$")
+_PLACEHOLDER_MARKERS = ("your", "here", "example", "placeholder", "***", "...")
 
 
 def _local_openai_key() -> str:
@@ -27,10 +31,11 @@ def _model_api_base_url() -> str | None:
 
 def validate_openai_key(api_key: str) -> str:
     key = (api_key or "").strip()
-    if not key.startswith(("sk-", "sk-proj-")):
-        raise ValueError("Enter a valid OpenAI API key (starts with sk-).")
-    if len(key) < 20:
-        raise ValueError("API key looks too short.")
+    lower = key.lower()
+    if any(marker in lower for marker in _PLACEHOLDER_MARKERS):
+        raise ValueError("Paste the full OpenAI API key, not the placeholder or masked value.")
+    if not _OPENAI_KEY_RE.match(key):
+        raise ValueError("Enter a valid OpenAI API key that starts with sk- and contains only key characters.")
     return key
 
 
@@ -86,11 +91,28 @@ async def model_api_has_openai_key() -> bool:
     return False
 
 
-async def is_openai_ready() -> bool:
+async def model_api_ready() -> bool:
+    base = _model_api_base_url()
+    if not base:
+        return True
+    url = f"{base}/health"
+    try:
+        async with httpx.AsyncClient(timeout=2) as client:
+            resp = await client.get(url)
+            return resp.is_success
+    except Exception as e:
+        logger.debug("Model API readiness check failed (%s): %s", url, e)
+        return False
+
+
+def is_openai_ready() -> bool:
     if settings.use_mock:
         return True
-    if not _local_openai_key():
+    try:
+        validate_openai_key(_local_openai_key())
+    except ValueError:
         return False
-    if settings.rag_service_url:
-        return await model_api_has_openai_key()
+    # A valid local/root .env key is enough for the key gate. Model API startup
+    # can lag behind the gateway, and that should show as service readiness,
+    # not as a request for the user to paste a key again.
     return True

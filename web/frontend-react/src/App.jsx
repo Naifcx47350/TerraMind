@@ -88,6 +88,24 @@ function hexToRgb(hex) {
   return `${(n >> 16) & 255},${(n >> 8) & 255},${n & 255}`;
 }
 
+function textSizeTokens(textScale) {
+  const rawScale = Number(textScale);
+  const scale = Math.min(
+    6,
+    Math.max(0, Number.isFinite(rawScale) ? rawScale : 2),
+  );
+  const sizes = [
+    { chat: 12, user: 12, meta: 10, composer: 12 },
+    { chat: 13, user: 13, meta: 11, composer: 13 },
+    { chat: 14, user: 14, meta: 12, composer: 14 },
+    { chat: 16, user: 15, meta: 13, composer: 16 },
+    { chat: 18, user: 17, meta: 14, composer: 17 },
+    { chat: 20, user: 19, meta: 15, composer: 19 },
+    { chat: 22, user: 21, meta: 16, composer: 21 },
+  ];
+  return sizes[scale] || sizes[2];
+}
+
 /** Same three backends as core.models.COMPARE_MODEL_IDS (Auto excluded). */
 const COMPARE_MODEL_IDS = ["product_rag", "general_rag", "base_llm"];
 
@@ -235,7 +253,7 @@ function ComparePanels({
                 style={{
                   flex: 1,
                   padding: "12px",
-                  fontSize: 13,
+                  fontSize: "var(--tm-chat-font-size)",
                   color: panel.error ? t.err.color : t.text2,
                   lineHeight: 1.7,
                   wordBreak: "break-word",
@@ -317,15 +335,20 @@ const SESSIONS_STORAGE_KEY = "terramind_sessions_v1";
 const OPENAI_KEY_SESSION = "terramind_openai_key_session_v1";
 const SIDEBAR_WIDTH = 280;
 
+function formatClockTime(language = "en") {
+  return new Date().toLocaleTimeString(language === "ar" ? "ar" : "en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+}
+
 function newSession() {
   return {
     id: Date.now(),
     name: "New conversation",
     messages: [],
-    ts: new Date().toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    }),
+    ts: formatClockTime("en"),
   };
 }
 
@@ -638,7 +661,7 @@ function BootstrapOverlay({ t, logoFilter, logoGlow, logoTint }) {
         Starting TerraMind…
       </div>
       <div style={{ fontSize: 13, color: t.text3 }}>
-        Waiting for the API (this can take a moment in Docker).
+        Waiting for the Model API to finish loading.
       </div>
     </div>
   );
@@ -946,6 +969,16 @@ async function applyOpenAIKeyToServer(apiKey) {
   return data;
 }
 
+function isOpenAIKeyError(error) {
+  const msg = String(error?.message || error || "").toLowerCase();
+  return (
+    msg.includes("invalid_api_key") ||
+    msg.includes("incorrect api key") ||
+    (msg.includes("api key") && msg.includes("openai")) ||
+    msg.includes("placeholder or masked")
+  );
+}
+
 export default function App() {
   const stored = loadStoredSessions();
   const [dark, setDark] = useState(true);
@@ -1052,14 +1085,20 @@ export default function App() {
           const d = await fetchConfig();
           if (cancelled) return;
 
-          setApiConfigLoading(false);
+          const modelApiReady = d.use_mock || d.model_api_ready !== false;
 
           if (d.use_mock || d.openai_configured) {
             setApiKeyReady(true);
             setShowApiKeyGate(false);
-            return;
+            if (modelApiReady) {
+              setApiConfigLoading(false);
+              return;
+            }
+            await sleep(2000);
+            continue;
           }
 
+          setApiConfigLoading(false);
           const stored = sessionStorage.getItem(OPENAI_KEY_SESSION);
           if (stored) {
             try {
@@ -1161,6 +1200,7 @@ export default function App() {
   const copy = (key) => tr(uiSettings, key);
   const stylized = uiSettings.stylizedLayout !== false;
   const appearance = uiSettings.appearance;
+  const textTokens = textSizeTokens(uiSettings.textScale);
   const themeBackgroundUrl = stylized
     ? resolveThemeBackground(appearance, dark)
     : null;
@@ -1565,10 +1605,7 @@ export default function App() {
     const requestSessionId = activeId;
     const q = text.trim() || "Analyze this image";
     const img = image;
-    const timeStr = new Date().toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    const timeStr = formatClockTime(uiSettings.language);
     setText("");
     setImage(null);
     setLoading(true);
@@ -1721,6 +1758,7 @@ export default function App() {
             streaming: true,
             status: "Starting…",
             sources: [],
+            model: modelForRequest,
             time: timeStr,
           },
         ],
@@ -1809,6 +1847,15 @@ export default function App() {
         return { ...s, messages: msgs };
       });
     } catch (e) {
+      if (isOpenAIKeyError(e)) {
+        sessionStorage.removeItem(OPENAI_KEY_SESSION);
+        setApiKeyReady(false);
+        setApiKeyGateReason("reauth");
+        setApiKeyError(
+          "OpenAI rejected that key. Paste the full key from platform.openai.com, not a masked or placeholder value.",
+        );
+        setShowApiKeyGate(true);
+      }
       patch(requestSessionId, (s) => {
         const msgs = [...s.messages];
         if (
@@ -1837,7 +1884,7 @@ export default function App() {
     }
   };
 
-  const canSend = (text.trim() || image) && !loading && apiKeyReady;
+  const canSend = (text.trim() || image) && !loading && apiKeyReady && !apiConfigLoading;
   const isAr = (txt) => /[\u0600-\u06ff]/.test(txt || "");
   const activeModelLabels = getModelDisplay(selectedModel, {
     developerLabels: uiSettings.developerLabels,
@@ -1872,6 +1919,7 @@ export default function App() {
         setApiKeyInput("");
       }, 320);
     } catch (e) {
+      sessionStorage.removeItem(OPENAI_KEY_SESSION);
       setApiKeyError(e.message || "Could not save API key");
     } finally {
       setApiKeySubmitting(false);
@@ -1901,6 +1949,10 @@ export default function App() {
         color: t.text1,
         fontFamily: fontFamily,
         fontSize: 14,
+        "--tm-chat-font-size": `${textTokens.chat}px`,
+        "--tm-user-font-size": `${textTokens.user}px`,
+        "--tm-chat-meta-size": `${textTokens.meta}px`,
+        "--tm-composer-font-size": `${textTokens.composer}px`,
         "--tm-accent": t.accent,
         "--tm-accent-dim": t.accentDim,
         "--tm-accent-rgb": hexToRgb(t.accent),
@@ -2514,7 +2566,7 @@ export default function App() {
             </div>
           ) : (
             <div
-              className={`tm-content-width${messagesWide ? " tm-content-width--wide" : ""}`}
+              className={`tm-content-width tm-content-width--chat${messagesWide ? " tm-content-width--wide" : ""}`}
               style={{
                 margin: "0 auto",
                 padding: "20px 24px 8px",
@@ -2570,7 +2622,7 @@ export default function App() {
                               color: t.text1,
                               borderRadius: "18px 18px 4px 18px",
                               padding: "10px 16px",
-                              fontSize: 14,
+                              fontSize: "var(--tm-user-font-size)",
                               lineHeight: 1.6,
                               wordBreak: "break-word",
                               direction: isAr(msg.text) ? "rtl" : "ltr",
@@ -2595,7 +2647,7 @@ export default function App() {
                         borderRadius: 12,
                         padding: "12px 16px",
                         marginBottom: 16,
-                        fontSize: 13,
+                        fontSize: "var(--tm-chat-font-size)",
                         color: t.err.color,
                       }}
                     >
@@ -2604,6 +2656,8 @@ export default function App() {
                   );
 
                 const ar = isAr(msg.answer);
+                const metaIsRtl = isRtlUi(uiSettings);
+                const latencyUnit = metaIsRtl ? "مللي ثانية" : "ms";
                 const useAdvisoryPanels = shouldUseAdvisoryPanels(
                   msg.model,
                   msg.answer,
@@ -2629,7 +2683,7 @@ export default function App() {
                       />
                       <span
                         style={{
-                          fontSize: 13,
+                          fontSize: "var(--tm-chat-meta-size)",
                           fontWeight: 600,
                           color: t.text2,
                         }}
@@ -2643,11 +2697,13 @@ export default function App() {
                           color: t.text3,
                           marginInlineStart: ar ? 0 : "auto",
                           marginInlineEnd: ar ? "auto" : 0,
+                          direction: metaIsRtl ? "rtl" : "ltr",
+                          unicodeBidi: "isolate",
                         }}
                       >
                         {msg.time}
                         {!msg.streaming && msg.latency != null
-                          ? ` · ${msg.latency}ms`
+                          ? ` · ${msg.latency}${latencyUnit}`
                           : msg.streaming
                             ? " · …"
                             : ""}
@@ -2680,7 +2736,7 @@ export default function App() {
                           <div
                             className="tm-msg-meta"
                             style={{
-                              fontSize: 10,
+                              fontSize: "calc(var(--tm-chat-meta-size) - 2px)",
                               color: t.text3,
                               marginBottom: 6,
                               direction: "ltr",
@@ -2697,7 +2753,7 @@ export default function App() {
                         <div
                           className="tm-msg-meta"
                           style={{
-                            fontSize: 12,
+                            fontSize: "var(--tm-chat-meta-size)",
                             color: t.text3,
                             marginBottom: 8,
                             fontStyle: "italic",
@@ -2706,7 +2762,7 @@ export default function App() {
                           {msg.status}
                         </div>
                       )}
-                      <div style={{ fontSize: 14 }}>
+                      <div style={{ fontSize: "var(--tm-chat-font-size)" }}>
                         {useAdvisoryPanels ? (
                           <AdvisoryPanels
                             answer={msg.answer}
@@ -2807,7 +2863,7 @@ export default function App() {
           style={{ padding: "12px 16px 16px", flexShrink: 0 }}
         >
           <div
-            className={`tm-content-width${composerWide ? " tm-content-width--wide" : ""}`}
+            className={`tm-content-width tm-content-width--composer${composerWide ? " tm-content-width--wide" : ""}`}
             style={{ margin: "0 auto" }}
           >
             <div className="tm-composer-wrap">
@@ -2898,7 +2954,7 @@ export default function App() {
                   outline: "none",
                   color: t.text1,
                   fontFamily: fontFamily,
-                  fontSize: 14,
+                  fontSize: "var(--tm-composer-font-size)",
                   lineHeight: 1.6,
                   resize: "none",
                   width: "100%",

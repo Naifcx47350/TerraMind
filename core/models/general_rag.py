@@ -3,10 +3,9 @@
 import logging
 
 from core.models.conversation import (
+    build_contextual_retrieval_query,
     build_prompt_question,
-    build_retrieval_query,
 )
-from core.models.router import skips_document_retrieval
 from core.rag.general import answer_with_rag, get_general_db, sources_from_retrieved
 
 logger = logging.getLogger(__name__)
@@ -18,23 +17,9 @@ def answer(
     image_analysis: str | None = None,
     **_,
 ) -> dict:
-    if skips_document_retrieval(question, image_analysis):
-        from core.models.base_llm import answer as base_llm_answer
-
-        out = base_llm_answer(
-            question,
-            history=history,
-            image_analysis=image_analysis,
-        )
-        out["system"] = "general_rag"
-        out["confidence"] = ""
-        out["retrieval_score"] = None
-        out["retrieved_chunks"] = 0
-        out["sources"] = []
-        return out
-
     db = get_general_db()
-    retrieval_q = build_retrieval_query(question, image_analysis)
+    retrieval_q = build_contextual_retrieval_query(
+        question, history, image_analysis)
     generation_q = build_prompt_question(question, history, image_analysis)
     result = answer_with_rag(
         db,
@@ -44,7 +29,8 @@ def answer(
     retrieved = result["retrieved"]
     sources = sources_from_retrieved(retrieved)
     filenames = sorted(
-        {d.metadata.get("filename") for d in retrieved if d.metadata.get("filename")}
+        {d.metadata.get("filename")
+         for d in retrieved if d.metadata.get("filename")}
     )
     logger.debug(
         "general_rag retrieval_q_len=%s chunks=%s source_files=%s",
