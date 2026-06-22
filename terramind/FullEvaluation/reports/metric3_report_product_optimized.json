@@ -1,6 +1,6 @@
 {
     "summary": {
-        "average_similarity": 0.5251731363435587,
+        "average_similarity": 0.6916666666666668,
         "questions_completed": 24,
         "total_questions": 24
     },
@@ -8,146 +8,146 @@
         {
             "question": "For Citrus Bacteria Clear (AF0001), what does '1 g diluted in 1 jin of water' mean?",
             "golden": "It means mixing 1 g of product into 1 jin (500 g / 0.5 L) of water; the label ratio is 1 g per 500 g water.",
-            "generated": "To clarify your question about **Citrus Bacteria Clear (AF0001)**, the instruction \"1 g diluted in 1 jin of water\" means:\n\n- **1 g** of the product should be mixed with **500 g** of water (which is equivalent to **1 jin**).\n\nThis mixture is then used for application. \n\nFor further application details:\n- **Dilution**: The solution should be diluted **1000 times** during the crop's growing season and sprayed evenly on the leaves.\n- **Adjustment**: The dosage and frequency can be adjusted based on local crop growth conditions and fertilization habits.\n\nIf you have any more questions or need further assistance, feel free to ask!",
-            "similarity": 0.5836508274078369
+            "generated": "To clarify your question about **Citrus Bacteria Clear (AF0001)**, the instruction \"1 g diluted in 1 jin of water\" means:\n\n- **1 g** of the product should be mixed with **500 g** of water (which is equivalent to **1 jin**).\n\nThis mixture is used to create a solution that can be applied to your crops. \n\nIf you have any specific concerns about your crop or need further assistance with application, feel free to share!",
+            "similarity": 1.0
         },
         {
             "question": "One 500 g bottle of Citrus Bacteria Clear (AF0001) dilutes into how much water?",
             "golden": "At 1 g : 500 g, a 500 g bottle dilutes into 500 jin (250 kg) of water.",
-            "generated": "To answer your question, one **500 g bottle** of **Citrus Bacteria Clear** (AF0001) dilutes into **500 liters** of water, as the solution is diluted **1000 times** during the crop's growing season. \n\nIf you have any further questions about application or specific crop needs, feel free to ask!",
-            "similarity": 0.6357390880584717
+            "generated": "To answer your question, one **500 g bottle** of **Citrus Bacteria Clear** (AF0001) dilutes into **500 liters** of water, as the solution is diluted **1000 times** during the crop's growing season.\n\n### Key Details:\n- **Product Name:** Citrus Bacteria Clear\n- **Dilution Rate:** 1 g with 500 g (1 jin) water\n- **Total Dilution for 500 g:** 500 g x 1000 = **500 liters** of water\n\nIf you have any further questions about application or specific crop issues, feel free to ask!",
+            "similarity": 0.8
         },
         {
             "question": "For Citrus Bacteria Clear (AF0001), how much product for 30 jin of water?",
             "golden": "At 1 g per 500 g water, 30 jin (15 kg) of water needs about 30 g of product.",
-            "generated": "To prepare **Citrus Bacteria Clear** for **30 jin of water**, you will need to follow the dilution instructions provided in the catalog. \n\n### Calculation for Dilution:\n- **Dilution Ratio**: 1 g of product with 500 g (1 jin) of water.\n- **Total Water**: 30 jin = 30 * 500 g = **15,000 g** of water.\n- **Amount of Product Needed**: \n  - Since 1 g is used for 500 g of water, for 15,000 g of water, you will need:\n  - \\( \\frac{15,000 \\text{ g}}{500 \\text{ g}} = 30 \\text{ g} \\)\n\n### Summary:\n- **Amount of Citrus Bacteria Clear needed**: **30 g**\n- **Water**: **30 jin (15,000 g)**\n\nMake sure to mix the product thoroughly in the water before application. If you have any specific symptoms or conditions regarding your crop, feel free to share for more tailored advice!",
-            "similarity": 0.6344517469406128
+            "generated": "To prepare **Citrus Bacteria Clear** for use with **30 jin of water**, you will need to dilute the product according to the instructions provided in the catalog.\n\n### Calculation for Dilution:\n- **Dilution Ratio**: 1 g of product with 500 g (1 jin) of water.\n- **Total Water**: 30 jin = 30 * 500 g = **15,000 g** of water.\n\n### Required Product Amount:\n- For 15,000 g of water:\n  - You will need **30 g** of **Citrus Bacteria Clear** (since 1 g is needed for every 500 g of water).\n\n### Summary:\n- **Amount of Citrus Bacteria Clear**: **30 g**\n- **Amount of Water**: **30 jin (15,000 g)**\n\nMake sure to mix the product thoroughly in the water before application. If you have any specific symptoms or conditions affecting your crops, feel free to share, and I can provide more tailored advice!",
+            "similarity": 1.0
         },
         {
             "question": "How much water for 45% Bifenazate + Etoxazole (PN0014)?",
             "golden": "15 g of PN0014 is mixed with 30 jin (15 kg) of water.",
-            "generated": "To mix **45% Bifenazate + Etoxazole (PN0014)**, you should use:\n\n- **15 grams** of the product\n- **30 jin** of water\n\nThis mixture will help you effectively control mite populations on your crops. If you have any further questions about application or specific crop issues, feel free to ask!",
-            "similarity": 0.4526354968547821
+            "generated": "To mix **45% Bifenazate + Etoxazole (PN0014)**, you should use:\n\n- **15 grams** of the product\n- **30 jin** of water\n\nThis mixture is designed for effective application on your crops. If you have any specific symptoms or issues with your plants, feel free to share, and I can provide more tailored advice!",
+            "similarity": 1.0
         },
         {
             "question": "One 500 g bottle of Spider Mite Killer No.1 (AF0039) dilutes into how much water?",
             "golden": "At 50 g : 30 jin, a 500 g bottle makes about 300 jin (150 kg) of solution.",
             "generated": "One 500 g bottle of **Spider Mite Killer No.1** dilutes into approximately **400-500 kg of water**. \n\nIf you have any further questions about application or usage, feel free to ask!",
-            "similarity": 0.5775874257087708
+            "similarity": 0.0
         },
         {
             "question": "How is Citrus Bacteria Clear (AF0001) used?",
             "golden": "Dilute 1000x during the growing season and spray evenly on the leaves; adjust dosage and frequency to local crop and conditions.",
-            "generated": "**Citrus Bacteria Clear (AF0001) Usage Instructions:**\n\n- **Dilution:** Dilute the solution **1000 times**.\n- **Application Method:** Spray evenly on the leaves during the crop's growing season.\n- **Adjustment:** The dosage and frequency of application can be adjusted based on local crop growth conditions and fertilization habits.\n\n**Product Benefits:**\n- Inhibits fungi, bacteria, viruses, and pests.\n- Enhances plant immunity and forms a protective film.\n- Improves resistance to frost, freezing damage, and diseases.\n- Balances nutrition and promotes robust plant growth.\n\nIf you have specific symptoms or issues with your crop, please share more details or a photo for tailored advice!",
-            "similarity": 0.6115947961807251
+            "generated": "**Citrus Bacteria Clear Usage Instructions:**\n\n- **Dilution:** Dilute the solution **1000 times**.\n- **Application Method:** Spray evenly on the leaves during the crop's growing season.\n- **Adjustment:** The dosage and frequency can be adjusted based on local crop growth conditions and fertilization habits.\n\n**Product Benefits:**\n- Inhibits fungi, bacteria, viruses, and pests.\n- Enhances plant immunity and forms a protective film.\n- Improves resistance to frost, freezing damage, and diseases.\n- Balances nutrition and promotes robust plant growth.\n\nIf you have specific symptoms or issues with your crop, please share more details or a photo for tailored advice!",
+            "similarity": 1.0
         },
         {
             "question": "For Citrus Bacteria Clear (AF0001), is it watered (root drench) or sprayed on leaves?",
             "golden": "It is sprayed evenly on the foliage during the growing season, not applied as a root drench.",
             "generated": "Citrus Bacteria Clear (AF0001) is applied by **spraying it evenly on the leaves**. It should not be used as a root drench.\n\n### Application Details:\n- **Dilution**: Dilute the solution **1000 times**.\n- **Timing**: Spray before **10:00 AM** or after **4:00 PM**.\n\nIf you have any specific symptoms or conditions you're observing in your crops, feel free to share, and I can provide more tailored advice!",
-            "similarity": 0.5079597234725952
+            "similarity": 1.0
         },
         {
             "question": "For Citrus Bacteria Clear (AF0001), can I dust it on dry without water?",
             "golden": "No. It must be diluted in water and sprayed evenly on leaves; dry dusting is not the registered method.",
             "generated": "You cannot dust **Citrus Bacteria Clear** (AF0001) on dry without water. The product is designed to be diluted **1000 times** during the crop's growing season and then sprayed evenly on the leaves. Dusting it dry would not provide the intended benefits and could lead to ineffective application.\n\n### Key Application Details:\n- **Dilution**: 1000 times with water\n- **Application Method**: Spray evenly on leaves\n- **Adjustment**: Dosage and frequency can be modified based on local crop growth conditions and fertilization habits.\n\nIf you have any specific symptoms or issues with your crop, feel free to share, and I can provide more tailored advice!",
-            "similarity": 0.6173328757286072
+            "similarity": 1.0
         },
         {
             "question": "What is the net content of one bottle of Citrus Bacteria Clear (AF0001)?",
             "golden": "The specification is 50 g / 500 g per the label.",
             "generated": "The net content of one bottle of **Citrus Bacteria Clear (AF0001)** is **100g**.",
-            "similarity": 0.4092690944671631
+            "similarity": 0.0
         },
         {
             "question": "Does Citrus Bacteria Clear (AF0001) work on potatoes? Potato isn't listed.",
             "golden": "Registered crop is chili pepper; practical use shows broad effect, but potato is not on the registered list, so label suitability for potato is not guaranteed.",
-            "generated": "Citrus Bacteria Clear (AF0001) is specifically designed for use on citrus crops and is not listed for potatoes. Therefore, I cannot confirm its effectiveness on potatoes as it is not mentioned in the product catalog.\n\nIf you are experiencing issues with your potato crop, I recommend looking for a product specifically formulated for potatoes or contacting a local agricultural extension service for tailored advice. If you have any other questions or need assistance with a different product, feel free to ask!",
-            "similarity": 0.5426105260848999
+            "generated": "Citrus Bacteria Clear (AF0001) is specifically designed for use on citrus crops and is not listed for potatoes. Therefore, I cannot confirm its effectiveness on potatoes as it is not mentioned in the product catalog.\n\nIf you are experiencing issues with your potato crop, I recommend looking for a product specifically formulated for potatoes or contacting a local agricultural extension service for tailored advice.\n\nIf you have any other questions or need assistance with a different product, feel free to ask!",
+            "similarity": 0.2
         },
         {
             "question": "One 100 g bottle of Bacteria Clear Universal (AF0006) dilutes into how much water?",
             "golden": "At 1 g : 500 g, a 100 g bottle dilutes into 100 jin (50 kg) of water.",
-            "generated": "To answer your question, one **100 g bottle** of **Bacteria Clear (Universal)** dilutes into **100,000 g (100 liters)** of water, as the solution is diluted **1000 times** during the crop's growing season. \n\nIf you have any further questions about application or specific crop needs, feel free to ask!",
-            "similarity": 0.692989706993103
+            "generated": "To answer your question, one **100 g bottle** of **Bacteria Clear (Universal)** dilutes into **100,000 g (100 liters)** of water. This is based on the dilution rate of **1 g with 500 g (1 jin) of water**, which means that for 100 g, you would multiply the dilution by 100.\n\nIf you have any further questions about application or specific crop needs, feel free to ask!",
+            "similarity": 0.8
         },
         {
             "question": "For Citrus Bacteria Clear (AF0001), how many grams for 2 jin of water?",
             "golden": "At 1 g : 500 g, 2 jin (1 kg) of water needs about 2 g of product.",
-            "generated": "To mix **Citrus Bacteria Clear** for **2 jin of water**, you will need:\n\n- **1 g** of **Citrus Bacteria Clear** for every **500 g (1 jin)** of water.\n\nFor **2 jin of water**, you will need:\n\n- **2 g** of **Citrus Bacteria Clear**.\n\n### Summary:\n- **Water Amount**: 2 jin (1000 g)\n- **Product Amount**: 2 g of Citrus Bacteria Clear\n\nIf you have any further questions or need assistance with application, feel free to ask!",
-            "similarity": 0.5181071162223816
+            "generated": "To mix **Citrus Bacteria Clear** for **2 jin of water**, you will need to use the following ratio:\n\n- **1 g of Citrus Bacteria Clear** for **500 g (1 jin) of water**.\n\nSince you are using **2 jin of water**, you will need:\n\n- **2 g of Citrus Bacteria Clear** for **2 jin of water**.\n\n### Summary:\n- **Amount of product needed**: **2 g**\n- **Amount of water**: **2 jin (1000 g)**\n\nIf you have any further questions or need assistance with application, feel free to ask!",
+            "similarity": 1.0
         },
         {
             "question": "For Citrus Bacteria Clear (AF0001), how much product for a 20 L sprayer tank?",
             "golden": "20 L of water ≈ 40 jin; at 1 g : 500 g this needs about 40 g of product.",
-            "generated": "To use **Citrus Bacteria Clear (AF0001)** in a 20 L sprayer tank, you need to dilute the product **1000 times**. \n\n### Calculation for 20 L Sprayer Tank:\n- **Total Volume of Sprayer Tank**: 20 L\n- **Dilution Rate**: 1:1000\n\nTo find out how much product to use:\n- **Amount of Citrus Bacteria Clear**: \n  - \\( \\frac{20 \\text{ L}}{1000} = 0.02 \\text{ L} \\) or **20 mL** of the product.\n\n### Application Instructions:\n- **Dilution**: Mix **20 mL** of Citrus Bacteria Clear with **20 L** of water.\n- **Application**: Spray evenly on the leaves during the crop's growing season. Adjust dosage and frequency based on local crop growth conditions and fertilization habits.\n\nIf you have any specific symptoms or issues with your citrus crop, feel free to share, and I can provide more tailored advice!",
-            "similarity": 0.36232566833496094
+            "generated": "To use **Citrus Bacteria Clear (AF0001)** in a 20 L sprayer tank, you need to dilute the product **1000 times**. \n\n### Calculation for 20 L Sprayer Tank:\n- **Total Volume of Sprayer**: 20 L\n- **Dilution Rate**: 1:1000\n\nTo find out how much product to use:\n- **Amount of Citrus Bacteria Clear**: \n  - \\( \\frac{20 \\text{ L}}{1000} = 0.02 \\text{ L} \\) or **20 mL** of the product.\n\n### Application Instructions:\n- **Dilution**: Mix **20 mL** of Citrus Bacteria Clear with **20 L** of water.\n- **Application**: Spray evenly on the leaves during the crop's growing season. Adjust dosage and frequency based on local crop growth conditions and fertilization habits.\n\nIf you have any specific symptoms or issues with your citrus crop, feel free to share, and I can provide more tailored advice!",
+            "similarity": 0.0
         },
         {
             "question": "How many jin of water can a 500 g bottle of Spider Mite Killer No.1 (AF0039) make?",
             "golden": "At 50 g : 30 jin, a 500 g bottle makes about 300 jin (150 kg) of solution.",
-            "generated": "A 500 g bottle of **Spider Mite Killer No.1** can make approximately **400-500 jin of water** when diluted. \n\nIf you have any further questions about usage or application, feel free to ask!",
-            "similarity": 0.6222313642501831
+            "generated": "A 500 g bottle of **Spider Mite Killer No.1** can make approximately **400-500 jin** of water when diluted. \n\nTo achieve this, you would dilute the product **800-1000 times**. For example, mixing **50 grams** of the product with **30 jin** of water is one way to prepare the solution. \n\nIf you have any further questions about application or specific crop issues, feel free to ask!",
+            "similarity": 0.5
         },
         {
             "question": "For 45% Bifenazate + Etoxazole (PN0014), how much product for 40 jin of water?",
             "golden": "At 15 g : 30 jin, 40 jin needs about 20 g.",
-            "generated": "To mix **45% Bifenazate + Etoxazole** for **40 jin of water**, you would need to adjust the mixing ratio based on the provided instructions. The original instructions state:\n\n- **15 grams** mixed with **30 jin** of water.\n\nTo find out how much product is needed for **40 jin** of water, you can set up a proportion:\n\n- For **30 jin** of water: **15 grams**\n- For **40 jin** of water: **X grams**\n\nCalculating this gives:\n\n\\[\nX = \\frac{15 \\text{ grams} \\times 40 \\text{ jin}}{30 \\text{ jin}} = 20 \\text{ grams}\n\\]\n\n### Summary:\n- **Amount of product needed for 40 jin of water:** **20 grams** \n\nIf you have any further questions or need assistance with application timing or safety, feel free to ask!",
-            "similarity": 0.4562813639640808
+            "generated": "To mix **45% Bifenazate + Etoxazole** for **40 jin of water**, you would need to adjust the mixing ratio based on the provided instructions. The original instructions state:\n\n- **15 grams** mixed with **30 jin** of water.\n\nTo find the amount needed for **40 jin** of water, you can set up a proportion:\n\n- For **30 jin**: **15 grams**\n- For **40 jin**: **X grams**\n\nCalculating this gives:\n\n\\[\nX = \\frac{15 \\text{ grams} \\times 40 \\text{ jin}}{30 \\text{ jin}} = 20 \\text{ grams}\n\\]\n\n### Summary:\n- **Amount of product for 40 jin of water**: **20 grams** \n\nIf you have any further questions about application or safety, feel free to ask!",
+            "similarity": 1.0
         },
         {
             "question": "For Spider Mite Killer No.1 (AF0039), is a 50 g dose mixed with 30 jin of water?",
             "golden": "Yes. 50 g is mixed with 30 jin (15 kg) of water.",
             "generated": "Yes, for **Spider Mite Killer No.1**, the correct dosage is **50 grams mixed with 30 jin of water**. \n\n### Additional Mixing Instructions:\n- **Dilution**: This product is highly concentrated. It is recommended to dilute it **800-1000 times** before use.\n- **Mixing**: Thoroughly stir with water to create a foamy layer before foliar spraying. Ensure the solution fully contacts both sides of the leaves and fruits for optimal results.\n\nIf you have any further questions or need assistance with application timing or safety, feel free to ask!",
-            "similarity": 0.4018735885620117
+            "similarity": 1.0
         },
         {
             "question": "For Thrips No.1 (AF0064), how much per capful?",
             "golden": "Dilute 800-1000x; one capful is roughly the per-tank dose stated on the label.",
             "generated": "For **Thrips No.1 (Jima 1 Hao)**, the dilution rate is **800-1000 times** before use. \n\n- **Capful Measurement**: One capful is approximately equivalent to one spray bottle of water.\n- **500g Bottle**: This is approximately equivalent to **400-500kg of water** when diluted.\n\nMake sure to thoroughly stir the solution to create a foamy layer before foliar spraying, ensuring that both sides of the leaves and fruits are covered for optimal results. If you have any specific symptoms or issues with your crop, feel free to share, and I can provide more tailored advice!",
-            "similarity": 0.4642457664012909
+            "similarity": 0.8
         },
         {
             "question": "How many grams is one bottle of 24% Bifenazate (PN0013)?",
             "golden": "The specification is 100 grams per bottle.",
             "generated": "The bottle of **24% Bifenazate (PN0013)** contains **100 grams** of the product. \n\nIf you have any further questions about how to use it or its application, feel free to ask!",
-            "similarity": 0.6876296997070312
+            "similarity": 1.0
         },
         {
             "question": "For Citrus Bacteria Clear (AF0001), how much area does one bottle cover?",
             "golden": "A 500 g bottle making 500 jin of solution covers roughly the foliar spray area stated on the label; adjust to crop and density.",
-            "generated": "To answer your question about coverage for **Citrus Bacteria Clear (AF0001)**:\n\n- **Pack Size**: Available in **50g** and **500g**.\n- **Dilution Rate**: Dilute the solution **1000 times** during the crop's growing season.\n- **Application**: Spray evenly on the leaves.\n\nUnfortunately, the specific area coverage per bottle is not provided in the catalog. You may need to refer to the product label for that detail. If you have any other questions or need further assistance, feel free to ask!",
-            "similarity": 0.5616860389709473
+            "generated": "To answer your question about coverage for **Citrus Bacteria Clear (AF0001)**:\n\n- **Pack Size**: Available in **50g** and **500g**.\n- **Dilution Rate**: Dilute the solution **1000 times**.\n- **Application**: Spray evenly on the leaves during the crop's growing season.\n\nUnfortunately, the specific area coverage per bottle is not provided in the catalog. You may need to refer to the product label for that detail. If you have any other questions or need further assistance, feel free to ask!",
+            "similarity": 0.4
         },
         {
             "question": "For Citrus Bacteria Clear (AF0001), how many days between sprays?",
             "golden": "Re-spray based on crop condition; the label advises adjusting frequency to local growth rather than a fixed interval.",
-            "generated": "To determine how many days to wait between sprays of **Citrus Bacteria Clear**, the catalog does not specify a precise interval. However, it does mention that the dosage and frequency of application can be adjusted according to local crop growth conditions and fertilization habits. \n\nFor best results, consider the growth stage of your crop and local conditions. If you have specific symptoms or conditions affecting your crop, please share those for more tailored advice. \n\n### Key Information for Citrus Bacteria Clear:\n- **Dilution**: 1000 times during the crop's growing season.\n- **Application Timing**: Before 10:00 AM or after 4:00 PM.\n- **Precautions**: Avoid mixing with strong acids or alkaline fertilizers/pesticides.\n\nIf you have any further questions or need additional details, feel free to ask!",
-            "similarity": 0.4080277681350708
+            "generated": "To determine how many days to wait between sprays of **Citrus Bacteria Clear**, the catalog does not specify a precise interval. However, it does mention that the dosage and frequency of application can be adjusted according to local crop growth conditions and fertilization habits. \n\nFor best results, consider the growth stage of your crop and local conditions. If you have specific symptoms or conditions affecting your crop, please share those for more tailored advice. \n\n### Key Information for Citrus Bacteria Clear:\n- **Dilution**: 1000 times during the crop's growing season.\n- **Application Timing**: Before 10:00 AM or after 4:00 PM.\n- **Precautions**: Avoid mixing with strong acids or alkaline fertilizers/pesticides.\n\nIf you need more specific guidance, please provide additional details about your crop's condition.",
+            "similarity": 0.9
         },
         {
             "question": "For 45% Bifenazate + Etoxazole (PN0014), what is the method and dose?",
             "golden": "Mix 15 g with 30 jin of water and spray evenly on the foliage.",
-            "generated": "For **45% Bifenazate + Etoxazole**, here are the details regarding the method and dosage:\n\n### Application Method and Dosage:\n- **Crop/Location**: Citrus Trees\n- **Target Pest**: Red Spider Mites\n- **Dosage**: **8000-12000 times dilution**\n- **Application Method**: **Spraying**\n\nThis product is effective against red spider mites, providing control throughout their life cycle. Make sure to follow the dilution rates for optimal results. If you have any specific symptoms or issues with your crop, feel free to share!",
-            "similarity": 0.43624284863471985
+            "generated": "For **45% Bifenazate + Etoxazole**, here are the details regarding the method and dosage:\n\n### Application Method and Dosage:\n- **Crop/Location**: Citrus Trees\n- **Target Pest**: Red Spider Mites\n- **Dosage**: **8000-12000 times dilution**\n- **Application Method**: **Spraying**\n\nThis product is effective against red spider mites, providing control throughout their life cycle. Make sure to follow the dilution rates for optimal results. If you have any specific symptoms or issues with your crop, feel free to share for more tailored advice!",
+            "similarity": 0.2
         },
         {
             "question": "Can Citrus Bacteria Clear (AF0001) be mixed with other pesticides?",
             "golden": "Do not mix with strong acid or alkaline fertilizers or pesticides; follow label precautions.",
-            "generated": "Citrus Bacteria Clear (AF0001) **must not be mixed with strong acid or alkaline fertilizers or pesticides**. Therefore, it is not advisable to mix this product with other pesticides. \n\nIf you have any specific symptoms or issues with your crop, please share, and I can help you determine the best course of action or product to use.",
-            "similarity": 0.6246429085731506
+            "generated": "Citrus Bacteria Clear (AF0001) **must not be mixed** with strong acid or alkaline fertilizers or pesticides. This precaution is crucial to ensure the product's effectiveness and safety.\n\nIf you have any specific symptoms or issues with your crop, please share, and I can help you determine the best course of action or recommend additional products if needed.",
+            "similarity": 1.0
         },
         {
             "question": "Which product is used for potato seed dressing, and at what ratio?",
             "golden": "Bacteria Clear Sachet (AF0009) is used for seed dressing at 1 g : 1 jin water.",
-            "generated": "To address your question about potato seed dressing, the **Sweet Potato Baby** product is suitable for this purpose. Here are the relevant details:\n\n### Sweet Potato Baby\n- **Usage**: For seed dressing, the product should be diluted **800-1000 times** with water.\n- **Application Method**: Apply as a foliar spray or through fertigation/drip irrigation.\n- **Dilution for Fertigation/Drip Irrigation**: Dilute **5000-10000 times**.\n\nUnfortunately, the catalog does not specify a particular ratio for seed dressing beyond the dilution instructions. Please refer to the product label for any additional details or specific recommendations for potato seed dressing.",
-            "similarity": 0.41266530752182007
+            "generated": "To address your question about potato seed dressing, the **Sweet Potato Baby** product is suitable for this purpose. Here are the relevant details:\n\n### Sweet Potato Baby\n- **Usage**: For seed dressing, the product should be diluted **800-1000 times** with water.\n- **Application Method**: Apply as a foliar spray or through fertigation/drip irrigation.\n- **Dilution for Fertigation/Drip Irrigation**: Dilute **5000-10000 times**.\n\nUnfortunately, the catalog does not specify a particular ratio for seed dressing beyond the dilution rates provided. Please refer to the product label for any additional instructions or specific recommendations for seed dressing.",
+            "similarity": 0.0
         },
         {
             "question": "For Citrus Bacteria Clear (AF0001), can it be poured into potting soil?",
             "golden": "The registered method is foliar spray; soil drench is not the labeled application, so it is not recommended without guidance.",
             "generated": "Citrus Bacteria Clear is not designed to be poured directly into potting soil. It is intended for foliar application. Here are the key details for using this product:\n\n### Citrus Bacteria Clear (AF0001)\n- **Usage**: Dilute the solution **1000 times** during the crop's growing season.\n- **Application Method**: Spray evenly on the leaves.\n- **Adjustment**: Dosage and frequency can be adjusted based on local crop growth conditions and fertilization habits.\n\nIf you have specific symptoms or issues with your crop, please share more details, and I can help you determine if this product is suitable for your needs.",
-            "similarity": 0.38237452507019043
+            "similarity": 1.0
         }
     ]
 }

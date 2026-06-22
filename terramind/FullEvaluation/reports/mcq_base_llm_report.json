@@ -1,0 +1,100 @@
+{
+    "summary": {
+        "accuracy": 1.0,
+        "correct": 10,
+        "questions_completed": 10,
+        "total_questions": 10
+    },
+    "results": [
+        {
+            "id": "G012",
+            "question": "What is the correct first step when red spider mite populations exceed the action threshold?",
+            "category": "diagnosis",
+            "expected_answer": "B",
+            "predicted_answer": "B",
+            "raw_answer": "B",
+            "correct": true
+        },
+        {
+            "id": "G013",
+            "question": "Which factor INCREASES susceptibility to powdery mildew?",
+            "category": "diagnosis",
+            "expected_answer": "B",
+            "predicted_answer": "B",
+            "raw_answer": "B",
+            "correct": true
+        },
+        {
+            "id": "G014",
+            "question": "When is the best time of day to spray to avoid peak heat?",
+            "category": "timing",
+            "expected_answer": "B",
+            "predicted_answer": "B",
+            "raw_answer": "B",
+            "correct": true
+        },
+        {
+            "id": "G015",
+            "question": "Which practice improves soil structure?",
+            "category": "soil",
+            "expected_answer": "A",
+            "predicted_answer": "A",
+            "raw_answer": "A",
+            "correct": true
+        },
+        {
+            "id": "G016",
+            "question": "What should be avoided when applying pesticides?",
+            "category": "safety",
+            "expected_answer": "C",
+            "predicted_answer": "C",
+            "raw_answer": "C",
+            "correct": true
+        },
+        {
+            "id": "G038",
+            "question": "What is used to MONITOR thrips populations?",
+            "category": "diagnosis",
+            "expected_answer": "A",
+            "predicted_answer": "A",
+            "raw_answer": "A",
+            "correct": true
+        },
+        {
+            "id": "G040",
+            "question": "What should be done BEFORE applying any treatment for leaf yellowing?",
+            "category": "diagnosis",
+            "expected_answer": "B",
+            "predicted_answer": "B",
+            "raw_answer": "B",
+            "correct": true
+        },
+        {
+            "id": "G044",
+            "question": "When can harvest occur after spraying?",
+            "category": "safety",
+            "expected_answer": "B",
+            "predicted_answer": "B",
+            "raw_answer": "B",
+            "correct": true
+        },
+        {
+            "id": "G045",
+            "question": "What ensures pesticide residues are within safe limits before eating?",
+            "category": "safety",
+            "expected_answer": "B",
+            "predicted_answer": "B",
+            "raw_answer": "B",
+            "correct": true
+        },
+        {
+            "id": "G047",
+            "question": "When can animals resume grazing after spraying?",
+            "category": "safety",
+            "expected_answer": "B",
+            "predicted_answer": "B",
+            "raw_answer": "B",
+            "correct": true
+        }
+    ]
+}

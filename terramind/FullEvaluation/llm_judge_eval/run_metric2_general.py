@@ -10,7 +10,7 @@ Saves:
     reports/metric2_general_report.json
 
 Run:
-    python -m terramind.FullEvaluation.run_metric2_general
+    python -m terramind.FullEvaluation.llm_judge_eval.run_metric2_general
 """
 
 import json
@@ -42,7 +42,7 @@ from terramind.FullEvaluation.metrics.metrics import (
     clean_answer,
 )
 
-from terramind.FullEvaluation.run_metric2 import (
+from terramind.FullEvaluation.llm_judge_eval.run_metric2 import (
     factual_correctness_detailed,
 )
 

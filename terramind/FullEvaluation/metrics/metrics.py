@@ -236,7 +236,22 @@ def decompose_claims(text: str) -> list:
 CLAIM_VERIFICATION_PROMPT = (
     "Reference text:\n{reference}\n\n"
     "For each numbered claim below, decide whether the reference text "
-    "supports it (confirms it or directly implies it).\n"
+    "SUPPORTS it.\n\n"
+    "A claim is SUPPORTED if the reference states the same fact, even when "
+    "the wording, terminology, or units differ. Judge by MEANING, not "
+    "surface form. For example:\n"
+    "- 'pre-harvest interval' and 'post-harvest interval' refer to the "
+    "same waiting-period concept -> supported if the reference conveys "
+    "that waiting period.\n"
+    "- '15 kg of water' and '30 jin of water' are the same quantity "
+    "(1 jin = 0.5 kg) -> supported.\n"
+    "- A value given as '50 g / 500 g' covers a claim about either the "
+    "50 g or the 500 g specification.\n\n"
+    "However, do NOT mark a claim supported if the reference does not "
+    "actually contain that fact. A claim about a DIFFERENT number, a "
+    "DIFFERENT product, or a fact simply ABSENT from the reference is "
+    "NOT supported. Be strict about wrong or missing facts; be lenient "
+    "only about phrasing and units.\n\n"
     "Return ONLY a JSON array of true/false values, in the same order "
     "as the claims, with no other text.\n\n"
     "Claims:\n{claims}"
@@ -324,6 +339,76 @@ def factual_correctness_score(
         2 * precision * recall
         / (precision + recall)
     )
+
+
+COVERAGE_JUDGE_PROMPT = (
+    "You are evaluating whether a generated answer covers the same "
+    "factual content as a golden (reference) answer for an agricultural "
+    "question.\n\n"
+    "Golden answer:\n{golden}\n\n"
+    "Generated answer:\n{generated}\n\n"
+    "Score how well the generated answer covers the golden answer's "
+    "content, from 0.0 to 1.0:\n"
+    "- If the generated answer includes the golden answer's key points "
+    "(even if phrased differently, reorganized, or with extra detail "
+    "added), give a HIGH score.\n"
+    "- If the generated answer discusses the same general topic but its "
+    "actual content (recommendations, facts, reasoning) diverges from "
+    "the golden answer, give a LOW score, even if it is topically "
+    "related and well-written.\n\n"
+    "Return ONLY a JSON object with this shape, no other text:\n"
+    '{{"coverage": <float 0.0-1.0>, "reasoning": "<one sentence>"}}'
+)
+
+
+def coverage_judge_score(golden: str, generated: str) -> dict:
+    """
+    LLM-judged coverage score (Metric 3 candidate).
+
+    Unlike factual_correctness_score (claim decomposition + binary
+    true/false verification), this judges coverage holistically in a
+    single LLM call and returns a continuous 0-1 score, distinguishing
+    "same topic, different content" from genuine coverage.
+    """
+
+    golden = (golden or "").strip()
+    generated = (generated or "").strip()
+
+    if not golden or not generated:
+        return {"coverage": 0.0, "reasoning": "Empty golden or generated answer."}
+
+    llm = _get_eval_llm()
+
+    response = llm.invoke(
+        COVERAGE_JUDGE_PROMPT.format(
+            golden=golden,
+            generated=generated,
+        )
+    )
+
+    content = response.content.strip()
+
+    if content.startswith("```"):
+        content = content.strip("`")
+        content = content.split("\n", 1)[-1]
+
+    match = re.search(r"\{.*\}", content, re.DOTALL)
+
+    if match:
+        content = match.group(0)
+
+    try:
+        result = json.loads(content)
+
+    except json.JSONDecodeError:
+        return {"coverage": 0.0, "reasoning": "Failed to parse judge response."}
+
+    coverage = float(result.get("coverage", 0.0))
+
+    return {
+        "coverage": max(0.0, min(1.0, coverage)),
+        "reasoning": result.get("reasoning", ""),
+    }
 
 
 def agri_score(

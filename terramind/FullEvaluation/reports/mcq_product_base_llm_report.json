@@ -1,0 +1,160 @@
+{
+    "summary": {
+        "accuracy": 0.6666666666666666,
+        "correct": 10,
+        "questions_completed": 15,
+        "total_questions": 15
+    },
+    "results": [
+        {
+            "id": "G002",
+            "product_id": "AF0001",
+            "question": "One 500 g bottle of Citrus Bacteria Clear (AF0001) dilutes into how much water?",
+            "category": "dilution/dosage",
+            "expected_answer": "B",
+            "predicted_answer": "B",
+            "raw_answer": "B",
+            "correct": true
+        },
+        {
+            "id": "G003",
+            "product_id": "AF0001",
+            "question": "For Citrus Bacteria Clear (AF0001), how much product for 30 jin of water?",
+            "category": "dilution/dosage",
+            "expected_answer": "B",
+            "predicted_answer": null,
+            "raw_answer": "I cannot access the catalog in this mode. Please check the product label or consult a licensed agronomist.",
+            "correct": false
+        },
+        {
+            "id": "G004",
+            "product_id": "PN0014",
+            "question": "How much water for 15 g of 45% Bifenazate + Etoxazole (PN0014)?",
+            "category": "dilution/dosage",
+            "expected_answer": "A",
+            "predicted_answer": "A",
+            "raw_answer": "A",
+            "correct": true
+        },
+        {
+            "id": "G005",
+            "product_id": "AF0039",
+            "question": "One 500 g bottle of Spider Mite Killer No.1 (AF0039) dilutes into how much water?",
+            "category": "dilution/dosage",
+            "expected_answer": "B",
+            "predicted_answer": "B",
+            "raw_answer": "B",
+            "correct": true
+        },
+        {
+            "id": "G010",
+            "product_id": "AF0001",
+            "question": "What is the net content specification of Citrus Bacteria Clear (AF0001)?",
+            "category": "spec/crop",
+            "expected_answer": "A",
+            "predicted_answer": "A",
+            "raw_answer": "A",
+            "correct": true
+        },
+        {
+            "id": "G011",
+            "product_id": "AF0001",
+            "question": "Does Citrus Bacteria Clear (AF0001) work on potatoes?",
+            "category": "spec/crop",
+            "expected_answer": "B",
+            "predicted_answer": "B",
+            "raw_answer": "B",
+            "correct": true
+        },
+        {
+            "id": "G022",
+            "product_id": "AF0006",
+            "question": "One 100 g bottle of Bacteria Clear Universal (AF0006) dilutes into how much water?",
+            "category": "dilution/dosage",
+            "expected_answer": "B",
+            "predicted_answer": "B",
+            "raw_answer": "B",
+            "correct": true
+        },
+        {
+            "id": "G023",
+            "product_id": "AF0001",
+            "question": "For Citrus Bacteria Clear (AF0001), how many grams for 2 jin of water?",
+            "category": "dilution/dosage",
+            "expected_answer": "B",
+            "predicted_answer": null,
+            "raw_answer": "I cannot access the catalog in this mode. Please check the product label or consult a licensed agronomist for the correct dosage.",
+            "correct": false
+        },
+        {
+            "id": "G024",
+            "product_id": "AF0001",
+            "question": "For Citrus Bacteria Clear (AF0001), how much product for a 20 L sprayer tank?",
+            "category": "dilution/dosage",
+            "expected_answer": "B",
+            "predicted_answer": null,
+            "raw_answer": "I cannot access the catalog in this mode. Please check the product label or consult a licensed agronomist for the correct dosage.",
+            "correct": false
+        },
+        {
+            "id": "G026",
+            "product_id": "PN0014",
+            "question": "For PN0014, how much product for 40 jin of water (ratio 15 g : 30 jin)?",
+            "category": "dilution/dosage",
+            "expected_answer": "B",
+            "predicted_answer": "B",
+            "raw_answer": "B",
+            "correct": true
+        },
+        {
+            "id": "G028",
+            "product_id": "AF0064",
+            "question": "For Thrips No.1 (AF0064), what is the dilution ratio?",
+            "category": "dilution/dosage",
+            "expected_answer": "A",
+            "predicted_answer": "B",
+            "raw_answer": "B",
+            "correct": false
+        },
+        {
+            "id": "G029",
+            "product_id": "PN0013",
+            "question": "How many grams is one bottle of 24% Bifenazate (PN0013)?",
+            "category": "spec/crop",
+            "expected_answer": "A",
+            "predicted_answer": "A",
+            "raw_answer": "A",
+            "correct": true
+        },
+        {
+            "id": "G032",
+            "product_id": "PN0014",
+            "question": "For PN0014, what is the correct method and dose?",
+            "category": "usage/method",
+            "expected_answer": "A",
+            "predicted_answer": null,
+            "raw_answer": "I cannot access the catalog in this mode. Please check the product label or consult a licensed agronomist for accurate information.",
+            "correct": false
+        },
+        {
+            "id": "G034",
+            "product_id": "AF0009",
+            "question": "Which product is used for potato seed dressing, and at what ratio?",
+            "category": "spec/crop",
+            "expected_answer": "A",
+            "predicted_answer": "A",
+            "raw_answer": "A",
+            "correct": true
+        },
+        {
+            "id": "G035",
+            "product_id": "AF0001",
+            "question": "For Citrus Bacteria Clear (AF0001), can it be poured into potting soil?",
+            "category": "usage/method",
+            "expected_answer": "B",
+            "predicted_answer": "B",
+            "raw_answer": "B",
+            "correct": true
+        }
+    ]
+}
