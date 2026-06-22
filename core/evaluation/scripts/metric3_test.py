@@ -1,19 +1,19 @@
 """
-تجربة صغيرة: مقارنة ٣ طرق لحساب متركس ٣
-- الحالية: MiniLM + نص كامل
-- مُحسّنة: mpnet + نص كامل
-- claim-level: تفكيك + مطابقة معنى (max-align)
+Small experiment: compare 3 ways of computing Metric 3
+- current: MiniLM + full text
+- improved: mpnet + full text
+- claim-level: decompose + meaning match (max-align)
 
-التشغيل:  pip install sentence-transformers
-          python metric3_test.py
+Run:  pip install sentence-transformers
+      python metric3_test.py
 """
 import numpy as np
 from sentence_transformers import SentenceTransformer
 import re
 
-# ---------- بيانات الاختبار ----------
-# G014: تباعد محتوى حقيقي (golden=حرارة/تبخر، generated=ملقحات/طقس)
-# G045: محتوى صح، طويل فقط (نبي نرفعه)
+# ---------- test data ----------
+# G014: genuinely divergent content (golden=heat/evaporation, generated=pollinators/weather)
+# G045: correct content, just long (want it to score higher)
 
 cases = {
     "G014": {
@@ -28,17 +28,17 @@ cases = {
     },
 }
 
-# ---------- تفكيك بسيط لادعاءات ----------
+# ---------- simple claim decomposition ----------
 def split_claims(text):
-    # نشيل عناوين Markdown والترقيم
+    # strip Markdown headings and numbering
     text = re.sub(r'#+\s*', '', text)
     text = re.sub(r'^\s*\d+\.\s*', '', text, flags=re.MULTILINE)
-    # نقسم على الجمل
+    # split into sentences
     parts = re.split(r'(?<=[.!?])\s+|\n+', text)
     claims = [p.strip() for p in parts if len(p.strip()) > 15]
     return claims
 
-# ---------- الطرق الثلاث ----------
+# ---------- the three methods ----------
 def cosine(a, b):
     return float(np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b)))
 
@@ -53,26 +53,26 @@ def claim_level_sim(model, golden, generated):
         return 0.0
     ge = model.encode(gc)
     pe = model.encode(pc)
-    # لكل ادعاء ذهبي: أقصى تشابه مع أقرب ادعاء مولّد
+    # for each golden claim: max similarity to the closest generated claim
     sims = []
     for g in ge:
         best = max(cosine(g, p) for p in pe)
         sims.append(best)
     return float(np.mean(sims))
 
-# ---------- تشغيل ----------
-print("جاري تحميل النماذج...")
+# ---------- run ----------
+print("Loading models...")
 mini = SentenceTransformer('all-MiniLM-L6-v2')
 mpnet = SentenceTransformer('all-mpnet-base-v2')
 
 print("\n" + "="*70)
 for qid, d in cases.items():
     print(f"\n[{qid}]")
-    print(f"  الحالي (MiniLM + نص كامل، من التقرير): {d['old_metric3']:.3f}")
+    print(f"  current (MiniLM + full text, from report): {d['old_metric3']:.3f}")
     m1 = fulltext_sim(mini, d['golden'], d['generated'])
-    print(f"  (تحقّق) MiniLM + نص كامل:              {m1:.3f}")
+    print(f"  (verify) MiniLM + full text:               {m1:.3f}")
     m2 = fulltext_sim(mpnet, d['golden'], d['generated'])
-    print(f"  mpnet + نص كامل:                        {m2:.3f}")
+    print(f"  mpnet + full text:                         {m2:.3f}")
     m3 = claim_level_sim(mpnet, d['golden'], d['generated'])
-    print(f"  mpnet + claim-level (max-align):        {m3:.3f}")
+    print(f"  mpnet + claim-level (max-align):           {m3:.3f}")
 print("\n" + "="*70)

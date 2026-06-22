@@ -1,8 +1,9 @@
 """
-سكربت تحقق: يقارن المقياس القديم بالجديد على نفس البيانات
-شغّلوه على metric3_report_general.json (أو أي تقرير) قبل الاعتماد.
+Validation script: compares the old metric against the new one on the
+same data. Run it on metric3_report_general.json (or any report)
+before adopting the change.
 
-التشغيل:
+Run:
     python validate_metric3.py path/to/metric3_report_general.json
 """
 import sys, json
@@ -36,7 +37,7 @@ path = sys.argv[1] if len(sys.argv) > 1 else "metric3_report_general.json"
 data = json.load(open(path, encoding="utf-8"))
 results = data["results"]
 
-print(f"\n{'ID':<8}{'old':>8}{'new':>8}{'فرق':>8}")
+print(f"\n{'ID':<8}{'old':>8}{'new':>8}{'diff':>8}")
 print("-"*32)
 old_all, new_all = [], []
 for r in results:
@@ -48,7 +49,7 @@ for r in results:
     print(f"{rid:<8}{o:>8.3f}{n:>8.3f}{n-o:>8.3f}{flag}")
 
 print("-"*32)
-print(f"{'متوسط':<8}{np.mean(old_all):>8.3f}{np.mean(new_all):>8.3f}{np.mean(new_all)-np.mean(old_all):>8.3f}")
-print(f"\nفوق 0.7:  قديم={sum(x>=0.7 for x in old_all)}/{len(old_all)}"
-      f"   جديد={sum(x>=0.7 for x in new_all)}/{len(new_all)}")
-print(f"تحت 0.7 (الجديد): {[results[i].get('id', i) for i,x in enumerate(new_all) if x<0.7]}")
+print(f"{'mean':<8}{np.mean(old_all):>8.3f}{np.mean(new_all):>8.3f}{np.mean(new_all)-np.mean(old_all):>8.3f}")
+print(f"\n>=0.7:  old={sum(x>=0.7 for x in old_all)}/{len(old_all)}"
+      f"   new={sum(x>=0.7 for x in new_all)}/{len(new_all)}")
+print(f"<0.7 (new): {[results[i].get('id', i) for i,x in enumerate(new_all) if x<0.7]}")

@@ -1,7 +1,7 @@
 {
     "summary": {
-        "accuracy": 0.6666666666666666,
-        "correct": 10,
+        "accuracy": 0.8,
+        "correct": 12,
         "questions_completed": 15,
         "total_questions": 15
     },
@@ -23,7 +23,7 @@
             "category": "dilution/dosage",
             "expected_answer": "B",
             "predicted_answer": null,
-            "raw_answer": "I cannot access the catalog in this mode. Please check the product label or consult a licensed agronomist.",
+            "raw_answer": "I cannot access the catalog in this mode. Please check the product label or consult a licensed agronomist for specific application rates.",
             "correct": false
         },
         {
@@ -112,9 +112,9 @@
             "question": "For Thrips No.1 (AF0064), what is the dilution ratio?",
             "category": "dilution/dosage",
             "expected_answer": "A",
-            "predicted_answer": "B",
-            "raw_answer": "B",
-            "correct": false
+            "predicted_answer": "A",
+            "raw_answer": "A",
+            "correct": true
         },
         {
             "id": "G029",
@@ -132,9 +132,9 @@
             "question": "For PN0014, what is the correct method and dose?",
             "category": "usage/method",
             "expected_answer": "A",
-            "predicted_answer": null,
-            "raw_answer": "I cannot access the catalog in this mode. Please check the product label or consult a licensed agronomist for accurate information.",
-            "correct": false
+            "predicted_answer": "A",
+            "raw_answer": "A",
+            "correct": true
         },
         {
             "id": "G034",

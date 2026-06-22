@@ -1,62 +1,63 @@
 """
-نسخة محسّنة من similarity_score في metrics.py
+Improved version of similarity_score in metrics.py
 ========================================================
-الفكرة: المقياس القديم يقارن النص الكامل بالنص الكامل، فيعاقب
-الإجابات الطويلة الصحيحة بسبب الطول. النسخة الجديدة تقيس
-"تغطية المحتوى الذهبي" (recall دلالي): لكل جملة من الإجابة
-الذهبية موجودة معنى داخل الإجابة المولّدة، الإضافات الزائدة
-لا تعاقب بها (نتركها لمتركس 2 المسؤول عنها أصلاً).
+Idea: the old metric compares full text to full text, which penalizes
+correct-but-long answers for their length. The new version measures
+"golden content coverage" (semantic recall): for each sentence in the
+golden answer, is its meaning present somewhere in the generated
+answer? Extra additions in the generated answer are not penalized here
+(that's left to Metric 2, which already owns that concern).
 
-التوقيع والمخرجات نفسها تماماً، لا حاجة لتعديل أي runner.
+Signature and outputs are identical, no need to modify any runner.
 """
 import re
 import numpy as np
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
-# نفس النموذج المستخدم حالياً — لا تغيير
+# Same model currently in use — no change
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
-# زر تحكم: 1.0 = recall فقط (الأعلى للأرقام)
-# لو بغيتي صرامة أكثر، نزّليه شوي (مثلاً 0.85) عشان يخلط
-# recall مع التشابه الكامل. ابدئي بـ 1.0.
+# Control knob: 1.0 = recall only (gives the highest scores)
+# For stricter scoring, lower it (e.g. 0.85) to blend in full-text
+# similarity. Start with 1.0.
 RECALL_WEIGHT = 1.0
 
 
 def _split_sentences(text: str):
-    """تقسيم النص لجمل/ادعاءات قصيرة، مع تنظيف عناوين Markdown والترقيم."""
-    text = re.sub(r'#+\s*', ' ', text)            # عناوين ###
+    """Split text into short sentences/claims, stripping Markdown headings and numbering."""
+    text = re.sub(r'#+\s*', ' ', text)            # ### headings
     text = re.sub(r'\*\*', '', text)               # **bold**
-    text = re.sub(r'^\s*\d+\.\s*', ' ', text, flags=re.M)  # ترقيم 1.
-    text = re.sub(r'^\s*[-•]\s*', ' ', text, flags=re.M)   # نقاط
+    text = re.sub(r'^\s*\d+\.\s*', ' ', text, flags=re.M)  # 1. numbering
+    text = re.sub(r'^\s*[-•]\s*', ' ', text, flags=re.M)   # bullet points
     parts = re.split(r'(?<=[.!?])\s+|\n+', text)
     return [p.strip() for p in parts if len(p.strip()) > 12]
 
 
 def _recall_coverage(golden: str, generated: str) -> float:
     """
-    لكل جملة ذهبية: أقصى تشابه مع أقرب جملة في المولّد.
-    المتوسط = نسبة تغطية المحتوى الذهبي.
+    For each golden sentence: max similarity to the closest sentence in
+    the generated answer. The mean = golden content coverage ratio.
     """
     g_claims = _split_sentences(golden)
     p_claims = _split_sentences(generated)
 
-    # حالات الحافة: نص قصير لا ينقسم -> رجوع للتشابه الكامل
+    # edge case: text too short to split -> fall back to full-text similarity
     if not g_claims or not p_claims:
         e1, e2 = model.encode(golden), model.encode(generated)
         return float(cosine_similarity([e1], [e2])[0][0])
 
     g_emb = model.encode(g_claims)
     p_emb = model.encode(p_claims)
-    sim = cosine_similarity(g_emb, p_emb)   # مصفوفة (ذهبي × مولّد)
-    best_per_golden = sim.max(axis=1)        # أقصى تطابق لكل جملة ذهبية
+    sim = cosine_similarity(g_emb, p_emb)   # matrix (golden x generated)
+    best_per_golden = sim.max(axis=1)        # best match per golden sentence
     return float(best_per_golden.mean())
 
 
 def similarity_score(golden: str, generated: str) -> float:
     """
-    بديل متوافق تماماً مع القديم (نفس التوقيع والمخرجات).
-    افتراضياً recall فقط. لو RECALL_WEIGHT < 1 يخلط مع التشابه الكامل.
+    Drop-in replacement for the old function (same signature and outputs).
+    Defaults to recall only. If RECALL_WEIGHT < 1, blends in full-text similarity.
     """
     recall = _recall_coverage(golden, generated)
 

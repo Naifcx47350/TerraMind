@@ -1,9 +1,9 @@
 """
-تجربة coverage_judge_score على 4 أسئلة فقط: G012, G013, G014, G045.
+Tests coverage_judge_score on just 4 questions: G012, G013, G014, G045.
 
-المتوقع:
-- G014 ينزل (محتوى متباعد عن الذهبي)
-- G045, G012, G013 يرتفعون فوق 0.7 (محتوى صحيح مغطّى، مجرد طويل/منظّم مختلف)
+Expected:
+- G014 drops (content diverges from golden)
+- G045, G012, G013 rise above 0.7 (correct content covered, just longer/differently organized)
 
 Run:
     python -m core.evaluation.test_coverage_judge
