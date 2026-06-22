@@ -22,7 +22,7 @@ __pycache__/
 
 # --- Node (frontend deps are installed inside the frontend Dockerfile) ---
 **/node_modules/
-FrontPage/frontend-react/dist/
+web/frontend-react/dist/
 **/.vite/
 
 # --- Git & IDE ---
@@ -48,7 +48,7 @@ docs/
 # --- Docker meta (don't copy compose into image layers unnecessarily) ---
 docker-compose*.yml
 Dockerfile
-FrontPage/Dockerfile
+web/Dockerfile
 
 # --- OS junk ---
 .DS_Store

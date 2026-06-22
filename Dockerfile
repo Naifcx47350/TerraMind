@@ -1,6 +1,6 @@
 # DEPRECATED — use Docker Compose for the full TerraMind stack.
 #
-#   cp docker/env.example .env
+#   cp .env.example .env
 #   docker compose --profile init run --rm init-indexes   # first time
 #   docker compose up --build
 #

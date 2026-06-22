@@ -6,7 +6,7 @@
 #   open http://localhost:3000   → enter API key in browser if prompted
 #
 # Optional .env at repo root (secrets never committed):
-#   copy docker\env.example .env
+#   copy .env.example .env
 #
 # Real RAG (after you have a key): init-indexes once, then up --build
 #
@@ -33,7 +33,7 @@ services:
       - ./data:/app/data:ro
     restart: unless-stopped
 
-  # --- 2. Gateway (FrontPage API) — same as uvicorn on :8000 locally ---
+  # --- 2. Gateway (web API) — same as uvicorn on :8000 locally ---
   gateway:
     image: terramind-gateway:local
     build:
@@ -86,8 +86,8 @@ services:
       - sh
       - -c
       - |
-        python -m terramind.rag.product.cli --reset
-        python -m terramind.rag.general.cli --reset
+        python -m core.rag.product.cli --reset
+        python -m core.rag.general.cli --reset
         echo 'Indexes ready in volume vectorstore'
 
 volumes:

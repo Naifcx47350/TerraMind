@@ -1,6 +1,6 @@
 """Advisory combined answer section splitting."""
 
-from terramind.models.advisory import split_advisory_sections
+from core.models.advisory import split_advisory_sections
 
 
 def test_split_advisory_sections():

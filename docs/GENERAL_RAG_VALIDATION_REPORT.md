@@ -26,15 +26,15 @@ This document records **what we changed**, **how we verified it**, and **what th
 ### 2.1 Corpus cleanup
 
 - **Removed** `Pest_Management_FAO.md` from the repo. It duplicated content now covered by **`Pest_Mangment_FAO.pdf`** (filename typo on disk is intentional and mapped in config).
-- **Kept** `EXCLUDED_FILENAMES` in `terramind/rag/general/config.py` so that markdown name is ignored if someone re-adds it under `data/raw/reference_text/`.
-- **General RAG package** (`terramind/rag/general/`) is the active pipeline: load PDFs with `pypdf`, chunk, embed (`text-embedding-3-small`), store in Chroma, retrieve with scored vector search + topic boost + lexical rerank.
+- **Kept** `EXCLUDED_FILENAMES` in `core/rag/general/config.py` so that markdown name is ignored if someone re-adds it under `data/raw/reference_text/`.
+- **General RAG package** (`core/rag/general/`) is the active pipeline: load PDFs with `pypdf`, chunk, embed (`text-embedding-3-small`), store in Chroma, retrieve with scored vector search + topic boost + lexical rerank.
 
 ### 2.2 Why a rebuild was required
 
 Chroma persists chunks on disk. The **previous** index (~2,876 vectors) still contained embeddings from **`Pest_Management_FAO.md`** even after the file was deleted. Evaluation and chat would keep surfacing `.md` until:
 
 ```powershell
-python -m terramind.rag.general.cli --reset
+python -m core.rag.general.cli --reset
 ```
 
 `--reset` deletes `vectorstore/chroma/` and re-indexes only what `discover_document_paths()` finds today.
@@ -209,9 +209,9 @@ flowchart TD
 cd <repo-root>
 conda activate terramind
 
-python -m terramind.rag.general.cli --inspect
-python -m terramind.rag.general.cli --reset
-python -m terramind.rag.general.cli --eval-retrieval
+python -m core.rag.general.cli --inspect
+python -m core.rag.general.cli --reset
+python -m core.rag.general.cli --eval-retrieval
 ```
 
 **Environment:** Python 3.11.15 (`terramind` conda env), May 2026 run on Windows. Approximate timings from the session: inspect ~43s (large soil PDF), reset ~2m45s (includes default RAG answer).

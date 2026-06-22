@@ -7,7 +7,7 @@ Quick index for TerraMind chat UI theming. Asset filenames and decor slots: **[.
 ## Source files
 
 ```
-FrontPage/frontend-react/src/
+web/frontend-react/src/
 ├── App.jsx                      Shell, sidebar, composer, message layout, voice input logic
 ├── settings/uiSettings.js       localStorage schema, decorTuning per appearance
 ├── theme/

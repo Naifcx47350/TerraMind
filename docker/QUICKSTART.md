@@ -4,7 +4,7 @@ Run the full app (UI + two APIs) with **Docker Desktop only** — no Python, con
 
 **Prerequisite:** [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running.
 
-Longer explanation of Docker files: [README.md](README.md) · Local dev without Docker: [FrontPage/RUN_LOCALLY.md](../FrontPage/RUN_LOCALLY.md)
+Longer explanation of Docker files: [README.md](README.md) · Local dev without Docker: [web/RUN_LOCALLY.md](web/RUN_LOCALLY.md)
 
 ---
 
@@ -31,10 +31,10 @@ Copy the template (optional if you write `.env` yourself):
 
 ```bash
 # Windows
-copy docker\env.example .env
+copy .env.example .env
 
 # macOS / Linux
-cp docker/env.example .env
+cp .env.example .env
 ```
 
 Edit `<repo-root>/.env`. For **real RAG** (recommended):
@@ -52,14 +52,14 @@ You do **not** need `RAG_SERVICE_URL` in `.env` for Docker — `docker-compose.y
 | `USE_MOCK`        | No                       | `true` = demo answers, no key, skip index build |
 | `RAG_SERVICE_URL` | No in Docker             | Compose sets this internally                    |
 
-**Verify Compose sees your `.env`** (from repo root):
+**Verify the `.env` file exists** (from repo root):
 
 ```bash
-docker compose config | findstr OPENAI_API_KEY    # Windows
-docker compose config | grep OPENAI_API_KEY       # macOS / Linux
+dir .env      # Windows
+ls -la .env   # macOS / Linux
 ```
 
-If the value is empty, you are in the wrong directory or the variable name is misspelled.
+Do not paste `OPENAI_API_KEY` values into screenshots or issue comments.
 
 ---
 
@@ -102,7 +102,7 @@ Open **http://localhost:3000**
 | Service     | Container role   | Host port |
 | ----------- | ---------------- | --------- |
 | `frontend`  | React UI (nginx) | **3000**  |
-| `gateway`   | FrontPage API    | **8000**  |
+| `gateway`   | web API    | **8000**  |
 | `model-api` | RAG / models     | **8001**  |
 
 **Always start all three with Compose** — do not run the frontend image alone in Docker Desktop (nginx needs the `gateway` hostname on the Compose network).
@@ -187,7 +187,7 @@ docker compose down -v          # wipe index volume → run init-indexes again
 
 # After code changes
 docker compose build frontend   # UI changed
-docker compose build gateway    # FrontPage API changed
+docker compose build gateway    # web API changed
 docker compose build model-api  # RAG / models changed
 docker compose up --build       # rebuild everything
 

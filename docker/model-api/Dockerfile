@@ -26,7 +26,7 @@ RUN pip install --no-cache-dir --upgrade pip \
         "torch>=2.0,<3" \
     && pip install --no-cache-dir -r requirements.txt
 
-COPY terramind/ terramind/
+COPY core/ core/
 
 # Pre-download CrossEncoder reranker used by product RAG (~90MB; avoids first-query delay).
 RUN python -c "from sentence_transformers import CrossEncoder; CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')"
@@ -43,4 +43,4 @@ EXPOSE 8001
 HEALTHCHECK --interval=15s --timeout=5s --retries=8 --start-period=120s \
   CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/health')" || exit 1
 
-CMD ["python", "-m", "uvicorn", "terramind.api.app:app", "--host", "0.0.0.0", "--port", "8001"]
+CMD ["python", "-m", "uvicorn", "core.api.app:app", "--host", "0.0.0.0", "--port", "8001"]

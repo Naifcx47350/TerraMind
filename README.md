@@ -4,227 +4,117 @@
 
 # TerraMind
 
-Agriculture support assistant with **Auto RAG** (default), manual product/general RAG, base LLM baseline, and a **hidden Advisory mode** — plus a **React chat UI** with streaming answers, compare view, image upload, retrieval scores, and saved conversations.
+TerraMind is an agriculture assistant with a React chat UI, a FastAPI web gateway, and a FastAPI model API for product-catalog RAG, general agriculture RAG, Auto routing, a base LLM baseline, compare mode, image input, and a hidden Advisory workflow.
 
-**`<repo-root>`** = your clone (folder with `docker-compose.yml`, `terramind/`, `run_dev.py`, and `FrontPage/`).
-
----
-
-## Choose how to run
-
-|                      | **Docker** (recommended for demos / no local toolchain)                | **Local dev** (Python + Node on your machine)                  |
-| -------------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------- |
-| **Needs**            | [Docker Desktop](https://www.docker.com/products/docker-desktop/) only | Conda Python 3.11+, Node.js, `pip install -r requirements.txt` |
-| **Indexes**          | Docker volume `terramind-vectorstore` (build once with `init-indexes`) | Folder `vectorstore/` on disk (gitignored)                     |
-| **Corpus (`data/`)** | Mounted from your clone — **not** baked into images                    | Used directly from repo                                        |
-| **Secrets**          | Repo-root `.env` only (copy from `docker/env.example`)                 | Repo-root `.env` or `FrontPage/.env`                           |
-| **Start**            | `docker compose up --build`                                            | `python run_dev.py` (or three terminals)                       |
-| **Full guide**       | **[docker/QUICKSTART.md](docker/QUICKSTART.md)**                       | **[FrontPage/RUN_LOCALLY.md](FrontPage/RUN_LOCALLY.md)**       |
-
-Both paths serve the app at **http://localhost:3000** (frontend **3000**, gateway **8000**, model API **8001**).
-
----
-
-## Quick start — Docker
-
-From **`<repo-root>`**:
-
-```powershell
-copy docker\env.example .env
-# Edit .env — real RAG:
-#   USE_MOCK=false
-#   OPENAI_API_KEY=sk-...
-# Demo without a key:
-#   USE_MOCK=true
-```
-
-**Real RAG — one-time index build** (needs `OPENAI_API_KEY` in `.env`; reads corpus from mounted `./data`):
-
-```powershell
-docker compose --profile init run --rm init-indexes
-```
-
-**Start the stack** (always all three services via Compose):
-
-```powershell
-docker compose up --build
-```
-
-Open **http://localhost:3000**. Containers: `terramind-frontend`, `terramind-gateway`, `terramind-model-api`.
-
-- **`data/`** — PDFs and product Excel; cloned with the repo, mounted into `model-api` / `init-indexes`.
-- **`vectorstore/`** — Chroma indexes live in the named volume **`terramind-vectorstore`**, not in the image. Re-run `init-indexes` after `docker compose down -v` or corpus changes.
-- **No key in images** — use `.env` or the browser key modal (`USE_MOCK=true` skips the modal).
-
-Step-by-step, troubleshooting, Hub tags: **[docker/QUICKSTART.md](docker/QUICKSTART.md)** · Dockerfile details: **[docker/README.md](docker/README.md)**.
-
----
-
-## Quick start — local dev
-
-From **`<repo-root>`**:
-
-```powershell
-conda create -n terramind python=3.11 -y
-conda activate terramind
-pip install -r requirements.txt
-# optional: pip install -r requirements-dev.txt
-```
-
-Set `OPENAI_API_KEY` in `.env` (repo root or `FrontPage/.env`).
-
-**Build vector indexes once** (writes to `./vectorstore/`):
-
-```powershell
-python -m terramind.rag.product.cli --reset
-python -m terramind.rag.general.cli --reset
-```
-
-**Run the app** — one terminal:
-
-```powershell
-conda activate terramind
-python run_dev.py
-```
-
-Requires `npm install` once in `FrontPage/frontend-react/`. Manual three-terminal setup: **[FrontPage/RUN_LOCALLY.md](FrontPage/RUN_LOCALLY.md)**.
-
----
-
-## Architecture
-
-<div align="center">
-  <img src="assets/architecture/system-flow.png" alt="TerraMind system flow — browser, APIs, RAG modes, and response" width="100%">
-</div>
-
-<p align="center"><em>Request flow and RAG boundaries: <a href="docs/SYSTEM_ARCHITECTURE.md">docs/SYSTEM_ARCHITECTURE.md</a>.</em></p>
-
-```text
-Browser → :3000 UI  →  :8000 FrontPage gateway  →  :8001 Model API (RAG / LLM)
-```
-
-Locally, Vite serves the UI; in Docker, nginx serves the production React build and proxies `/api` to the gateway container.
-
----
-
-## Tech stack
-
-<p align="center">
-  <img alt="Python" width="34px" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg"/>
-  <img alt="FastAPI" width="34px" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/fastapi/fastapi-original.svg"/>
-  <img alt="React" width="34px" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg"/>
-  <img alt="Vite" width="34px" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vite/vite-original.svg"/>
-  <img alt="OpenAI" width="34px" src="https://api.iconify.design/simple-icons/openai.svg?color=%23ffffff"/>
-  <img alt="Docker" width="34px" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg"/>
-  <img alt="nginx" width="34px" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nginx/nginx-original.svg"/>
-  <img alt="Node.js" width="34px" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nodejs/nodejs-original.svg"/>
-  <img alt="pandas" width="34px" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pandas/pandas-original.svg"/>
-  <img alt="PyTorch" width="34px" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pytorch/pytorch-original.svg"/>
-  <img alt="pytest" width="34px" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pytest/pytest-original.svg"/>
-</p>
-
-| Layer        | Tools                           | Role in TerraMind                                                                              |
-| ------------ | ------------------------------- | ---------------------------------------------------------------------------------------------- |
-| **APIs**     | Python, FastAPI, Uvicorn, httpx | Model API (:8001) + FrontPage gateway (:8000); streaming proxy to RAG                          |
-| **AI / RAG** | OpenAI, LangChain, ChromaDB     | Chat, embeddings, vision; PDF + Excel → vector indexes; product hybrid (BM25 + dense) + rerank |
-| **UI**       | React, Vite, react-markdown     | Chat, compare, sessions; Vite in dev, nginx in Docker                                          |
-| **Data**     | pypdf, pandas, openpyxl         | General PDF corpus; product Excel catalog                                                      |
-| **Deploy**   | Docker, nginx, Node (build)     | Three-container stack; `data/` mount + `terramind-vectorstore` volume                          |
-| **Tests**    | pytest                          | Router, scoring, advisory tests under `tests/`                                                 |
-
-Full list with file paths and purpose: **[docs/TECH_STACK.md](docs/TECH_STACK.md)** (linked from [docs/SYSTEM_ARCHITECTURE.md](docs/SYSTEM_ARCHITECTURE.md) §9).
-
----
-
-## Models (picker order)
-
-| Mode                      | ID            | Knowledge source                                                                                  |
-| ------------------------- | ------------- | ------------------------------------------------------------------------------------------------- |
-| Auto (recommended)        | `auto_rag`    | Router picks product RAG, general RAG, or base LLM                                                |
-| Agriculture Knowledge RAG | `general_rag` | PDFs in `data/raw/documents/`                                                                     |
-| Product Catalog RAG       | `product_rag` | Translated client Excel (`data/raw/product_catalog/translated/product_catalog_en.xlsx`)           |
-| Base LLM                  | `base_llm`    | OpenAI only — no retrieval                                                                        |
-| Advisory (hidden UI)      | `advisory`    | General then product — unlock via logo easter egg; see [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) |
-
-Default chat/vision model: **`gpt-4o-mini`**. Corpus notes: [docs/GENERAL_RAG_CORPUS.md](docs/GENERAL_RAG_CORPUS.md).
-
----
-
-## Project layout
+The current repository is organized for review and local execution:
 
 ```text
 TerraMind/
-├── docker-compose.yml         # Docker: three services + vectorstore volume
-├── docker/                    # Dockerfiles, QUICKSTART, env.example
-├── terramind/                 # Backend: api, models, rag/
-├── archive/                   # Archived legacy scripts (not runtime)
-├── run_dev.py                 # Local: start :8001 + :8000 + :3000
-├── vectorstore/               # Chroma indexes (local dev; gitignored)
-├── data/                      # Corpus + eval; see data/README.md
-├── FrontPage/                 # Gateway API (:8000) + React UI (:3000)
-├── docs/                      # Architecture, corpus, eval, status
-├── scripts/                   # e.g. eval_general_rag.py
-└── tests/                     # pytest
+├── core/                  # Model API, model registry, RAG pipelines, evaluation reports
+├── web/                   # Gateway API (:8000) and React/Vite UI (:3000)
+├── data/                  # Product catalog, agriculture corpus, eval fixtures, samples
+├── assets/                # Logos, UI backgrounds, architecture images
+├── docker/                # Dockerfiles, nginx config, Docker docs
+├── docs/                  # Architecture, stack, corpus, validation notes
+├── tests/                 # Backend pytest battery
+├── docker-compose.yml     # Three-service Docker stack + init-indexes job
+├── run_dev.py             # Starts local model API, gateway, and UI
+└── .env.example           # Safe environment template; real .env is ignored
 ```
 
----
+## Runtime Topology
 
-## Features (web)
+```text
+Browser :3000 -> web gateway :8000 -> model API :8001 -> RAG/LLM backends
+```
 
-- Model picker (Auto default) and **Compare** (product / general / base LLM)
-- **Streaming answers** — retrieval/routing status, then tokens (`POST /api/ask/stream`)
-- **Hidden Advisory** — click the logo **6 times** (within 2.5s) to unlock Advisory mode
-- **Show sources** / **Show scores**; plant **image upload** (vision → all modes)
-- **Voice input** — browser speech-to-text mic control with device list, live level meter, and hold-to-record mode
-- **Conversation history** + **localStorage** sessions + sidebar search
-- **OpenAI key prompt** if `OPENAI_API_KEY` is missing (syncs gateway + model API)
-- **Startup overlay** — brief “Starting TerraMind…” while the UI waits for `/api/config` (normal on cold start; longer in Docker)
-- English / Arabic (RTL)
+- UI: `web/frontend-react` served by Vite locally or nginx in Docker.
+- Gateway: `web/app/main.py` exposes `/api/*` and proxies model requests.
+- Model API: `core.api.app:app` exposes `/query`, streaming, compare, advisory, `/models`, and `/health`.
+- Vector stores: `vectorstore/chroma` and `vectorstore/chroma_products` are generated locally and ignored by Git. Docker uses the named volume `terramind-vectorstore`.
 
-Details: [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md).
+## Quick Start
 
----
+Use the existing conda environment named `terramind`.
 
-## Documentation
+```powershell
+conda activate terramind
+pip install -r requirements.txt
+```
 
-| Document                                                       | Description                                             |
-| -------------------------------------------------------------- | ------------------------------------------------------- |
-| **[docker/QUICKSTART.md](docker/QUICKSTART.md)**               | **Docker** — clone → `.env` → init indexes → compose up |
-| **[FrontPage/RUN_LOCALLY.md](FrontPage/RUN_LOCALLY.md)**       | **Local dev** — ports, env, three terminals             |
-| **[docker/README.md](docker/README.md)**                       | Docker concepts, Dockerfiles, compose file map          |
-| **[PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md)**                 | Features, models, APIs, compare, Advisory               |
-| **[docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md)**           | Shipped work and remaining tasks                        |
-| **[docs/SYSTEM_ARCHITECTURE.md](docs/SYSTEM_ARCHITECTURE.md)** | Runtime topology                                        |
-| **[docs/TECH_STACK.md](docs/TECH_STACK.md)**                   | Tools, libraries, logos, where each is used             |
-| **[docs/README.md](docs/README.md)**                           | Index of all `docs/` files                              |
-| **[data/README.md](data/README.md)**                           | Data folders — tracked vs gitignored                    |
+Create a local secret file from the safe template:
 
----
+```powershell
+copy .env.example .env
+# edit .env and set OPENAI_API_KEY for real RAG
+```
+
+Build indexes once:
+
+```powershell
+python -m core.rag.product.cli --reset
+python -m core.rag.general.cli --reset
+```
+
+Start all three local services:
+
+```powershell
+python run_dev.py
+```
+
+Open http://localhost:3000.
+
+## Docker
+
+```powershell
+copy .env.example .env
+# edit .env, then build indexes once
+
+docker compose --profile init run --rm init-indexes
+docker compose up --build
+```
+
+Docker starts `frontend` on host `:3000`, `gateway` on `:8000`, and `model-api` on `:8001`. The model API reads `data/` as a read-only mount and writes indexes to the `terramind-vectorstore` volume.
+
+## Models
+
+| Mode | ID | Knowledge source |
+| --- | --- | --- |
+| Auto | `auto_rag` | Routes to product RAG, general RAG, or base LLM |
+| Product Catalog RAG | `product_rag` | Excel catalog in `data/raw/product_catalog/translated/` |
+| Agriculture Knowledge RAG | `general_rag` | PDFs/text under `data/raw/documents/` and `data/raw/reference_text/` |
+| Base LLM | `base_llm` | OpenAI only, no retrieval |
+| Advisory | `advisory` | Hidden UI mode; general guidance followed by product recommendations |
+
+## Evaluation Results
+
+The values below are copied from `core/evaluation/reports/*.json` and rounded to three decimals.
+
+| Report group | Faithfulness | Factual correctness | Similarity | Questions |
+| --- | ---: | ---: | ---: | ---: |
+| Base LLM | 0.657 | 0.191 | 0.497 | 42/42 |
+| General RAG | 0.941 | 0.292 | 0.666 | 17/17 |
+| Product RAG basic | 0.963 | 0.321 | 0.493 | 24/24 |
+| Product RAG optimized | 0.946 | 0.439 | 0.525 | 24/24 |
 
 ## Tests
 
-From **`<repo-root>`** with `terramind` env active:
-
 ```powershell
+conda activate terramind
 pytest tests/ -v
-cd FrontPage
+cd web
 pytest tests/ -v
 ```
 
-Router/scoring/advisory battery: `pytest tests/test_auto_question_battery.py -v` (64 tests under `tests/`; 7 gateway smoke tests under `FrontPage/tests/`).
+## Documentation
 
----
+- `PROJECT_OVERVIEW.md` explains the product behavior and request flows.
+- `docs/SYSTEM_ARCHITECTURE.md` covers topology, APIs, and RAG boundaries.
+- `docs/FILE_MAP_AND_PIPELINE.md` maps files to runtime behavior.
+- `docs/TECH_STACK.md` lists tools and libraries.
+- `web/RUN_LOCALLY.md` gives manual three-terminal local setup.
+- `docker/QUICKSTART.md` gives Docker setup and troubleshooting.
 
-## Optional eval
+## Secrets
 
-```powershell
-python scripts/eval_general_rag.py
-```
-
-Writes under `data/eval/runs/` (gitignored). Retrieval-only: `python -m terramind.rag.general.cli --eval-retrieval`.
-
----
-
-## License / context
-
-SDA - AI Engineering Bootcamp MVP (RCP #9) — TerraMind focuses on grounded agricultural Q&A with explicit comparison between RAG and non-RAG behavior.
+Do not commit a real `.env`. The repository ships only `.env.example`; `.env`, `web/.env`, and local override files are ignored.

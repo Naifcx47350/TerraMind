@@ -1,6 +1,0 @@
-# FrontPage uses the same Python env as the repo root.
-# Install from <repo-root>:
-#   pip install -r requirements.txt
-#
-# This file exists for docs that reference FrontPage/requirements.txt:
--r ../requirements.txt

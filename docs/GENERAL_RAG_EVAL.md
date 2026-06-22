@@ -26,7 +26,7 @@ If you skip step 3, eval may still show `.md` in top-k hits and pass rates will 
 ## 1. Corpus inspect (no index)
 
 ```powershell
-python -m terramind.rag.general.cli --inspect
+python -m core.rag.general.cli --inspect
 ```
 
 - Each PDF should show **≥ 5,000 characters** after extraction.
@@ -35,13 +35,13 @@ python -m terramind.rag.general.cli --inspect
 ## 2. Rebuild index
 
 ```powershell
-python -m terramind.rag.general.cli --reset
+python -m core.rag.general.cli --reset
 ```
 
 ## 3. Retrieval golden set (no LLM)
 
 ```powershell
-python -m terramind.rag.general.cli --eval-retrieval
+python -m core.rag.general.cli --eval-retrieval
 ```
 
 - Questions: [`data/eval/general_rag_questions.json`](../data/eval/general_rag_questions.json)
@@ -68,7 +68,7 @@ With `run_dev.py` or three terminals running:
 
 ## 6. API debug logs
 
-Enable debug logging for `terramind.models.general_rag` to see retrieval file list per request.
+Enable debug logging for `core.models.general_rag` to see retrieval file list per request.
 
 ## When to re-run
 

@@ -30,19 +30,19 @@
 
 **FAO IPM:** use `Pest_Mangment_FAO.pdf` only (the duplicate `Pest_Management_FAO.md` was removed from the repo). `EXCLUDED_FILENAMES` in config still blocks that filename if it is re-added under `data/raw/reference_text/`.
 
-Labels: `terramind/rag/general/config.py` → `DOCUMENT_DISPLAY_NAMES` and `FILENAME_TO_TOPIC`.
+Labels: `core/rag/general/config.py` → `DOCUMENT_DISPLAY_NAMES` and `FILENAME_TO_TOPIC`.
 
 ## Pipeline features
 
-- PDF ingest via `pypdf` ([`load.py`](../terramind/rag/general/load.py))
-- Scored vector retrieval + topic boost + lexical rerank ([`retrieve.py`](../terramind/rag/general/retrieve.py), [`hybrid.py`](../terramind/rag/general/hybrid.py))
+- PDF ingest via `pypdf` ([`load.py`](../core/rag/general/load.py))
+- Scored vector retrieval + topic boost + lexical rerank ([`retrieve.py`](../core/rag/general/retrieve.py), [`hybrid.py`](../core/rag/general/hybrid.py))
 - Retrieval eval: [GENERAL_RAG_EVAL.md](./GENERAL_RAG_EVAL.md)
 
 ## Build or rebuild
 
 ```powershell
-python -m terramind.rag.general.cli --reset
-python -m terramind.rag.general.cli --eval-retrieval
+python -m core.rag.general.cli --reset
+python -m core.rag.general.cli --eval-retrieval
 ```
 
 **Validated baseline (inspect + reset + 20/20 eval):** [GENERAL_RAG_VALIDATION_REPORT.md](./GENERAL_RAG_VALIDATION_REPORT.md)

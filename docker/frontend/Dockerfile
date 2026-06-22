@@ -6,13 +6,13 @@
 
 FROM node:20-alpine AS build
 
-WORKDIR /app/FrontPage/frontend-react
+WORKDIR /app/web/frontend-react
 
-COPY FrontPage/frontend-react/package.json FrontPage/frontend-react/package-lock.json* ./
+COPY web/frontend-react/package.json web/frontend-react/package-lock.json* ./
 RUN npm ci
 
-COPY FrontPage/frontend-react/ ./
-# Vite alias @assets → repo-root/assets (see vite.config.js)
+COPY web/frontend-react/ ./
+# Vite alias @assets -> repo-root/assets (see vite.config.js)
 COPY assets/ /app/assets/
 
 RUN npm run build
@@ -20,7 +20,7 @@ RUN npm run build
 FROM nginx:1.27-alpine
 
 COPY docker/frontend/nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /app/FrontPage/frontend-react/dist /usr/share/nginx/html
+COPY --from=build /app/web/frontend-react/dist /usr/share/nginx/html
 
 EXPOSE 80
 
