@@ -11,7 +11,7 @@ For each question:
 Saves a detailed report to reports/metric2_report_product_optimized.json.
 
 Run:
-    python -m terramind.FullEvaluation.run_metric2
+    python -m terramind.FullEvaluation.llm_judge_eval.run_metric2
 """
 
 import json

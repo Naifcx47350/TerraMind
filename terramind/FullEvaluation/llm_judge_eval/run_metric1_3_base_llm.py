@@ -14,7 +14,7 @@ Saves:
     reports/metric3_report_base_llm.json
 
 Run:
-    python -m terramind.FullEvaluation.run_metric1_3_base_llm
+    python -m terramind.FullEvaluation.llm_judge_eval.run_metric1_3_base_llm
 """
 
 import json
@@ -43,7 +43,7 @@ from terramind.FullEvaluation.evaluate import (
 
 from terramind.FullEvaluation.metrics.metrics import (
     clean_answer,
-    similarity_score,
+    coverage_judge_score,
 )
 
 from terramind.FullEvaluation.metrics.llm_judge import (
@@ -198,10 +198,10 @@ def run_metric1_3_base_llm():
                 f"Generated: {generated}"
             )
 
-            similarity = similarity_score(
+            similarity = coverage_judge_score(
                 golden,
                 generated,
-            )
+            )["coverage"]
 
             judge = judge_answer(
                 question,

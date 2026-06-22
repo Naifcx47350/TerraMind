@@ -1,12 +1,12 @@
 """
 Run Metric 1 (Faithfulness, via LLM judge) and Metric 3 (Semantic
-Similarity) over Product RAG, using golden_product_rag.jsonl.
+Similarity) over General RAG, using golden_general_rag.jsonl.
 
-Saves detailed reports to reports/metric1_report_product_optimized.json
-and reports/metric3_report_product_optimized.json.
+Saves detailed reports to reports/metric1_report_general.json
+and reports/metric3_report_general.json.
 
 Run:
-    python -m terramind.FullEvaluation.run_metric1_3
+    python -m terramind.FullEvaluation.llm_judge_eval.run_metric1_3_general
 """
 
 import json
@@ -24,23 +24,19 @@ sys.stdout.reconfigure(
     errors="replace",
 )
 
-from terramind.rag.product.generate import (
-    generate_answer_with_metadata,
-    format_context,
-)
-
-from terramind.rag.product.store import (
-    load_vector_store,
+from terramind.rag.general.pipeline import (
+    get_general_db,
+    answer_with_rag,
 )
 
 from terramind.FullEvaluation.evaluate import (
-    load_product_dataset,
+    load_general_dataset,
     REPORTS_DIR,
 )
 
 from terramind.FullEvaluation.metrics.metrics import (
     clean_answer,
-    similarity_score,
+    coverage_judge_score,
 )
 
 from terramind.FullEvaluation.metrics.llm_judge import (
@@ -57,6 +53,8 @@ def save_report(
 
     similarity_results = [
         {
+            "id": r.get("id"),
+            "category": r.get("category"),
             "question": r["question"],
             "golden": r["golden"],
             "generated": r.get("generated"),
@@ -67,6 +65,8 @@ def save_report(
 
     faithfulness_results = [
         {
+            "id": r.get("id"),
+            "category": r.get("category"),
             "question": r["question"],
             "golden": r["golden"],
             "generated": r.get("generated"),
@@ -142,11 +142,13 @@ def save_report(
     return average_similarity, average_faithfulness
 
 
-def run_metric1_3():
+def run_metric1_3_general():
 
-    db = load_vector_store()
+    print("Loading General RAG index...")
 
-    test_cases = load_product_dataset()
+    db = get_general_db()
+
+    test_cases = load_general_dataset()
 
     total = len(test_cases)
 
@@ -154,44 +156,37 @@ def run_metric1_3():
 
     metric1_path = (
         REPORTS_DIR
-        / "metric1_report_product_optimized.json"
+        / "metric1_report_general.json"
     )
 
     metric3_path = (
         REPORTS_DIR
-        / "metric3_report_product_optimized.json"
+        / "metric3_report_general.json"
     )
 
     for i, test in enumerate(test_cases, start=1):
 
         question = test.get("question")
 
-        golden = test.get(
-            "golden",
-            test.get("reference_answer"),
-        )
+        golden = test.get("golden")
 
         print(
             "\n" + "=" * 80
         )
 
         print(
-            f"[{i}/{total}] Question: {question}"
+            f"[GENERAL {i}/{total}] Question: {question}"
         )
 
         try:
 
-            result = generate_answer_with_metadata(
+            result = answer_with_rag(
                 db,
                 question,
             )
 
             generated = clean_answer(
                 result["answer"]
-            )
-
-            context = format_context(
-                result["retrieved"]
             )
 
             print(
@@ -202,14 +197,14 @@ def run_metric1_3():
                 f"Generated: {generated}"
             )
 
-            similarity = similarity_score(
+            similarity = coverage_judge_score(
                 golden,
                 generated,
-            )
+            )["coverage"]
 
             judge = judge_answer(
                 question,
-                context,
+                result["context"],
                 golden,
                 generated,
             )
@@ -221,6 +216,8 @@ def run_metric1_3():
 
             detailed_results.append(
                 {
+                    "id": test.get("id"),
+                    "category": test.get("category"),
                     "question": question,
                     "golden": golden,
                     "generated": generated,
@@ -237,6 +234,7 @@ def run_metric1_3():
 
             detailed_results.append(
                 {
+                    "id": test.get("id"),
                     "question": question,
                     "golden": golden,
                     "error": str(exc),
@@ -266,15 +264,15 @@ def run_metric1_3():
     )
 
     print(
-        f"Average Semantic Similarity: {average_similarity:.3f}"
+        f"[GENERAL] Average Semantic Similarity: {average_similarity:.3f}"
     )
 
     print(
-        f"Average Faithfulness: {average_faithfulness:.3f}"
+        f"[GENERAL] Average Faithfulness: {average_faithfulness:.3f}"
     )
 
     print(
-        f"Total questions evaluated: {total}"
+        f"[GENERAL] Total questions evaluated: {total}"
     )
 
     print(
@@ -283,4 +281,4 @@ def run_metric1_3():
 
 
 if __name__ == "__main__":
-    run_metric1_3()
+    run_metric1_3_general()

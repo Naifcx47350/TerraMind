@@ -10,7 +10,7 @@ Saves:
     reports/metric2_base_llm_golden_report.json
 
 Run:
-    python -m terramind.FullEvaluation.run_metric2_base_llm
+    python -m terramind.FullEvaluation.llm_judge_eval.run_metric2_base_llm
 """
 
 import json
@@ -41,11 +41,11 @@ from terramind.FullEvaluation.metrics.metrics import (
     clean_answer,
 )
 
-from terramind.FullEvaluation.run_metric2 import (
+from terramind.FullEvaluation.llm_judge_eval.run_metric2 import (
     factual_correctness_detailed,
 )
 
-from terramind.FullEvaluation.run_metric2_general import (
+from terramind.FullEvaluation.llm_judge_eval.run_metric2_general import (
     save_report,
 )
 

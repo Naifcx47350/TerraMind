@@ -1,0 +1,11 @@
+id,question,A,B,C,D,expected_answer,category
+G012,"What is the correct first step when red spider mite populations exceed the action threshold?","Increase watering","Apply an acaricide and rotate its mode of action","Remove all plants","Do nothing",B,diagnosis
+G013,"Which factor INCREASES susceptibility to powdery mildew?","Good airflow","Excess nitrogen fertilization","Dry leaves","Wide plant spacing",B,diagnosis
+G014,"When is the best time of day to spray to avoid peak heat?","Noon","Before 10 AM or after 4 PM","Midday only","Anytime",B,timing
+G015,"Which practice improves soil structure?","Adding organic matter","Compacting the soil","Continuous monocropping","Removing all roots",A,soil
+G016,"What should be avoided when applying pesticides?","Wearing protective equipment","Following the label rate","Spray drift onto people and animals","Keeping away from food",C,safety
+G038,"What is used to MONITOR thrips populations?","Sticky traps","Flooding the field","Nitrogen fertilizer","Fine nets",A,diagnosis
+G040,"What should be done BEFORE applying any treatment for leaf yellowing?","Apply fungicide immediately","Diagnose the cause first","Remove all leaves","Increase fertilizer",B,diagnosis
+G044,"When can harvest occur after spraying?","Immediately","After the pre-harvest interval ends","After one day always","Never",B,safety
+G045,"What ensures pesticide residues are within safe limits before eating?","Washing only","The labeled pre-harvest interval","Cooking","Peeling",B,safety
+G047,"When can animals resume grazing after spraying?","Immediately","After the label safety interval has passed","Never","After rain",B,safety
