@@ -90,12 +90,24 @@ Docker starts `frontend` on host `:3000`, `gateway` on `:8000`, and `model-api` 
 
 The values below are copied from `core/evaluation/reports/*.json` and rounded to three decimals.
 
+### LLM-Judge and Similarity Metrics
+
 | Report group | Faithfulness | Factual correctness | Similarity | Questions |
 | --- | ---: | ---: | ---: | ---: |
-| Base LLM | 0.657 | 0.191 | 0.497 | 42/42 |
-| General RAG | 0.941 | 0.292 | 0.666 | 17/17 |
-| Product RAG basic | 0.963 | 0.321 | 0.493 | 24/24 |
-| Product RAG optimized | 0.946 | 0.439 | 0.525 | 24/24 |
+| Base LLM | 0.685 | 0.183 | 0.376 | 41/41 |
+| General RAG | 0.959 | 0.203 | 0.782 | 17/17 |
+| Product RAG basic | 0.771 | 0.289 | 0.621 | 24/24 |
+| Product RAG optimized | 0.946 | 0.454 | 0.671 | 24/24 |
+
+### Heuristic MCQ Checks
+
+| Report group | Accuracy | Correct | Questions |
+| --- | ---: | ---: | ---: |
+| Base LLM MCQ | 1.000 | 10 | 10/10 |
+| General RAG MCQ | 1.000 | 10 | 10/10 |
+| Product base-LLM MCQ | 0.800 | 12 | 15/15 |
+| Product RAG basic MCQ | 0.600 | 9 | 15/15 |
+| Product RAG MCQ | 0.733 | 11 | 15/15 |
 
 ## Tests
 
