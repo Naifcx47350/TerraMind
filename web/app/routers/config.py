@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
-from app.config import _ENV_FILE, settings
-from app.services.openai_config import apply_openai_key, is_openai_ready
+from app.config import _ENV_FILE, _ROOT_ENV_FILE, settings
+from app.services.openai_config import apply_openai_key, is_openai_ready, model_api_ready
 
 router = APIRouter()
 
@@ -13,12 +13,15 @@ class OpenAIKeyRequest(BaseModel):
 
 @router.get("/config")
 async def get_app_config():
-    configured = await is_openai_ready()
+    configured = is_openai_ready()
+    model_ready = await model_api_ready()
     return {
         "openai_configured": configured,
+        "model_api_ready": model_ready,
         "requires_openai_key": not settings.use_mock,
         "use_mock": settings.use_mock,
-        "env_file_hint": str(_ENV_FILE),
+        "env_file_hint": str(_ROOT_ENV_FILE),
+        "web_env_file_hint": str(_ENV_FILE),
     }
 
 

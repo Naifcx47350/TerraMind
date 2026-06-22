@@ -10,11 +10,18 @@ from collections.abc import Iterator
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
 from core.models.base_llm import CHAT_MODEL, SYSTEM_PROMPT
-from core.models.conversation import build_prompt_question, build_retrieval_query
+from core.models.conversation import (
+    build_contextual_retrieval_query,
+    build_prompt_question,
+    build_retrieval_query,
+)
 from core.models.image_context import question_with_image_context
 from core.models.router import route_question
 from core.models import MODEL_REGISTRY, resolve_image_analysis
-from core.meta_questions import advisory_meta_answer, is_meta_question
+from core.meta_questions import (
+    advisory_meta_answer,
+    is_meta_question,
+)
 from core.rag.llm_stream import stream_chat_tokens
 
 
@@ -95,18 +102,6 @@ def _stream_general_rag(
     history: list | None,
     image_analysis: str | None,
 ) -> Iterator[dict]:
-    from core.models.router import skips_document_retrieval
-
-    if skips_document_retrieval(question, image_analysis):
-        yield from _stream_without_retrieval(
-            question,
-            history,
-            image_analysis,
-            system="general_rag",
-            model="general_rag",
-        )
-        return
-
     from core.rag.general import get_general_db, sources_from_retrieved
     from core.rag.general.generate import stream_generate_answer
     from core.rag.general.retrieve import format_context, retrieve_chunks
@@ -114,7 +109,7 @@ def _stream_general_rag(
     from core.rag.scoring import rag_metrics
 
     db = get_general_db()
-    retrieval_q = build_retrieval_query(question, image_analysis)
+    retrieval_q = build_contextual_retrieval_query(question, history, image_analysis)
     generation_q = build_prompt_question(question, history, image_analysis)
 
     yield _status("Searching agriculture references…")
@@ -147,18 +142,6 @@ def _stream_product_rag(
     history: list | None,
     image_analysis: str | None,
 ) -> Iterator[dict]:
-    from core.models.router import skips_document_retrieval
-
-    if skips_document_retrieval(question, image_analysis):
-        yield from _stream_without_retrieval(
-            question,
-            history,
-            image_analysis,
-            system="product_rag",
-            model="product_rag",
-        )
-        return
-
     from core.rag.product import get_product_db, sources_from_retrieved, stream_answer_with_rag
     from core.rag.scoring import rag_metrics
 

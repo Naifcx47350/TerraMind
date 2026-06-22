@@ -601,6 +601,8 @@ export const DECORATIVE_CSS = `
   transition:max-width .48s cubic-bezier(0.34,1.12,0.64,1);
   will-change:max-width;
 }
+.tm-content-width--chat:not(.tm-content-width--wide){max-width:820px}
+.tm-content-width--composer:not(.tm-content-width--wide){max-width:820px}
 .tm-content-width--wide{max-width:min(100%,1280px)}
 .tm-sidebar-glass{
   backdrop-filter:blur(16px) saturate(1.2);
