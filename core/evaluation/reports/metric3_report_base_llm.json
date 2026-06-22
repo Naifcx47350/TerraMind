@@ -1,261 +1,255 @@
 {
     "summary": {
-        "average_similarity": 0.4969045931384677,
-        "questions_completed": 42,
-        "total_questions": 42
+        "average_similarity": 0.375609756097561,
+        "questions_completed": 41,
+        "total_questions": 41
     },
     "results": [
         {
             "question": "My plants have red spider mites — how do I deal with them?",
             "golden": "Red spider mites are sucking pests. Mite populations should be monitored regularly. Heavily infested leaves should be removed. An acaricide is applied when populations exceed the action threshold. Acaricide modes of action should be rotated to limit resistance.",
-            "generated": "To manage red spider mites, consider the following steps:\n\n1. **Increase Humidity**: Spider mites thrive in dry conditions. Increasing humidity around your plants can help deter them.\n   \n2. **Water Spray**: Regularly spraying the plants with water can dislodge the mites. Ensure to cover the undersides of the leaves where they often reside.\n\n3. **Insecticidal Soap or Neem Oil**: These can be effective against spider mites. Apply according to the product instructions, ensuring good coverage.\n\n4. **Natural Predators**: Introducing beneficial insects like ladybugs or predatory mites can help control spider mite populations.\n\n5. **Regular Monitoring**: Keep an eye on your plants for signs of infestation and act quickly if you see them.\n\nIf the problem persists, consulting a local agronomist or extension service may provide more tailored advice.",
-            "similarity": 0.8315154910087585
+            "generated": "To manage red spider mites, consider the following steps:\n\n1. **Increase Humidity**: Spider mites thrive in dry conditions, so increasing humidity around your plants can help deter them.\n\n2. **Watering**: Regularly water your plants to keep them healthy, as stressed plants are more susceptible to infestations.\n\n3. **Insecticidal Soap or Neem Oil**: Use insecticidal soap or neem oil to treat the affected plants. Apply according to the product instructions, ensuring thorough coverage.\n\n4. **Natural Predators**: Introduce natural predators like ladybugs or predatory mites, which can help control spider mite populations.\n\n5. **Regular Monitoring**: Keep an eye on your plants for signs of mites and take action early to prevent larger infestations.\n\nIf the problem persists, consider consulting a local agronomist for tailored advice.",
+            "similarity": 0.6
         },
         {
             "question": "How do I prevent powdery mildew?",
             "golden": "Powdery mildew is a fungal disease. Good airflow between plants reduces infection. Excess nitrogen fertilization increases susceptibility. Fungicide is most effective when applied at the first visible symptoms.",
-            "generated": "To prevent powdery mildew, consider the following practices:\n\n- **Choose Resistant Varieties**: Select plant varieties that are resistant to powdery mildew.\n- **Proper Spacing**: Ensure adequate spacing between plants to improve air circulation.\n- **Watering Practices**: Water plants at the base rather than overhead to keep foliage dry.\n- **Prune and Thin**: Regularly prune and thin out dense foliage to enhance airflow.\n- **Fungicide Application**: If necessary, apply fungicides as a preventive measure, following label instructions.\n\nMonitoring your plants regularly for early signs of powdery mildew can also help you take action before it spreads.",
-            "similarity": 0.7885115742683411
+            "generated": "To prevent powdery mildew, consider the following strategies:\n\n- **Choose Resistant Varieties**: Select plant varieties that are resistant to powdery mildew.\n- **Improve Air Circulation**: Space plants properly to allow for good airflow, reducing humidity around the foliage.\n- **Watering Practices**: Water plants at the base rather than overhead to keep leaves dry.\n- **Mulching**: Use mulch to prevent soil splash and reduce humidity around plants.\n- **Fungicides**: If necessary, apply fungicides as a preventive measure, following label instructions.\n\nRegular monitoring of plants for early signs of powdery mildew can also help in managing the issue effectively.",
+            "similarity": 0.8
         },
         {
             "question": "What time of day should I spray?",
             "golden": "Spraying before 10 AM or after 4 PM avoids peak heat. High heat increases spray evaporation. High heat increases the risk of leaf burn. Cooler conditions improve pesticide uptake by the plant.",
-            "generated": "The best time of day to spray pesticides or herbicides is typically early in the morning or late in the afternoon. During these times, temperatures are cooler, and wind speeds are generally lower, which helps reduce evaporation and drift. Additionally, spraying during these periods can minimize the impact on beneficial insects and reduce stress on the plants. Always check the product label for specific recommendations related to timing.",
-            "similarity": 0.7158185243606567
+            "generated": "The best time of day to spray pesticides or herbicides is typically early morning or late afternoon. During these times, temperatures are cooler, and winds are usually calmer, which helps reduce evaporation and drift. Additionally, spraying during these periods can minimize harm to beneficial insects and reduce the risk of phytotoxicity to crops. Always check the product label for specific recommendations as well.",
+            "similarity": 0.8
         },
         {
             "question": "How do I improve my soil so plants grow better?",
             "golden": "Adding organic matter improves soil structure. Cover crops reduce soil erosion. Crop rotation breaks pest and disease cycles. Avoiding compaction improves root growth and water infiltration.",
-            "generated": "Improving soil health is essential for better plant growth. Here are some practical steps you can take:\n\n1. **Test Your Soil**: Conduct a soil test to understand its pH, nutrient levels, and organic matter content. This will help you identify what amendments are needed.\n\n2. **Add Organic Matter**: Incorporate compost, well-rotted manure, or leaf mold to enhance soil structure, nutrient content, and moisture retention.\n\n3. **Use Cover Crops**: Plant cover crops during the off-season to prevent erosion, improve soil structure, and add nutrients back into the soil when they decompose.\n\n4. **Practice Crop Rotation**: Rotate crops each season to prevent nutrient depletion and reduce pest and disease buildup.\n\n5. **Minimize Tillage**: Reduce tillage to maintain soil structure and protect beneficial microorganisms.\n\n6. **Mulch**: Apply organic mulch to retain moisture, suppress weeds, and gradually improve soil quality as it breaks down.\n\nBy following these practices, you can create a healthier soil environment that promotes better plant growth.",
-            "similarity": 0.6147225499153137
+            "generated": "Improving soil health is crucial for better plant growth. Here are some practical steps you can take:\n\n1. **Test Your Soil**: Conduct a soil test to understand its pH, nutrient levels, and organic matter content.\n2. **Add Organic Matter**: Incorporate compost, well-rotted manure, or leaf mold to enhance soil structure and fertility.\n3. **Use Cover Crops**: Plant cover crops during the off-season to prevent erosion, improve soil structure, and add nutrients.\n4. **Practice Crop Rotation**: Rotate crops each season to prevent nutrient depletion and reduce pest and disease buildup.\n5. **Minimize Tillage**: Reduce tillage to maintain soil structure and protect beneficial organisms.\n\nThese practices can help create a healthier environment for your plants to thrive.",
+            "similarity": 1.0
         },
         {
             "question": "Is this pesticide safe to handle?",
             "golden": "Pesticides should be applied at the label rate. Protective equipment should be worn during application. Spray drift onto people and animals should be avoided. Pesticides should be kept away from food and water sources.",
-            "generated": "I can't access specific product information or safety data in this mode. It's best to check the product label for safety guidelines and handling instructions. If you're unsure, consult a licensed agronomist or local agricultural extension service for advice.",
-            "similarity": 0.3463756740093231
+            "generated": "To determine if a pesticide is safe to handle, you should check the product label for safety instructions, including personal protective equipment (PPE) recommendations and any specific handling precautions. It's also important to consider the active ingredients and any associated safety data sheets (SDS) for detailed information. If you're unsure, consulting a licensed agronomist or local agricultural extension service is advisable.",
+            "similarity": 0.5
         },
         {
             "question": "Strawberry has red and white spider mites — which approach?",
             "golden": "Red and white spider mites are both mite pests. Mite populations should be monitored on the crop. An acaricide is applied when populations exceed the threshold. Acaricide modes of action should be rotated to limit resistance.",
-            "generated": "For managing red and white spider mites on strawberries, consider the following approaches:\n\n1. **Cultural Practices**: Maintain good air circulation and avoid overcrowding plants. Regularly inspect plants and remove any infested leaves.\n\n2. **Biological Control**: Introduce natural predators like ladybugs or predatory mites that feed on spider mites.\n\n3. **Chemical Control**: If infestations are severe, consider using miticides. Always check the product label for specific instructions and ensure it is safe for strawberries.\n\n4. **Monitoring**: Regularly monitor mite populations and use sticky traps to assess their presence.\n\nIt's essential to integrate these methods for effective control. If you're unsure about specific products or rates, consult a licensed agronomist or check product labels.",
-            "similarity": 0.6367572546005249
+            "generated": "To manage red and white spider mites on strawberries, consider the following approaches:\n\n1. **Cultural Practices**: \n   - Ensure proper irrigation and avoid overhead watering to reduce humidity, which can favor mite populations.\n   - Remove any infested plant debris and weeds that can harbor mites.\n\n2. **Biological Control**: \n   - Introduce natural predators like ladybugs or predatory mites, which can help control spider mite populations.\n\n3. **Chemical Control**: \n   - If the infestation is severe, consider using miticides. Always refer to the product label for specific recommendations and ensure it's safe for strawberries.\n\n4. **Monitoring**: \n   - Regularly inspect plants for signs of spider mites, such as stippling on leaves or webbing, and take action early to prevent larger infestations.\n\nConsult with a local agronomist or extension service for tailored advice and product recommendations.",
+            "similarity": 0.7
         },
         {
             "question": "There are small whitish aphids on my plant — how do I control them?",
             "golden": "Aphids are sucking insects. Natural enemies such as ladybirds help control aphids. An aphid-targeted insecticide is applied when thresholds are exceeded. Early treatment reduces aphid population growth.",
-            "generated": "To control aphids on your plants, consider these methods:\n\n1. **Natural Predators**: Introduce beneficial insects like ladybugs or lacewings that feed on aphids.\n2. **Insecticidal Soap**: Use a commercially available insecticidal soap or make your own by mixing mild soap with water. Spray directly on the aphids.\n3. **Neem Oil**: This natural pesticide disrupts aphid growth and reproduction. Apply according to the instructions on the product label.\n4. **Water Spray**: A strong blast of water can dislodge aphids from plants.\n\nMonitor your plants regularly and reapply treatments as necessary. If the infestation persists, consulting a local agronomist may be beneficial.",
-            "similarity": 0.645156979560852
+            "generated": "To control aphids on your plants, consider the following methods:\n\n- **Natural Predators**: Introduce beneficial insects like ladybugs or lacewings that feed on aphids.\n- **Insecticidal Soap**: Apply insecticidal soap to the affected areas, ensuring good coverage on both sides of the leaves.\n- **Neem Oil**: Use neem oil as a natural pesticide; it disrupts the life cycle of aphids.\n- **Water Spray**: A strong blast of water can dislodge aphids from plants.\n\nMonitor your plants regularly and repeat treatments as necessary. If the infestation persists, consulting a local agronomist may provide additional tailored solutions.",
+            "similarity": 0.6
         },
         {
             "question": "How do I manage thrips?",
             "golden": "Thrips are small rasping insects. Sticky traps are used to monitor thrips populations. A thrips-targeted product is applied at early infestation. Early application reduces thrips damage to the crop.",
-            "generated": "To manage thrips, consider the following strategies:\n\n1. **Cultural Practices**: \n   - Rotate crops to disrupt thrips life cycles.\n   - Remove debris and weeds where thrips may breed.\n\n2. **Monitoring**: \n   - Regularly inspect plants for signs of thrips damage, such as silvering of leaves or black feces.\n\n3. **Biological Control**: \n   - Introduce natural predators like predatory mites or beneficial insects that feed on thrips.\n\n4. **Chemical Control**: \n   - If necessary, use insecticides labeled for thrips. Always follow the product label for application rates and safety guidelines.\n\n5. **Physical Barriers**: \n   - Use row covers to protect plants from thrips during vulnerable stages.\n\nIt's important to integrate multiple strategies for effective control. If you have a severe infestation, consulting with a local agronomist may be beneficial.",
-            "similarity": 0.6278842687606812
+            "generated": "To manage thrips effectively, consider the following strategies:\n\n1. **Cultural Practices**: Keep your fields clean and remove debris that can harbor thrips. Rotate crops to disrupt their life cycle.\n\n2. **Monitoring**: Regularly scout your crops for thrips. Use sticky traps to monitor their population levels.\n\n3. **Biological Control**: Introduce natural predators, such as predatory mites or beneficial insects, that can help control thrips populations.\n\n4. **Chemical Control**: If necessary, use insecticides labeled for thrips control. Always follow the product label for application rates and safety guidelines.\n\n5. **Resistant Varieties**: If available, choose crop varieties that are resistant to thrips.\n\nImplementing a combination of these methods can help manage thrips effectively.",
+            "similarity": 0.7
         },
         {
             "question": "Can this be used for anthracnose?",
             "golden": "Anthracnose is a fungal disease. Field sanitation reduces anthracnose spread. Good airflow lowers infection risk. A fungicide labeled for anthracnose should be used for control.",
-            "generated": "I can't access specific product information in this mode. For managing anthracnose, it's best to consult a licensed agronomist or check the product label for recommendations on effective treatments. If you have more details about the crop or situation, I can provide general guidance on managing anthracnose.",
-            "similarity": 0.580823540687561
+            "generated": "Could you please specify what product or treatment you are referring to? That way, I can provide more accurate guidance regarding its use for anthracnose.",
+            "similarity": 0.0
         },
         {
             "question": "My leaves are turning yellow — what causes it?",
             "golden": "Leaf yellowing can be caused by nutrient deficiency. Leaf yellowing can be caused by overwatering. Leaf yellowing can be caused by root disease. The cause should be diagnosed before applying any treatment.",
-            "generated": "Yellowing leaves can be caused by several factors, including:\n\n- **Nutrient Deficiency**: Lack of essential nutrients like nitrogen, iron, or magnesium can lead to yellowing.\n- **Water Issues**: Overwatering or underwatering can stress the plant, causing leaves to yellow.\n- **Pests or Diseases**: Infestations or infections can affect leaf health.\n- **Environmental Stress**: Factors like extreme temperatures, poor soil drainage, or transplant shock can also contribute.\n\nIdentifying the specific cause will help in addressing the issue effectively.",
-            "similarity": 0.8792438507080078
+            "generated": "Yellowing leaves can be caused by several factors, including:\n\n- **Nutrient Deficiency**: Lack of nitrogen, iron, or other essential nutrients can lead to yellowing.\n- **Water Issues**: Overwatering or underwatering can stress the plant, causing leaves to yellow.\n- **Pests or Diseases**: Infestations or infections can affect leaf health.\n- **Environmental Stress**: Extreme temperatures, poor soil conditions, or lack of sunlight can also contribute.\n\nAssess your plants for these factors to identify the cause and take appropriate action.",
+            "similarity": 0.8
         },
         {
             "question": "There are soil grubs killing my vegetables — what do I do?",
             "golden": "Soil grubs are root-feeding pests. Crop rotation reduces soil grub populations. Soil sanitation removes pest habitat. A soil-applied insecticide is used when infestation is high.",
-            "generated": "To manage soil grubs affecting your vegetables, consider the following steps:\n\n1. **Identify the Grub**: Determine the type of grub causing the damage. Common types include Japanese beetle larvae and June beetles.\n\n2. **Cultural Practices**: Improve soil health by rotating crops, maintaining healthy soil, and avoiding overwatering, which can attract grubs.\n\n3. **Physical Removal**: Handpick visible grubs from the soil if the infestation is small.\n\n4. **Beneficial Nematodes**: Consider introducing beneficial nematodes, which are microscopic worms that can help control grub populations.\n\n5. **Insecticides**: If the infestation is severe, you may need to use an insecticide labeled for grub control. Always follow the product label for application guidelines.\n\nFor specific product recommendations or rates, consult a licensed agronomist or check product labels.",
-            "similarity": 0.7423884868621826
+            "generated": "To manage soil grubs affecting your vegetables, consider the following steps:\n\n1. **Identify the Grub**: Determine the type of grubs present, as different species may require different management strategies.\n\n2. **Cultural Practices**: Improve soil health through practices like crop rotation, proper watering, and maintaining healthy plant growth, which can help reduce grub populations.\n\n3. **Beneficial Nematodes**: Introduce beneficial nematodes, which are microscopic worms that can help control grub populations naturally.\n\n4. **Insecticides**: If the infestation is severe, you may consider using insecticides specifically labeled for grubs. Always follow the product label for application guidelines.\n\n5. **Monitor and Maintain**: Regularly check your plants and soil for signs of grubs and take action as needed.\n\nIf the problem persists, consulting with a local agronomist or extension service can provide tailored advice for your situation.",
+            "similarity": 0.8
         },
         {
             "question": "Does spraying time really affect results?",
             "golden": "Spraying in cooler hours reduces evaporation. Spraying in cooler hours reduces leaf burn. Cooler conditions improve pesticide absorption by the plant.",
-            "generated": "Yes, spraying time can significantly affect the results of pest and disease management. Here are a few key factors to consider:\n\n- **Weather Conditions**: Wind, temperature, and humidity can influence how well a product works. For example, spraying during high winds can lead to drift, while high temperatures may cause rapid evaporation of the product.\n\n- **Crop Growth Stage**: The timing of application should align with the specific growth stage of the crop for optimal effectiveness.\n\n- **Pest Life Cycle**: Understanding the life cycle of pests can help determine the best timing for applications to target them effectively.\n\n- **Application Frequency**: Timing can also affect how often you need to spray to maintain effective control.\n\nOverall, proper timing is crucial for maximizing the efficacy of any agricultural treatment.",
-            "similarity": 0.5809260606765747
+            "generated": "Yes, spraying time can significantly affect the results of pest and disease control in crops. Here are a few key factors to consider:\n\n- **Weather Conditions**: Spraying during calm, dry weather can enhance the effectiveness of the application. Wind can cause drift, while rain can wash away the product.\n- **Time of Day**: Early morning or late afternoon is often recommended for spraying, as temperatures are cooler and beneficial insects are less active.\n- **Crop Growth Stage**: Timing applications according to the growth stage of the crop can improve efficacy, as plants may be more susceptible to pests or diseases at certain times.\n\nOverall, choosing the right time to spray can lead to better control and improved crop health.",
+            "similarity": 0.5
         },
         {
             "question": "How should I rotate crops to reduce disease?",
             "golden": "Crops should be rotated with unrelated plant families. Rotation breaks pest life cycles. Rotation breaks pathogen life cycles. Continuous monocropping increases disease pressure.",
-            "generated": "Crop rotation is an effective strategy to reduce disease and improve soil health. Here are some key practices:\n\n- **Diversity**: Rotate different plant families. For example, follow legumes with cereals, as they have different nutrient needs and pest profiles.\n- **Timing**: Allow sufficient time between planting the same crop. This helps break the life cycle of soil-borne pathogens.\n- **Cover Crops**: Use cover crops during off-seasons to improve soil structure and suppress weeds, which can harbor diseases.\n- **Soil Health**: Focus on maintaining healthy soil through organic matter and proper nutrient management, as healthy soil can better resist diseases.\n\nImplementing these practices can help minimize disease pressure in your crops.",
-            "similarity": 0.7089605331420898
+            "generated": "Crop rotation is an effective strategy to reduce disease and improve soil health. Here are some key practices:\n\n- **Diverse Plant Families**: Rotate crops from different plant families (e.g., legumes, brassicas, and cereals) to disrupt the life cycles of pathogens specific to certain crops.\n- **Avoid Successive Planting**: Do not plant the same crop or related crops in the same location for consecutive seasons, as this can lead to a buildup of soil-borne diseases.\n- **Include Cover Crops**: Use cover crops in the off-season to improve soil health and suppress weeds, which can harbor pests and diseases.\n- **Monitor Soil Health**: Regularly assess soil health and disease presence to adjust your rotation plan as needed.\n\nImplementing these strategies can help minimize disease pressure and promote healthier crops.",
+            "similarity": 1.0
         },
         {
             "question": "How long before I can harvest after spraying?",
             "golden": "Each product has a pre-harvest interval on its label. Harvest should not occur before the pre-harvest interval ends. The labeled pre-harvest interval must be followed for food safety.",
-            "generated": "The time before you can harvest after spraying depends on the type of product used and the crop. This is known as the **pre-harvest interval (PHI)**. It's essential to check the product label for specific guidelines, as different chemicals have different intervals. If you're unsure, consulting with a licensed agronomist can also provide clarity based on your specific situation.",
-            "similarity": 0.6002624034881592
+            "generated": "The time before you can harvest after spraying depends on the specific product used and the crop. This is known as the **pre-harvest interval (PHI)**. You should always check the product label for the recommended PHI, as it varies for different chemicals and crops. If you're unsure, consulting a licensed agronomist can also provide guidance tailored to your situation.",
+            "similarity": 1.0
         },
         {
             "question": "Is it safe to eat vegetables after spraying?",
             "golden": "Vegetables should only be eaten after the pre-harvest interval has passed. Produce should be washed before eating. The labeled pre-harvest interval ensures residues are within safe limits.",
-            "generated": "It depends on the type of spray used and the waiting period recommended on the product label. Many pesticides and herbicides have specific re-entry intervals and pre-harvest intervals that indicate how long you should wait before harvesting and consuming the vegetables. Always check the label for safety guidelines and consider consulting a licensed agronomist for specific advice related to your situation.",
-            "similarity": 0.6676168441772461
+            "generated": "It depends on the type of spray used and the specific waiting period recommended on the product label. Many pesticides and herbicides have a pre-harvest interval, which is the time that must pass between application and when the crop can be safely harvested and consumed. Always check the product label for specific guidelines and consult with a licensed agronomist if you have concerns.",
+            "similarity": 0.8
         },
         {
             "question": "Can I let poultry graze after spraying?",
             "golden": "Animals should be kept off treated areas after spraying. Grazing should resume only after the label safety interval has passed. The labeled safety interval protects animals from residues.",
-            "generated": "It's generally advisable to wait before allowing poultry to graze in areas that have been recently sprayed with pesticides or herbicides. The waiting period can vary based on the specific product used, so it's important to check the label for any restrictions or recommendations regarding livestock grazing. Additionally, consulting with a licensed agronomist can provide tailored advice based on your situation.",
-            "similarity": 0.6203044652938843
+            "generated": "It's generally recommended to keep poultry away from areas that have been recently sprayed with pesticides or herbicides until it's safe for them to return. The waiting period can vary depending on the product used, so it's important to check the label for specific guidelines regarding re-entry intervals. Additionally, consulting with a licensed agronomist can provide tailored advice for your situation.",
+            "similarity": 0.8
         },
         {
             "question": "How do I keep soil healthy long term?",
             "golden": "Adding organic matter maintains soil health. Minimizing tillage protects soil structure. Keeping living roots in the soil supports soil biology. Crop rotation sustains long-term soil fertility.",
-            "generated": "To maintain healthy soil long term, consider these key practices:\n\n- **Crop Rotation**: Rotate different crops each season to improve soil structure and fertility, and reduce pest and disease buildup.\n- **Cover Crops**: Plant cover crops during off-seasons to prevent erosion, improve soil organic matter, and enhance nutrient cycling.\n- **Organic Matter**: Regularly add organic matter, such as compost or well-rotted manure, to improve soil structure, water retention, and nutrient availability.\n- **Minimal Tillage**: Reduce tillage to protect soil structure, enhance microbial activity, and prevent erosion.\n- **Soil Testing**: Conduct regular soil tests to monitor nutrient levels and pH, allowing for informed amendments.\n\nImplementing these practices can help sustain soil health over time.",
-            "similarity": 0.6792782545089722
+            "generated": "To maintain healthy soil over the long term, consider the following practices:\n\n- **Crop Rotation**: Alternating crops helps prevent nutrient depletion and reduces pest and disease buildup.\n- **Cover Crops**: Planting cover crops during off-seasons protects the soil, improves structure, and adds organic matter.\n- **Reduced Tillage**: Minimizing tillage preserves soil structure, enhances moisture retention, and protects beneficial organisms.\n- **Organic Amendments**: Regularly adding compost or organic matter boosts soil fertility and microbial activity.\n- **Soil Testing**: Conducting periodic soil tests helps you understand nutrient levels and pH, allowing for informed amendments.\n\nImplementing these practices can enhance soil health and productivity over time.",
+            "similarity": 1.0
         },
         {
             "question": "For Citrus Bacteria Clear (AF0001), what does '1 g diluted in 1 jin of water' mean?",
             "golden": "It means mixing 1 g of product into 1 jin (500 g / 0.5 L) of water; the label ratio is 1 g per 500 g water.",
-            "generated": "In this context, \"1 g diluted in 1 jin of water\" means that you should take 1 gram of the product and mix it with 1 jin of water to create a solution. A jin is a traditional Chinese unit of weight, approximately equal to 0.5 kilograms or about 1.1 pounds. So, you would be mixing 1 gram of the product with about 500 milliliters of water. Always refer to the product label for specific instructions and recommendations.",
-            "similarity": 0.7837719917297363
+            "generated": "The phrase \"1 g diluted in 1 jin of water\" means that you should take 1 gram of the product and mix it with 1 jin (which is approximately 0.5 liters) of water. This dilution is typically used to prepare a solution for application, ensuring that the product is evenly distributed in the water before use. Always refer to the product label for specific instructions and recommendations.",
+            "similarity": 1.0
         },
         {
             "question": "One 500 g bottle of Citrus Bacteria Clear (AF0001) dilutes into how much water?",
             "golden": "At 1 g : 500 g, a 500 g bottle dilutes into 500 jin (250 kg) of water.",
-            "generated": "I can't access specific product information or catalogs in this mode, so I recommend checking the product label for dilution instructions. If you're unsure, consulting a licensed agronomist can also provide accurate guidance.",
-            "similarity": 0.4394630789756775
+            "generated": "I can't access specific product details or catalogs in this mode. I recommend checking the product label or consulting a licensed agronomist for accurate dilution instructions.",
+            "similarity": 0.0
         },
         {
             "question": "For Citrus Bacteria Clear (AF0001), how much product for 30 jin of water?",
             "golden": "At 1 g per 500 g water, 30 jin (15 kg) of water needs about 30 g of product.",
-            "generated": "I can't access specific product information or dosage instructions in this mode. I recommend checking the product label for the correct application rates or consulting a licensed agronomist for guidance.",
-            "similarity": 0.20929312705993652
+            "generated": "I can't access the product catalog in this mode, so I can't provide specific product rates or dosages. I recommend checking the product label for the appropriate mixing instructions or consulting a licensed agronomist for guidance.",
+            "similarity": 0.0
         },
         {
             "question": "How much water for 45% Bifenazate + Etoxazole (PN0014)?",
             "golden": "15 g of PN0014 is mixed with 30 jin (15 kg) of water.",
-            "generated": "I can't access the product catalog for specific product rates or mixtures. I recommend checking the product label for the correct water usage or consulting a licensed agronomist for guidance on application rates.",
-            "similarity": 0.39281973242759705
+            "generated": "I can't access specific product information or catalogs in this mode, including exact product rates or mixtures. I recommend checking the product label for application rates or consulting a licensed agronomist for guidance tailored to your specific situation.",
+            "similarity": 0.0
         },
         {
             "question": "One 500 g bottle of Spider Mite Killer No.1 (AF0039) dilutes into how much water?",
             "golden": "At 50 g : 30 jin, a 500 g bottle makes about 300 jin (150 kg) of solution.",
-            "generated": "I can't access the product catalog in this mode, so I recommend checking the product label for specific dilution instructions. Alternatively, you could consult a licensed agronomist for guidance on using that product effectively.",
-            "similarity": 0.369498074054718
-        },
-        {
-            "question": "Using Bacteria Clear Sachet (AF0009), how do I treat potato seeds (seed dressing)?",
-            "golden": "Dilution 1 g : 1 jin water. Spray: place seed pieces in a basin, spray evenly while turning until moist but not dripping. Or soak 10-15 min, drain, air-dry 1-2 h in shade, then sow.",
-            "generated": "I can't access specific product details or instructions for Bacteria Clear Sachet (AF0009) in this mode. For seed dressing, it's best to refer to the product label for precise application rates and methods. Generally, seed dressing involves mixing the treatment with the seeds before planting to protect them from diseases. If you have questions about specific rates or methods, consulting a licensed agronomist would be beneficial.",
-            "similarity": 0.4451850652694702
+            "generated": "I can't access specific product details or catalogs in this mode, so I recommend checking the product label or consulting a licensed agronomist for accurate dilution instructions.",
+            "similarity": 0.0
         },
         {
             "question": "How is Citrus Bacteria Clear (AF0001) used?",
             "golden": "Dilute 1000x during the growing season and spray evenly on the leaves; adjust dosage and frequency to local crop and conditions.",
-            "generated": "I can't access specific product information or catalogs in this mode, so I can't provide details on how to use Citrus Bacteria Clear (AF0001). I recommend checking the product label for usage instructions or consulting a licensed agronomist for guidance tailored to your situation. If you have any other questions about citrus crops or related issues, feel free to ask!",
-            "similarity": 0.31742799282073975
+            "generated": "I can't access specific product information or catalogs in this mode. For details on how to use Citrus Bacteria Clear (AF0001), I recommend checking the product label or consulting with a licensed agronomist for guidance on application rates and methods.",
+            "similarity": 0.0
         },
         {
             "question": "For Citrus Bacteria Clear (AF0001), is it watered (root drench) or sprayed on leaves?",
             "golden": "It is sprayed evenly on the foliage during the growing season, not applied as a root drench.",
-            "generated": "I can't access specific product details like Citrus Bacteria Clear (AF0001) in this mode. I recommend checking the product label for application instructions or consulting a licensed agronomist for guidance on whether it should be used as a root drench or foliar spray.",
-            "similarity": 0.48660606145858765
+            "generated": "I can't access specific product details like Citrus Bacteria Clear (AF0001) in this mode. I recommend checking the product label or consulting a licensed agronomist for the correct application method, whether it's a root drench or foliar spray.",
+            "similarity": 0.2
         },
         {
             "question": "For Citrus Bacteria Clear (AF0001), can I dust it on dry without water?",
             "golden": "No. It must be diluted in water and sprayed evenly on leaves; dry dusting is not the registered method.",
-            "generated": "I can't access specific product details or instructions for Citrus Bacteria Clear (AF0001) in this mode. It's best to check the product label for application methods or consult a licensed agronomist for guidance on how to use it properly.",
-            "similarity": 0.2932358384132385
+            "generated": "I can't access specific product details or labels in this mode. It's best to check the product label for application instructions or consult a licensed agronomist for guidance on using Citrus Bacteria Clear. They can provide the most accurate information regarding whether it can be applied dry or if it requires water.",
+            "similarity": 0.2
         },
         {
             "question": "What is the net content of one bottle of Citrus Bacteria Clear (AF0001)?",
             "golden": "The specification is 50 g / 500 g per the label.",
-            "generated": "I don't have access to specific product details like the net content of Citrus Bacteria Clear (AF0001). I recommend checking the product label or contacting the manufacturer for accurate information. If you have any other questions related to agriculture or crop issues, feel free to ask!",
-            "similarity": 0.238704115152359
+            "generated": "I can't access specific product information or catalogs in this mode, so I can't provide the net content of Citrus Bacteria Clear (AF0001). I recommend checking the product label or contacting a licensed agronomist for accurate details.",
+            "similarity": 0.0
         },
         {
             "question": "Does Citrus Bacteria Clear (AF0001) work on potatoes? Potato isn't listed.",
             "golden": "Registered crop is chili pepper; practical use shows broad effect, but potato is not on the registered list, so label suitability for potato is not guaranteed.",
-            "generated": "I can't access specific product details or catalogs, but if Citrus Bacteria Clear is not listed for potatoes, it's best to consult the product label or a licensed agronomist for guidance. They can provide the most accurate information based on your specific situation and crop needs.",
-            "similarity": 0.5609204769134521
+            "generated": "I can't access specific product details or catalogs, so I recommend checking the product label for Citrus Bacteria Clear (AF0001) or consulting a licensed agronomist. They can provide guidance on whether it can be used on potatoes or suggest alternative treatments for any issues you may have with that crop.",
+            "similarity": 0.2
         },
         {
             "question": "One 100 g bottle of Bacteria Clear Universal (AF0006) dilutes into how much water?",
             "golden": "At 1 g : 500 g, a 100 g bottle dilutes into 100 jin (50 kg) of water.",
-            "generated": "I can't access specific product details or catalogs in this mode, including dilution rates for products. I recommend checking the product label for accurate information on how much water to use with Bacteria Clear Universal or consulting a licensed agronomist for guidance.",
-            "similarity": 0.46383190155029297
+            "generated": "I can't access specific product details or catalogs in this mode. It's best to check the product label for dilution instructions or consult a licensed agronomist for accurate guidance.",
+            "similarity": 0.0
         },
         {
             "question": "For Citrus Bacteria Clear (AF0001), how many grams for 2 jin of water?",
             "golden": "At 1 g : 500 g, 2 jin (1 kg) of water needs about 2 g of product.",
-            "generated": "I can't access the product catalog in this mode, so I can't provide specific dosage information for Citrus Bacteria Clear. I recommend checking the product label for the correct dosage or consulting a licensed agronomist for guidance.",
-            "similarity": 0.16726979613304138
+            "generated": "I can't access specific product information or catalogs in this mode, so I can't provide the exact dosage for Citrus Bacteria Clear. I recommend checking the product label for the correct dosage or consulting with a licensed agronomist for guidance.",
+            "similarity": 0.0
         },
         {
             "question": "For Citrus Bacteria Clear (AF0001), how much product for a 20 L sprayer tank?",
             "golden": "20 L of water ≈ 40 jin; at 1 g : 500 g this needs about 40 g of product.",
-            "generated": "I can't access the product catalog in this mode, so I can't provide specific dosage information for Citrus Bacteria Clear (AF0001). I recommend checking the product label for the correct application rates or consulting a licensed agronomist for guidance.",
-            "similarity": 0.2294730246067047
+            "generated": "I can't access the product catalog in this mode to provide specific dosage information. I recommend checking the product label for the correct application rates or consulting a licensed agronomist for guidance.",
+            "similarity": 0.0
         },
         {
             "question": "How many jin of water can a 500 g bottle of Spider Mite Killer No.1 (AF0039) make?",
             "golden": "At 50 g : 30 jin, a 500 g bottle makes about 300 jin (150 kg) of solution.",
-            "generated": "I can't access specific product details or catalogs in this mode, including the Spider Mite Killer No.1. I recommend checking the product label for mixing instructions or consulting a licensed agronomist for accurate information.",
-            "similarity": 0.2166651338338852
+            "generated": "I can't access specific product details or catalogs in this mode, so I can't provide information about the dilution rates or how many jin of water a specific product can make. I recommend checking the product label or consulting a licensed agronomist for accurate information on usage.",
+            "similarity": 0.0
         },
         {
             "question": "For 45% Bifenazate + Etoxazole (PN0014), how much product for 40 jin of water?",
             "golden": "At 15 g : 30 jin, 40 jin needs about 20 g.",
-            "generated": "I can't access specific product rates or catalog information in this mode. I recommend checking the product label for the correct dosage or consulting a licensed agronomist for guidance on using Bifenazate and Etoxazole.",
-            "similarity": 0.13128797709941864
+            "generated": "I can't access specific product details or dosage instructions in this mode. I recommend checking the product label for the correct application rates or consulting a licensed agronomist for guidance on using Bifenazate and Etoxazole.",
+            "similarity": 0.0
         },
         {
             "question": "For Spider Mite Killer No.1 (AF0039), is a 50 g dose mixed with 30 jin of water?",
             "golden": "Yes. 50 g is mixed with 30 jin (15 kg) of water.",
-            "generated": "I can't access specific product details or rates in this mode. I recommend checking the product label for the correct mixing instructions or consulting a licensed agronomist for accurate guidance.",
-            "similarity": 0.3138214349746704
+            "generated": "I can't access specific product details or catalogs in this mode. It's best to check the product label for the correct dosage and mixing instructions, or consult a licensed agronomist for guidance.",
+            "similarity": 0.0
         },
         {
             "question": "For Thrips No.1 (AF0064), how much per capful?",
             "golden": "Dilute 800-1000x; one capful is roughly the per-tank dose stated on the label.",
-            "generated": "I can't access the product catalog in this mode, so I can't provide specific dosage information for Thrips No.1 (AF0064). I recommend checking the product label or consulting with a licensed agronomist for the correct application rates.",
-            "similarity": 0.4556480050086975
+            "generated": "I can't access the product catalog in this mode, so I can't provide specific dosage information for Thrips No.1 (AF0064). I recommend checking the product label or consulting a licensed agronomist for accurate application rates.",
+            "similarity": 0.0
         },
         {
             "question": "How many grams is one bottle of 24% Bifenazate (PN0013)?",
             "golden": "The specification is 100 grams per bottle.",
-            "generated": "I can't access specific product details or catalogs in this mode, so I can't provide the exact weight of a bottle of Bifenazate. I recommend checking the product label or contacting a licensed agronomist for accurate information.",
-            "similarity": 0.5435503125190735
+            "generated": "I can't access specific product details or catalogs in this mode, including the weight of a bottle of Bifenazate. I recommend checking the product label or contacting a licensed agronomist for accurate information.",
+            "similarity": 0.0
         },
         {
             "question": "For Citrus Bacteria Clear (AF0001), how much area does one bottle cover?",
             "golden": "A 500 g bottle making 500 jin of solution covers roughly the foliar spray area stated on the label; adjust to crop and density.",
-            "generated": "I can't access specific product details or catalogs in this mode, including coverage information for Citrus Bacteria Clear (AF0001). I recommend checking the product label or consulting with a licensed agronomist for accurate application rates and coverage information.",
-            "similarity": 0.3299438953399658
+            "generated": "I can't access the product catalog in this mode, so I can't provide specific coverage information for Citrus Bacteria Clear (AF0001). I recommend checking the product label or consulting a licensed agronomist for accurate details on coverage and application rates.",
+            "similarity": 0.2
         },
         {
             "question": "For Citrus Bacteria Clear (AF0001), how many days between sprays?",
             "golden": "Re-spray based on crop condition; the label advises adjusting frequency to local growth rather than a fixed interval.",
-            "generated": "I can't access the product catalog in this mode to provide specific product rates or schedules. I recommend checking the product label for the recommended spray interval or consulting with a licensed agronomist for guidance on your specific situation.",
-            "similarity": 0.5292934775352478
+            "generated": "I can't access specific product information or catalogs in this mode, including details like spray intervals for Citrus Bacteria Clear (AF0001). I recommend checking the product label or consulting with a licensed agronomist for accurate guidance on application timing.",
+            "similarity": 0.2
         },
         {
             "question": "For 45% Bifenazate + Etoxazole (PN0014), what is the method and dose?",
             "golden": "Mix 15 g with 30 jin of water and spray evenly on the foliage.",
-            "generated": "I can't access specific product details, including methods and dosages, in this mode. I recommend checking the product label for accurate application instructions or consulting a licensed agronomist for guidance.",
-            "similarity": 0.27184098958969116
+            "generated": "I can't access specific product details or dosage information in this mode. I recommend checking the product label for the correct application method and dosage. Additionally, consulting a licensed agronomist can provide tailored advice for your specific situation.",
+            "similarity": 0.0
         },
         {
             "question": "Can Citrus Bacteria Clear (AF0001) be mixed with other pesticides?",
             "golden": "Do not mix with strong acid or alkaline fertilizers or pesticides; follow label precautions.",
-            "generated": "I can't access specific product information or labels in this mode. It's best to check the product label for mixing instructions or consult with a licensed agronomist to ensure compatibility with other pesticides. Mixing can depend on various factors, including the active ingredients and the target pests or diseases.",
-            "similarity": 0.6178033351898193
+            "generated": "I can't access specific product details or labels in this mode, so I recommend checking the product label for mixing instructions. It's crucial to follow the manufacturer's guidelines regarding compatibility with other pesticides. If you're unsure, consulting a licensed agronomist or agricultural extension service can provide tailored advice for your situation.",
+            "similarity": 0.5
         },
         {
             "question": "Which product is used for potato seed dressing, and at what ratio?",
             "golden": "Bacteria Clear Sachet (AF0009) is used for seed dressing at 1 g : 1 jin water.",
-            "generated": "I can't access the product catalog in this mode, so I can't provide specific product names or ratios for potato seed dressing. However, common practices include using fungicides or insecticides to protect seeds from diseases and pests. I recommend checking the product label or consulting a licensed agronomist for the best options and application rates for your specific situation.",
-            "similarity": 0.39147698879241943
+            "generated": "I can't access the product catalog in this mode, so I can't provide specific product names or ratios for potato seed dressing. However, it's common to use fungicides or insecticides for seed treatment. I recommend checking the product label for specific instructions or consulting with a licensed agronomist for the best options and rates for your situation.",
+            "similarity": 0.2
         },
         {
             "question": "For Citrus Bacteria Clear (AF0001), can it be poured into potting soil?",
             "golden": "The registered method is foliar spray; soil drench is not the labeled application, so it is not recommended without guidance.",
-            "generated": "I can't access specific product information like Citrus Bacteria Clear (AF0001) in this mode. It's best to check the product label for application instructions or consult a licensed agronomist for guidance on using it with potting soil.",
-            "similarity": 0.40461432933807373
+            "generated": "I can't access specific product information or labels in this mode. It's best to check the product label for instructions on application methods or consult a licensed agronomist for guidance on using Citrus Bacteria Clear in potting soil.",
+            "similarity": 0.3
         }
     ]
 }

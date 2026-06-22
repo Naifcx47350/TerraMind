@@ -1,30 +1,48 @@
-# تقرير شامل — تقييم MCQ على الأنظمة الثلاثة
+# Full Evaluation Report — All Three Systems (Heuristic + LLM-as-Judge)
 
-التاريخ: 2026-06-22
+Date: 2026-06-22
 
-## ملخص عام
+This report combines results from **two separate evaluation methods**, applied to **three systems**:
 
-| النظام | عدد الأسئلة | صحيح | الدقة |
-|---|---|---|---|
-| Base LLM — General set | 10 | 10 | **100.0%** |
-| General RAG | 10 | 10 | **100.0%** |
-| Base LLM — Product set | 15 | 10 | **66.7%** |
-| Basic Product RAG (قبل hybrid/rerank) | 15 | 9 | **60.0%** |
-| Optimized Product RAG (hybrid BM25 + rerank، الحالي) | 15 | 11 | **73.3%** |
+- **Evaluation methods:**
+  - **Heuristic (`heuristic_eval/`)** — multiple-choice questions (MCQ), exact letter-match grading, no LLM involved in the scoring step itself.
+  - **LLM-as-Judge (`llm_judge_eval/`)** — open-ended questions (`golden_general_rag.jsonl` / `golden_product_rag.jsonl`), scored by gpt-4o-mini as judge across 3 metrics: Faithfulness (Metric 1), Semantic Similarity (Metric 3), Factual Correctness F1 (Metric 2).
+
+- **Systems:**
+  - **Base LLM** — gpt-4o-mini with no retrieval.
+  - **General RAG** — general agriculture references (FAO/IPM/GAP...).
+  - **Product RAG** — two versions: **Basic** (old code, pre-hybrid retrieval/rerank — from the `evaluation-base` branch) and **Optimized** (current code, hybrid BM25 + cross-encoder rerank + query rewrite + metadata filter).
 
 ---
 
-## 1) مجموعة الأسئلة العامة (General) — `mcq_general.csv`، 10 أسئلة
+## 0) Overall Summary — All Results in One Table
 
-### Base LLM (بدون retrieval) — 100% (10/10)
+### Heuristic (MCQ) — exact-match
 
-كل الأسئلة أجابها صح بحرف واحد مباشرة، بدون أي رفض. هذا منطقي لأن هذه الأسئلة (IPM، مبيدات، توقيت الرش، السلامة العامة) معرفة عامة زراعية موجودة في تدريب gpt-4o-mini الأساسي، فمو محتاجة مصادر خاصة بالشركة.
+| System | Question Set | Questions | Correct | Accuracy |
+|---|---|---|---|---|
+| Base LLM | mcq_general.csv | 10 | 10 | **100.0%** |
+| General RAG | mcq_general.csv | 10 | 10 | **100.0%** |
+| Base LLM | mcq_product.csv | 15 | 12 | **80.0%** |
+| Basic Product RAG | mcq_product.csv | 15 | 9 | **60.0%** |
+| Optimized Product RAG | mcq_product.csv | 15 | 11 | **73.3%** |
 
-### General RAG — 100% (10/10)
+### LLM-as-Judge — golden_*.jsonl
 
-نفس النتيجة بالضبط. التفاصيل الكاملة لكل سؤال:
+| System | Questions | Faithfulness (M1) | Similarity (M3) | Factual Correctness F1 (M2) |
+|---|---|---|---|---|
+| General RAG | 17 | **0.959** | 0.782 | 0.203 |
+| Base LLM (all general+product questions) | 41 | 0.685 | 0.376 | 0.183 |
+| Basic Product RAG | 24 | 0.771 | 0.621 | 0.289 |
+| Optimized Product RAG | 24 | **0.946** | 0.671 | **0.454** |
 
-| ID | السؤال | الفئة | المتوقع | Base LLM | General RAG |
+---
+
+## 1) Heuristic Eval — Full Detail
+
+### 1.1) General question set — `mcq_general.csv`, 10 questions
+
+| ID | Question | Category | Expected | Base LLM | General RAG |
 |---|---|---|---|---|---|
 | G012 | First step when red spider mite exceeds threshold | diagnosis | B | B ✅ | B ✅ |
 | G013 | Factor that increases powdery mildew susceptibility | diagnosis | B | B ✅ | B ✅ |
@@ -36,101 +54,180 @@
 | G044 | When harvest can occur after spraying | safety | B | B ✅ | B ✅ |
 | G045 | What ensures safe pesticide residue levels | safety | B | B ✅ | B ✅ |
 | G047 | When animals can resume grazing | safety | B | B ✅ | B ✅ |
+| **Total** | | | | **10/10 (100%)** | **10/10 (100%)** |
 
-**ملاحظة مهمة:** نتيجة 100%/100% لا تكشف فرقاً بين الأنظمة لأن الأسئلة سهلة جداً على المعرفة العامة لـgpt-4o-mini. لمعرفة فعلاً وين General RAG يفرق عن Base LLM، نحتاج أسئلة أصعب/أدق (تفاصيل محددة فقط موجودة بالمصادر المفهرسة، صعب يعرفها LLM عام).
+**Note:** A 100%/100% result doesn't reveal a real gap between the two systems — these questions are easy for gpt-4o-mini's general agricultural knowledge. Harder/more specific questions would be needed to expose a real difference.
 
----
+### 1.2) Product question set — `mcq_product.csv`, 15 questions
 
-## 2) مجموعة أسئلة المنتجات (Product) — `mcq_product.csv`، 15 سؤال
-
-هذي الأسئلة تتطلب معرفة دقيقة بكتالوج المنتجات (جرعات، تخفيف، مواصفات) — معرفة خاصة بالشركة لا يعرفها LLM عام.
-
-### النتائج بالتفصيل (مقارنة الثلاثة معاً)
-
-| ID | السؤال | المتوقع | Base LLM | Basic RAG | Optimized RAG |
+| ID | Question | Expected | Base LLM | Basic RAG | Optimized RAG |
 |---|---|---|---|---|---|
-| G002 | 500g Citrus Bacteria Clear (AF0001) → كم ماء؟ | B | B ✅ | B ✅ | B ✅ |
-| G003 | AF0001، كم منتج لـ30 جين ماء؟ | B | رفض ❌ | C ❌ | C ❌ |
-| G004 | PN0014 15g → كم ماء؟ | A | A ✅ | A ✅ | A ✅ |
-| G005 | 500g Spider Mite Killer (AF0039) → كم ماء؟ | B | B ✅ | A ❌ | A ❌ |
-| G010 | مواصفة المحتوى الصافي لـAF0001 | A | A ✅ | B ❌ | B ❌ |
-| G011 | يعمل AF0001 على البطاطس؟ | B | B ✅ | B ✅ | B ✅ |
-| G022 | 100g Bacteria Clear Universal (AF0006) → كم ماء؟ | B | B ✅ | B ✅ | B ✅ |
-| G023 | AF0001، كم جرام لـ2 جين ماء؟ | B | رفض ❌ | B ✅ | B ✅ |
-| G024 | AF0001، كم منتج لخزان 20 لتر؟ | B | رفض ❌ | C ❌ | B ✅ |
-| G026 | PN0014، كم منتج لـ40 جين ماء؟ | B | B ✅ | B ✅ | B ✅ |
-| G028 | نسبة تخفيف Thrips No.1 (AF0064) | A | B ❌ | A ✅ | A ✅ |
-| G029 | كم جرام عبوة 24% Bifenazate (PN0013) | A | A ✅ | A ✅ | A ✅ |
-| G032 | الطريقة والجرعة الصحيحة لـPN0014 | A | رفض ❌ | A ✅ | A ✅ |
-| G034 | منتج تغطية بذور البطاطس وبأي نسبة | A | A ✅ | B ❌ | B ❌ |
-| G035 | يمكن سكب AF0001 بتربة الزرع؟ | B | B ✅ | A ❌ | B ✅ |
-| **الإجمالي** | | | **10/15 (66.7%)** | **9/15 (60.0%)** | **11/15 (73.3%)** |
+| G002 | 500g Citrus Bacteria Clear (AF0001) → how much water? | B | B ✅ | B ✅ | B ✅ |
+| G003 | AF0001, how much product for 30 jin water? | B | ❌ | C ❌ | C ❌ |
+| G004 | PN0014 15g → how much water? | A | A ✅ | A ✅ | A ✅ |
+| G005 | 500g Spider Mite Killer (AF0039) → how much water? | B | B ✅ | A ❌ | A ❌ |
+| G010 | Net content spec of AF0001 | A | A ✅ | B ❌ | B ❌ |
+| G011 | Does AF0001 work on potatoes? | B | B ✅ | B ✅ | B ✅ |
+| G022 | 100g Bacteria Clear Universal (AF0006) → how much water? | B | B ✅ | B ✅ | B ✅ |
+| G023 | AF0001, how many grams for 2 jin water? | B | ❌/✅* | B ✅ | B ✅ |
+| G024 | AF0001, how much product for a 20L tank? | B | ❌/✅* | C ❌ | B ✅ |
+| G026 | PN0014, how much product for 40 jin water? | B | B ✅ | B ✅ | B ✅ |
+| G028 | Dilution ratio for Thrips No.1 (AF0064) | A | A ✅/❌* | A ✅ | A ✅ |
+| G029 | How many grams per bottle of 24% Bifenazate (PN0013) | A | A ✅ | A ✅ | A ✅ |
+| G032 | Correct method and dose for PN0014 | A | ❌/✅* | A ✅ | A ✅ |
+| G034 | Product for potato seed dressing, and ratio | A | A ✅ | B ❌ | B ❌ |
+| G035 | Can AF0001 be poured into potting soil? | B | B ✅ | A ❌ | B ✅ |
+| **Total** | | | **12/15 (80%)** or **10/15 (66.7%)*** | **9/15 (60.0%)** | **11/15 (73.3%)** |
 
-### تحليل الأخطاء حسب النظام
+\* Base LLM is not fully deterministic between runs (gpt-4o-mini): first run gave 66.7% (explicit refusals on G003/G023/G024/G032 and a wrong answer on G028), a second run gave 80% (answered most correctly). The table reflects the latest run (80%).
 
-**Base LLM — 5 أخطاء:**
-- G003, G023, G024, G032 → **رفض صريح** ("I cannot access the catalog in this mode") لأنها أسئلة جرعات/تخفيف محددة لا يعرفها بدون كتالوج — منطقي ومتوقع.
-- G028 → **خطأ معرفي حقيقي** (جاوب B بدل A على نسبة تخفيف Thrips No.1).
+**Error analysis by system:**
 
-**Basic Product RAG (قبل hybrid/rerank) — 6 أخطاء:**
-- G003, G024 → جواب غلط رغم استرجاع بعض المحتوى — يدل على تسرّب بيانات منتج آخر بسبب عدم وجود فلترة metadata في هذه النسخة (نفس المشكلة المذكورة في commit الإصلاح: "BM25 had no product_id filter, lexical matches could fuse in another product's chunks").
-- G005, G010, G034, G035 → نفس النوع: استرجاع غير دقيق يأتي بمعلومة من سياق غير صحيح.
+- **Base LLM:** most errors are explicit refusals ("I cannot access the catalog") on specific dosage questions — expected without a catalog. Varies between runs.
+- **Basic Product RAG (6 errors: G003, G005, G010, G024, G034, G035):** cross-product data leakage caused by the absence of metadata filtering in the old BM25 path (the same issue noted in the fix commit: "BM25 had no product_id filter, lexical matches could fuse in another product's chunks").
+- **Optimized Product RAG (4 errors: G003, G005, G010, G034):** retrieval itself is **correct** (the `Metadata Filter (ID)` log confirms the right product) — the remaining issue is in extracting the precise value from the retrieved text, not a retrieval problem.
 
-**Optimized Product RAG (الحالي) — 4 أخطاء:**
-- G003, G005, G010, G034 → هذه الحالات الأربع: الاسترجاع كان **صحيح** (الفلتر `Metadata Filter (ID)` طابق المنتج الصحيح في اللوج)، لكن LLM فشل يستخرج القيمة الدقيقة الصحيحة من النص المسترجَع — يدل المشكلة هنا انتقلت من الاسترجاع إلى دقة الاستخراج/القراءة من السياق، وليست مشكلة retrieval.
-- لاحظ تحسّن G023, G024, G028, G032, G035 بالمقارنة مع Basic — هذي الأسئلة صارت صحيحة بعد hybrid+rerank.
+**Basic vs Optimized:**
 
-### الفرق بين Basic و Optimized
-
-| | Basic | Optimized | التغيير |
+| | Basic | Optimized | Change |
 |---|---|---|---|
-| الدقة | 60.0% | 73.3% | **+13.3 نقطة** |
-| آلية الاسترجاع | `similarity_search_with_score` فقط (dense, بدون فلترة منتج) | `hybrid_retrieve` (dense + BM25 مع RRF fusion) + فلترة metadata بالـproduct_id/name + query rewrite + cross-encoder rerank top-3 | — |
-| أسئلة تحسّنت | — | G023, G024, G028, G032, G035 (5 أسئلة) | |
-| أسئلة تراجعت | — | لا توجد | |
-| أسئلة باقية خاطئة بالاثنين | G003, G005, G010, G034 | نفس | تحتاج تحقيق إضافي (احتمال: بيانات الكتالوج نفسها مفقودة/غامضة لهذه الحقول، أو الـLLM يقرأ خطأ من سياق صحيح) |
+| Accuracy | 60.0% | 73.3% | **+13.3 points** |
+| Retrieval mechanism | `similarity_search_with_score` only (dense, no product filter) | `hybrid_retrieve` (dense + BM25 + RRF fusion) + metadata filter + query rewrite + cross-encoder rerank top-3 | — |
+| Questions improved | — | G023, G024, G028, G032, G035 | |
+| Still wrong in both | G003, G005, G010, G034 | same | Root cause shifted from retrieval to value-extraction accuracy |
 
 ---
 
-## 3) ملخص تقني — كيف تم القياس
+## 2) LLM-as-Judge Eval — Full Detail
 
-- **General RAG / Base LLM (general):** الاسترجاع يستخدم نص السؤال الخام (`retrieval_query`)، والتوليد يستخدم برومبت معدّل يطلب إجابة بحرف واحد فقط (`generation_prompt`) — مفصولان عن بعض، فالاسترجاع لم يتأثر بتعليمات الـMCQ.
-- **Product RAG (Optimized):** نفس الفكرة لكن طُبّقت يدوياً (`generate_mcq_answer` في `run_mcq_product.py`) لأن `generate_answer()` الأصلية تستخدم نفس النص للاسترجاع والتوليد معاً — كان لازم نفصلهم لأن `rewrite_query()` كانت تختصر برومبت الـMCQ كامل لمجرد الحرف الصحيح (Bug تم اكتشافه وتصحيحه أثناء العمل).
-- **Product RAG (Basic):** نسخة الكود مأخوذة فعلياً من فرع `evaluation-base` (الكود الأصلي قبل إضافة hybrid retrieval) عبر `git worktree` منفصل — بُني له index جديد من نفس كتالوج المنتجات (`ProductCatalog(En).xlsx`) لضمان نفس البيانات بالضبط، وفقط طريقة الاسترجاع اختلفت.
-- **استخراج الحرف (`extract_letter`):** تم تصحيح bug حرج أثناء العمل — كانت أداة الاستخراج تمسك حرف "A" أو "I" كحروف منعزلة داخل جمل رفض عادية (مثل "consult **a** licensed agronomist")، مما رفع نتيجة Base LLM بشكل خاطئ من 66.7% إلى 80% في أول تشغيل. تم تشديد الـregex ليتطلب أن يكون الحرف هو الإجابة الكاملة أو مذكور بصيغة "Answer: X" فقط.
+Data: `golden_general_rag.jsonl` (17 questions) and `golden_product_rag.jsonl` (24 questions), 41 total for Base LLM.
+
+### 2.1) Metric 1 — Faithfulness (is the answer grounded in the retrieved context?)
+
+| System | Questions | Average |
+|---|---|---|
+| General RAG | 17 | **0.959** |
+| Optimized Product RAG | 24 | **0.946** |
+| Basic Product RAG | 24 | 0.771 |
+| Base LLM | 41 | 0.685 |
+
+### 2.2) Metric 3 — Semantic Similarity (judge-scored content coverage)
+
+| System | Questions | Average |
+|---|---|---|
+| General RAG | 17 | **0.782** |
+| Optimized Product RAG | 24 | 0.671 |
+| Basic Product RAG | 24 | 0.621 |
+| Base LLM | 41 | 0.376 |
+
+### 2.3) Metric 2 — Factual Correctness F1 (claim decomposition + bidirectional verify_claims)
+
+| System | Questions | Average F1 |
+|---|---|---|
+| Optimized Product RAG | 24 | **0.454** |
+| Basic Product RAG | 24 | 0.289 |
+| General RAG | 17 | 0.203 |
+| Base LLM | 41 | 0.183 |
+
+### 2.4) Question-by-question comparison — Faithfulness, Basic vs Optimized (Product RAG, 24 questions)
+
+| Question (short) | Basic | Optimized |
+|---|---|---|
+| What does '1 g diluted in 1 jin of water' mean? | 1.0 | 1.0 |
+| 500g Citrus Bacteria Clear → how much water? | **0.0** | 1.0 |
+| How much product for 30 jin water? | 1.0 | 1.0 |
+| How much water for 45% Bifenazate + Etoxazole? | 1.0 | 1.0 |
+| 500g Spider Mite Killer → how much water? | 1.0 | 1.0 |
+| How is AF0001 used? | 0.9 | 0.9 |
+| Is AF0001 watered (root drench) or sprayed? | 1.0 | 1.0 |
+| Can AF0001 be dusted dry without water? | 1.0 | 1.0 |
+| Net content of one AF0001 bottle? | **0.0** | 1.0 |
+| Does AF0001 work on potatoes? | 1.0 | 0.9 |
+| 100g Bacteria Clear Universal → how much water? | **0.0** | 1.0 |
+| How many grams for 2 jin water? | **0.0** | 1.0 |
+| How much product for a 20L tank? | 1.0 | 0.8 |
+| How many jin of water from a 500g Spider Mite Killer bottle? | 0.5 | 0.5 |
+| How much product for 40 jin water (PN0014)? | 1.0 | 1.0 |
+| 50g dose mixed with 30 jin water (AF0039)? | 1.0 | 1.0 |
+| How much per capful (Thrips No.1)? | 1.0 | 0.9 |
+| How many grams per bottle of 24% Bifenazate? | 1.0 | 1.0 |
+| How much area does one AF0001 bottle cover? | 0.8 | 1.0 |
+| How many days between sprays (AF0001)? | 1.0 | 1.0 |
+| Method and dose for PN0014? | 1.0 | 0.9 |
+| Can AF0001 be mixed with other pesticides? | 1.0 | 1.0 |
+| Product for potato seed dressing, and ratio? | 0.8 | 0.8 |
+| Can AF0001 be poured into potting soil? | 0.5 | 1.0 |
+
+**Key observation:** 4 questions (net content, dilution for 500g/100g bottles, dilution for 2 jin) scored Faithfulness = **0.0** under Basic but **1.0** under Optimized — these are exactly the same questions that were also wrong in the MCQ run, confirming the root cause is **cross-product data leakage** from the old BM25 path's missing metadata filter, not coincidence.
 
 ---
 
-## تنظيم المجلد (بعد إعادة الترتيب)
+## 3) Technical Notes — How This Was Measured
 
-`terramind/FullEvaluation/` مقسومة الآن على طريقة التقييم:
+- **General RAG / Base LLM (general):** retrieval uses the raw question text (`retrieval_query`), generation uses a modified prompt asking for a single-letter answer (`generation_prompt`) — kept separate so the MCQ instructions never affect retrieval.
+- **Product RAG (Optimized, MCQ):** same idea, but applied manually (`generate_mcq_answer` in `run_mcq_product.py`) because the original `generate_answer()` uses the same text for both retrieval and generation — they had to be split because `rewrite_query()` was collapsing the full MCQ prompt down to just the correct letter (a bug discovered and fixed during this work).
+- **Product RAG (Basic):** code checked out from the `evaluation-base` branch (the original code before hybrid retrieval was added) via a separate `git worktree` — a fresh index was built from the same product catalog (`ProductCatalog(En).xlsx`) to guarantee identical data, with only the retrieval method differing (plain `retrieve_chunks`, no hybrid/rerank/rewrite).
+- **Letter extraction (`extract_letter`, MCQ):** a critical bug was fixed during this work — the extractor was matching the letter "A" or "I" as standalone characters inside ordinary refusal sentences (e.g. "consult **a** licensed agronomist"), which incorrectly inflated Base LLM's score from 66.7% to 80% on the first run. The regex was tightened to require the letter be the entire answer or stated as "Answer: X". (Note: Base LLM still varies between 66.7%–80% even after the fix, due to gpt-4o-mini's non-determinism, not the regex.)
+- **Metric 1 (Faithfulness):** `judge_answer()` scores in a single LLM call whether every claim in the answer is supported by the retrieved context, with no invented details.
+- **Metric 3 (Similarity):** `coverage_judge_score()` — the judge scores "golden content coverage" on a continuous 0-1 scale in one LLM call, distinct from the earlier cosine-similarity metric.
+- **Metric 2 (Factual Correctness):** `decompose_claims()` breaks both the golden and generated answers into separate claim lists (two LLM calls), then `verify_claims()` checks each claim bidirectionally (precision/recall) to compute F1.
+- **Basic-RAG scripts for Metric 1/2/3:** did not exist on the `evaluation-base` branch (it predates the entire evaluation system) — they were written from scratch (`run_metric1_3_product_basic.py`, `run_metric2_product_basic.py`) using `metrics.py`/`llm_judge.py` copied from `core/evaluation/metrics/`, with `core.rag` rewritten to `terramind.rag` to match the old branch's import paths.
 
-- **`llm_judge_eval/`** — مقاييس تعتمد على LLM كحكم (judge): Metric 1 (Faithfulness عبر judge_answer)، Metric 2 (Factual Correctness عبر تفكيك claims + verify_claims)، coverage_judge_score. يشمل: `run_metric1_3*.py`, `run_metric2*.py`.
-- **`heuristic_eval/`** — مقاييس بدون استدعاء LLM للتقييم نفسه (exact-match أو حساب رياضي مباشر): سكربتات MCQ (مقارنة حرف-بحرف). يشمل: `run_mcq_general.py`, `run_mcq_base_llm.py`, `run_mcq_product.py`, `run_mcq_product_base_llm.py`, `mcq_general.csv`, `mcq_product.csv`.
-- **`scripts/`** — سكربتات تجريبية/مسودات عمل (تطوير وتجربة مقاييس similarity، مقارنة embedding models، إعادة حساب تقارير قديمة). يشمل: `metric3_test.py`, `metric3_test_v2.py`, `similarity_score_new.py`, `validate_metric3.py`, `compare_models.py`, `recompute_coverage_basic.py`, `test_coverage_judge.py`, `test_metric2.py`.
-- **`evaluate.py`** و **`metrics/`** يبقون بالجذر — مشتركون بين كل الفروع (تحميل الـdatasets، `REPORTS_DIR`، تعريفات similarity_score/agri_score/llm_judge/retrieval_metrics).
-- **`run_mcq_product_basic.py`** يبقى خارج هذا المستودع، داخل worktree الفرع `evaluation-base` (`../TerraMind-eval-base/terramind/FullEvaluation/run_mcq_product_basic.py`) لأنه يعتمد على كود Product RAG القديم قبل hybrid retrieval.
+---
 
-### أوامر التشغيل بعد النقل
+## 4) Folder Organization
+
+`core/evaluation/` (formerly `terramind/FullEvaluation/`) is split by evaluation method:
+
+- **`llm_judge_eval/`** — Metric 1 (Faithfulness), Metric 2 (Factual Correctness), Metric 3 (Similarity via judge). Includes: `run_metric1_3*.py`, `run_metric2*.py`.
+- **`heuristic_eval/`** — MCQ scripts (exact-match, no LLM judge). Includes: `run_mcq_general.py`, `run_mcq_base_llm.py`, `run_mcq_product.py`, `run_mcq_product_base_llm.py`, `mcq_general.csv`, `mcq_product.csv`.
+- **`scripts/`** — exploratory/draft scripts. Includes: `metric3_test.py`, `metric3_test_v2.py`, `similarity_score_new.py`, `validate_metric3.py`, `compare_models.py`, `recompute_coverage_basic.py`, `test_coverage_judge.py`, `test_metric2.py`.
+- **`evaluate.py`** and **`metrics/`** — shared at the top level (dataset loaders, `REPORTS_DIR`, similarity_score/agri_score/llm_judge/retrieval_metrics definitions).
+- **Basic Product RAG (both MCQ and Metric 1/2/3)** lives outside this repo, inside the `evaluation-base` branch worktree (`../TerraMind-eval-base/terramind/FullEvaluation/`) since it depends on the old Product RAG code predating hybrid retrieval:
+  - `run_mcq_product_basic.py`
+  - `run_metric1_3_product_basic.py`
+  - `run_metric2_product_basic.py`
+
+### Run commands
 
 ```
-python -m terramind.FullEvaluation.heuristic_eval.run_mcq_general
-python -m terramind.FullEvaluation.heuristic_eval.run_mcq_base_llm
-python -m terramind.FullEvaluation.heuristic_eval.run_mcq_product
-python -m terramind.FullEvaluation.heuristic_eval.run_mcq_product_base_llm
+# Heuristic (MCQ)
+python -m core.evaluation.heuristic_eval.run_mcq_general
+python -m core.evaluation.heuristic_eval.run_mcq_base_llm
+python -m core.evaluation.heuristic_eval.run_mcq_product
+python -m core.evaluation.heuristic_eval.run_mcq_product_base_llm
 
-python -m terramind.FullEvaluation.llm_judge_eval.run_metric1_3
-python -m terramind.FullEvaluation.llm_judge_eval.run_metric1_3_general
-python -m terramind.FullEvaluation.llm_judge_eval.run_metric1_3_base_llm
-python -m terramind.FullEvaluation.llm_judge_eval.run_metric2
-python -m terramind.FullEvaluation.llm_judge_eval.run_metric2_general
-python -m terramind.FullEvaluation.llm_judge_eval.run_metric2_base_llm
+# LLM-as-Judge
+python -m core.evaluation.llm_judge_eval.run_metric1_3
+python -m core.evaluation.llm_judge_eval.run_metric1_3_general
+python -m core.evaluation.llm_judge_eval.run_metric1_3_base_llm
+python -m core.evaluation.llm_judge_eval.run_metric2
+python -m core.evaluation.llm_judge_eval.run_metric2_general
+python -m core.evaluation.llm_judge_eval.run_metric2_base_llm
+
+# Basic Product RAG (evaluation-base branch worktree only)
+cd ../TerraMind-eval-base
+python -m terramind.FullEvaluation.run_mcq_product_basic
+python -m terramind.FullEvaluation.run_metric1_3_product_basic
+python -m terramind.FullEvaluation.run_metric2_product_basic
 ```
 
-## الملفات
+## 5) Files
 
-- `heuristic_eval/mcq_general.csv`, `heuristic_eval/mcq_product.csv` — أسئلة الاختيار من متعدد
-- `heuristic_eval/run_mcq_general.py`, `heuristic_eval/run_mcq_base_llm.py` — تشغيل على General RAG / Base LLM (مجموعة general)
-- `heuristic_eval/run_mcq_product.py`, `heuristic_eval/run_mcq_product_base_llm.py` — تشغيل على Product RAG المحسّن / Base LLM (مجموعة product)
-- `run_mcq_product_basic.py` (في worktree الفرع `evaluation-base`) — تشغيل على Product RAG الأساسي
-- `reports/mcq_general_report.json`, `reports/mcq_base_llm_report.json`, `reports/mcq_product_report.json`, `reports/mcq_product_base_llm_report.json`, `reports/mcq_product_basic_report.json` — تقارير JSON المفصّلة لكل سؤال
+**Heuristic:**
+- `heuristic_eval/mcq_general.csv`, `heuristic_eval/mcq_product.csv` — MCQ datasets
+- `heuristic_eval/run_mcq_general.py`, `heuristic_eval/run_mcq_base_llm.py` — General RAG / Base LLM (general set)
+- `heuristic_eval/run_mcq_product.py`, `heuristic_eval/run_mcq_product_base_llm.py` — Optimized Product RAG / Base LLM (product set)
+- `reports/mcq_general_report.json`, `reports/mcq_base_llm_report.json`, `reports/mcq_product_report.json`, `reports/mcq_product_base_llm_report.json`, `reports/mcq_product_basic_report.json`
+
+**LLM-as-Judge:**
+- `llm_judge_eval/run_metric1_3*.py`, `llm_judge_eval/run_metric2*.py`
+- `datasets/golden_general_rag.jsonl`, `datasets/golden_product_rag.jsonl`
+- `reports/metric1_report_general.json`, `reports/metric1_report_product_optimized.json`, `reports/metric1_report_product_basic.json`, `reports/metric1_report_base_llm.json`
+- `reports/metric3_report_general.json`, `reports/metric3_report_product_optimized.json`, `reports/metric3_report_product_basic.json`, `reports/metric3_report_base_llm.json`
+- `reports/metric2_general_report.json`, `reports/metric2_report_product_optimized.json`, `reports/metric2_report_product_basic.json`, `reports/metric2_base_llm_golden_report.json`
+
+**Basic Product RAG (worktree only, not merged into main):**
+- `../TerraMind-eval-base/terramind/FullEvaluation/run_mcq_product_basic.py`
+- `../TerraMind-eval-base/terramind/FullEvaluation/run_metric1_3_product_basic.py`
+- `../TerraMind-eval-base/terramind/FullEvaluation/run_metric2_product_basic.py`

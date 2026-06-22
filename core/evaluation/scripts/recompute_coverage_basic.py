@@ -1,8 +1,9 @@
 """
-يعيد حساب coverage_judge_score على أزواج golden/generated المحفوظة
-بالفعل في metric3_report_product_basic.json (نسخة Basic من Product RAG،
-قبل hybrid retrieval/rerank/query rewrite). لا يعيد توليد الإجابات،
-فقط يستبدل درجة cosine القديمة بدرجة LLM judge الجديدة على نفس النص.
+Recomputes coverage_judge_score over the golden/generated pairs already
+saved in metric3_report_product_basic.json (the Basic Product RAG
+version, before hybrid retrieval/rerank/query rewrite). Does not
+regenerate answers — just replaces the old cosine score with the new
+LLM-judge score on the same text.
 
 Run:
     python -m core.evaluation.scripts.recompute_coverage_basic
