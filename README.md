@@ -6,6 +6,16 @@
 
 TerraMind is an agriculture assistant with a React chat UI, a FastAPI web gateway, and a FastAPI model API for product-catalog RAG, general agriculture RAG, Auto routing, a base LLM baseline, compare mode, image input, and a hidden Advisory workflow.
 
+## Screenshots
+
+<p align="center">
+  <img src="assets/demo_screenshots_V1/TerraMind1.png" alt="TerraMind home screen" width="90%">
+  <br>
+  <img src="assets/demo_screenshots_V1/TerraMind2.png" alt="TerraMind chat with sources and confidence" width="90%">
+  <br>
+  <img src="assets/demo_screenshots_V1/TerraMind3.png" alt="TerraMind settings, themes, and Arabic UI" width="90%">
+</p>
+
 The current repository is organized for review and local execution:
 
 ```text
