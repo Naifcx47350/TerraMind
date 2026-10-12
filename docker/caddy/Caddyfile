@@ -1,0 +1,23 @@
+# =============================================================================
+# TerraMind — Caddyfile
+# =============================================================================
+# Caddy automatically obtains and renews a TLS certificate from Let's Encrypt.
+#
+# Before deploying:
+#   1. Replace "your-domain.com" below with your actual domain.
+#   2. Make sure your domain's DNS A record points to the server IP.
+#   3. Ports 80 and 443 must be reachable from the internet (for ACME challenge).
+#
+# Local testing without a domain:
+#   Replace the domain line with ":80" to run plain HTTP on port 80.
+# =============================================================================
+
+terramind-llm.com {
+    # Forward all traffic to the nginx frontend container.
+    # nginx handles /api/* → gateway:8000 internally (see docker/frontend/nginx.conf).
+    reverse_proxy frontend:80
+
+    # Pass the real client IP to the backend so nginx rate-limiting works correctly.
+    header_up X-Real-IP {remote_host}
+    header_up X-Forwarded-For {remote_host}
+}

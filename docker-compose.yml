@@ -3,7 +3,7 @@
 # Quick start (Docker Desktop): see docker/QUICKSTART.md
 #
 #   docker compose up --build
-#   open http://localhost:3000   → enter API key in browser if prompted
+#   open https://terramind-llm.com   (or http://localhost:3000 for local testing)
 #
 # Optional .env at repo root (secrets never committed):
 #   copy .env.example .env
@@ -15,14 +15,14 @@
 name: terramind
 
 services:
-  # --- 1. Model API (RAG + routing) — same as uvicorn on :8001 locally ---
+  # --- 1. Model API (RAG + routing) — internal only, not exposed to internet ---
   model-api:
     image: terramind-model-api:local
     build:
       context: .
       dockerfile: docker/model-api/Dockerfile
-    ports:
-      - "8001:8001"
+    expose:
+      - "8001"
     env_file:
       - path: .env
         required: false
@@ -33,14 +33,14 @@ services:
       - ./data:/app/data:ro
     restart: unless-stopped
 
-  # --- 2. Gateway (web API) — same as uvicorn on :8000 locally ---
+  # --- 2. Gateway (web API) — internal only, not exposed to internet ---
   gateway:
     image: terramind-gateway:local
     build:
       context: .
       dockerfile: docker/gateway/Dockerfile
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     env_file:
       - path: .env
         required: false
@@ -53,21 +53,43 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-  # --- 3. Frontend (production build + nginx) — replaces npm run dev :3000 ---
+  # --- 3. Frontend (production React build + nginx) ---
+  # nginx serves static files and proxies /api/* → gateway internally.
+  # Bound to localhost only — Caddy handles all public traffic.
   frontend:
     image: terramind-frontend:local
     build:
       context: .
       dockerfile: docker/frontend/Dockerfile
     ports:
-      - "3000:80"
+      - "127.0.0.1:3000:80"
     depends_on:
       gateway:
         condition: service_healthy
     restart: unless-stopped
 
+  # --- 4. Caddy (reverse proxy + automatic HTTPS via Let's Encrypt) ---
+  # Edit docker/caddy/Caddyfile: replace "your-domain.com" with your real domain.
+  # For local testing without a domain, set the Caddyfile site address to ":80".
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+
   # --- One-shot: build Chroma indexes (run once, or after data changes) ---
-  # Same image as model-api (shared tag) — Compose builds once, init reuses cached layers.
+  # Same image as model-api — Compose builds once, init reuses cached layers.
+  #
+  #   docker compose build model-api
+  #   docker compose --profile init run --rm init-indexes
   init-indexes:
     profiles: ["init"]
     image: terramind-model-api:local
@@ -93,3 +115,5 @@ services:
 volumes:
   vectorstore:
     name: terramind-vectorstore
+  caddy_data:
+  caddy_config:

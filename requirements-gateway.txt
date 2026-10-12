@@ -1,0 +1,25 @@
+# =============================================================================
+# TerraMind — Gateway API dependencies only (:8000)
+# =============================================================================
+# The gateway is a BFF proxy: it forwards requests to the model API (:8001),
+# optionally calls OpenAI for vision pre-processing, and serves /api/* to the UI.
+# It does NOT run RAG, ChromaDB, LangChain, torch, or sentence-transformers.
+#
+# Install (inside container):
+#   pip install -r requirements-gateway.txt
+# =============================================================================
+
+# --- Environment ---
+python-dotenv>=1.0.0
+
+# --- OpenAI (vision pre-processing only — conditional import) ---
+openai>=1.40.0
+
+# --- Web API ---
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+pydantic>=2.9.0
+pydantic-settings>=2.5.0
+
+# --- HTTP client (proxy to model API :8001) ---
+httpx>=0.27.0
