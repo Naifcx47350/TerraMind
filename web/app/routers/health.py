@@ -2,13 +2,14 @@ from datetime import datetime
 
 from fastapi import APIRouter
 
-from app.config import _ENV_FILE, settings
+from app.config import settings
 
 router = APIRouter()
 
 
 @router.get("/health")
 def health():
+    # Public endpoint: report status only, not file paths or internal service URLs.
     if settings.use_mock:
         backend = "mock"
     elif settings.rag_service_url:
@@ -23,8 +24,5 @@ def health():
         "timestamp": datetime.utcnow().isoformat(),
         "backend": backend,
         "use_mock": settings.use_mock,
-        "rag_service_url": settings.rag_service_url or None,
-        "llm_provider": settings.llm_provider or None,
-        "env_file": str(_ENV_FILE),
         "version": "1.0.0",
     }

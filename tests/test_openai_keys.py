@@ -162,6 +162,41 @@ def test_model_api_compare_uses_visitor_key_for_every_model(model_api):
     assert results and all(row["answer"] == KEY_A for row in results)
 
 
+def test_image_analysis_runs_off_the_event_loop(model_api, monkeypatch):
+    import importlib
+
+    api_app = importlib.import_module("core.api.app")
+    seen = {}
+
+    def fake_analysis(*args, **kwargs):
+        try:
+            asyncio.get_running_loop()
+            seen["on_loop"] = True
+        except RuntimeError:
+            seen["on_loop"] = False  # worker thread: other visitors keep being served
+        seen["key"] = resolve_openai_key()
+        return "leaf spots"
+
+    monkeypatch.setattr(api_app, "resolve_image_analysis", fake_analysis)
+    r = model_api.post(
+        "/query",
+        json={"question": "what is this?", "model": "base_llm", "image_base64": "aGk=", "image_mime": "image/jpeg"},
+        headers={"X-OpenAI-Key": KEY_A},
+    )
+    assert r.status_code == 200
+    assert seen == {"on_loop": False, "key": KEY_A}
+
+
+def test_model_api_request_limits(model_api):
+    headers = {"X-OpenAI-Key": KEY_A}
+    r = model_api.post("/query", json={"question": "q", "history": [{}] * 41}, headers=headers)
+    assert r.status_code == 422
+    r = model_api.post(
+        "/query", json={"question": "q", "image_base64": "aGk=", "image_mime": "text/html"}, headers=headers
+    )
+    assert r.status_code == 422
+
+
 def test_global_key_endpoints_are_gone(model_api):
     assert model_api.post("/internal/openai-key", json={"api_key": KEY_A}).status_code == 404
     assert model_api.get("/config/openai-status").status_code == 404

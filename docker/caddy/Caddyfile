@@ -13,6 +13,17 @@
 # =============================================================================
 
 terramind-llm.com {
+    # Browsers always use HTTPS for this site after the first visit (1 year).
+    # Other security headers (CSP etc.) are set by nginx in docker/frontend/nginx.conf.
+    header Strict-Transport-Security "max-age=31536000"
+    header -Server
+
+    # Refuse oversized uploads here (413), before they reach nginx. Same limit as nginx;
+    # the browser downscales photos, so real requests stay far below it.
+    request_body {
+        max_size 10MB
+    }
+
     # Forward all traffic to the nginx frontend container.
     # nginx handles /api/* → gateway:8000 internally (see docker/frontend/nginx.conf).
     # Pass the real client IP so nginx rate-limits per visitor, not per Caddy container.

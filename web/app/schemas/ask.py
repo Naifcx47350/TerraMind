@@ -1,23 +1,31 @@
 from pydantic import BaseModel, ConfigDict, Field
-from typing import List, Optional
+from typing import List, Literal, Optional
+
+# Request size limits. The UI sends at most 20 history messages and downscales
+# photos before upload; these bounds stop oversized requests from eating memory.
+MAX_HISTORY_MESSAGES = 40
+MAX_MESSAGE_CHARS = 20_000
+MAX_IMAGE_BASE64_CHARS = 8_000_000  # ~6 MB image
+IMAGE_MIME_PATTERN = r"^image/(jpeg|png|webp|gif)$"
 
 
 class ChatMessage(BaseModel):
-    role: str
-    content: str
+    role: Literal["user", "assistant"]
+    content: str = Field(..., max_length=MAX_MESSAGE_CHARS)
 
 
 class AskRequest(BaseModel):
     question: str = Field(..., min_length=1, max_length=2000)
     model: Optional[str] = Field(
         default="auto_rag",
+        max_length=40,
         description="auto_rag | product_rag | general_rag | base_llm",
     )
-    crop_type: Optional[str] = "all"
-    question_type: Optional[str] = "all"
-    image_base64: Optional[str] = None
-    image_mime: Optional[str] = None
-    history: List[ChatMessage] = []
+    crop_type: Optional[str] = Field(default="all", max_length=40)
+    question_type: Optional[str] = Field(default="all", max_length=40)
+    image_base64: Optional[str] = Field(default=None, max_length=MAX_IMAGE_BASE64_CHARS)
+    image_mime: Optional[str] = Field(default=None, pattern=IMAGE_MIME_PATTERN)
+    history: List[ChatMessage] = Field(default_factory=list, max_length=MAX_HISTORY_MESSAGES)
     # Demo session: sample answers, no OpenAI key needed.
     demo: bool = False
 

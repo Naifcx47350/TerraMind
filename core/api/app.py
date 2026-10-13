@@ -70,17 +70,19 @@ app.add_middleware(
 
 
 class QueryRequest(BaseModel):
+    # Bounds mirror the gateway's AskRequest (web/app/schemas/ask.py).
     question: str = Field(..., min_length=1, max_length=2000)
     model: str = Field(
         default=DEFAULT_MODEL_ID,
+        max_length=40,
         description="auto_rag | product_rag | general_rag | base_llm",
     )
-    language: str | None = None
-    history: list[dict] = []
-    crop_type: str | None = None
-    image_analysis: str | None = None
-    image_base64: str | None = None
-    image_mime: str | None = None
+    language: str | None = Field(default=None, max_length=10)
+    history: list[dict] = Field(default_factory=list, max_length=40)
+    crop_type: str | None = Field(default=None, max_length=40)
+    image_analysis: str | None = Field(default=None, max_length=8000)
+    image_base64: str | None = Field(default=None, max_length=8_000_000)
+    image_mime: str | None = Field(default=None, pattern=r"^image/(jpeg|png|webp|gif)$")
 
 
 class SourceOut(BaseModel):
@@ -182,7 +184,8 @@ async def query(request: QueryRequest, openai_key: str = Depends(visitor_openai_
         with use_openai_key(openai_key):
             analysis = None
             if request.image_base64 and request.image_mime:
-                analysis = resolve_image_analysis(
+                analysis = await asyncio.to_thread(  # vision call: keep the event loop free
+                    resolve_image_analysis,
                     question,
                     request.image_analysis,
                     request.image_base64,
@@ -236,7 +239,8 @@ async def query_compare(request: QueryRequest, openai_key: str = Depends(visitor
     if request.image_base64 and request.image_mime:
         try:
             with use_openai_key(openai_key):
-                shared_analysis = resolve_image_analysis(
+                shared_analysis = await asyncio.to_thread(  # vision call: keep the event loop free
+                    resolve_image_analysis,
                     question,
                     request.image_analysis,
                     request.image_base64,
@@ -304,7 +308,8 @@ async def query_advisory(request: QueryRequest, openai_key: str = Depends(visito
         with use_openai_key(openai_key):
             analysis = None
             if request.image_base64 and request.image_mime:
-                analysis = resolve_image_analysis(
+                analysis = await asyncio.to_thread(  # vision call: keep the event loop free
+                    resolve_image_analysis,
                     question,
                     request.image_analysis,
                     request.image_base64,

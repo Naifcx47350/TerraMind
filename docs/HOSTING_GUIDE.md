@@ -244,14 +244,29 @@ Then in a browser:
 2. **Visitor keys pass through your server** in memory, for one request, and are not logged (nginx doesn't log request headers). The welcome screen says this. Keep it that way: never add header logging.
 3. **Rate limit** is 20 requests/min per visitor (burst 10) on `/api/*`. Raise it in `docker/frontend/nginx.conf` if real users hit it.
 
+### Security measures already in place
+
+| Area | Protection |
+|---|---|
+| Browser | Content-Security-Policy (only this site's scripts, images and API calls, which blocks key theft by injected content), `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy: no-referrer`, HSTS (Caddy) |
+| Cross-site calls | CORS is off: other websites can't call the API from a visitor's browser. Opt in with `CORS_ORIGINS` only if needed. |
+| Request size | Caddy and nginx refuse bodies over 10 MB (413). The API also limits history (40 messages × 20k chars), image size (~6 MB) and image type (JPEG/PNG/WebP/GIF). The browser shrinks photos to ≤1600 px before upload. |
+| Errors | Unexpected errors show a generic message. Details stay in the server log. `/api/health` reports status only. |
+| Containers | Only Caddy is public. The gateway runs as a non-root user. |
+| Answers | Rendered as Markdown without raw HTML; `javascript:` links stripped. |
+
+**Known and accepted:** `chromadb 1.5.9` has published advisories (PYSEC-2026-311, -3813, -3814, -3815), all in Chroma's **HTTP server** mode. TerraMind runs Chroma embedded inside the model API and never starts that server, so they don't apply. Upgrade once a fixed release is out. The model-api container still runs as root: switching needs a full image rebuild and a change to the index volume's file ownership, so do it as a tested follow-up.
+
 ---
 
 ## 8. Pre-deploy test results (13 Oct 2026, local)
 
 | Check | Result |
 |---|---|
-| Backend tests (`pytest tests/`) | ✅ 76 passed (incl. 12 new key-isolation tests) |
-| Gateway tests (`cd web && pytest tests/`) | ✅ 22 passed (incl. history: off by default, admin token, bounded) |
+| Backend tests (`pytest tests/`) | ✅ 78 passed (key isolation, request limits, vision off the event loop) |
+| Gateway tests (`cd web && pytest tests/`) | ✅ 33 passed (history lockdown, size/role/MIME limits, CORS, error and health redaction) |
+| Dependency audit (`npm audit`, `pip-audit`) | ✅ npm 0; gateway Python 0; chromadb advisories don't apply (server mode only, see Section 7) |
+| Security headers, CORS, non-root gateway, 413 on 12 MB upload, streaming not buffered | ✅ checked through Caddy (first token 7 ms) |
 | Frontend production build (`vite build`) | ✅ built |
 | `caddy validate` (domain Caddyfile) | ✅ valid |
 | `nginx -t` + real visitor IP reaches the rate limiter | ✅ |

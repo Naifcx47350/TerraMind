@@ -28,13 +28,15 @@ app = FastAPI(
     version="1.0.0",
 )
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# Same-origin by default: other websites can't call the API from a visitor's browser
+# (e.g. to use /api/config/verify-key as a key checker).
+if settings.cors_origins:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.cors_origins,
+        allow_methods=["GET", "POST", "DELETE"],
+        allow_headers=["Content-Type", "X-OpenAI-Key"],
+    )
 
 add_error_handler(app)
 add_logger(app)

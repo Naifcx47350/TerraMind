@@ -35,6 +35,10 @@ class Settings(BaseSettings):
     # /api/history (recent visitors' questions) is off unless this is set; callers send it as X-Admin-Token.
     history_admin_token: str = ""
 
+    # Cross-origin browser access. The UI is served from the same origin (nginx, or
+    # Vite's dev proxy), so none is needed; e.g. CORS_ORIGINS='["https://other.example"]'.
+    cors_origins: list[str] = []
+
     model_config = SettingsConfigDict(
         env_file=(str(_ROOT_ENV_FILE), str(_ENV_FILE)),
         env_file_encoding="utf-8",

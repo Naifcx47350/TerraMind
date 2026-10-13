@@ -430,6 +430,38 @@ function fileToBase64(f) {
   });
 }
 
+const MAX_IMAGE_EDGE = 1600;
+const SMALL_IMAGE_BYTES = 1024 * 1024;
+const PASSTHROUGH_MIMES = ["image/jpeg", "image/png", "image/webp"];
+
+/**
+ * Shrink large photos before upload (longest edge ≤ 1600 px, JPEG). Keeps requests
+ * well under the server's size limit; vision answers don't need more detail.
+ */
+async function prepareImageForUpload(f) {
+  try {
+    const bitmap = await createImageBitmap(f);
+    const scale = Math.min(1, MAX_IMAGE_EDGE / Math.max(bitmap.width, bitmap.height));
+    if (scale === 1 && f.size <= SMALL_IMAGE_BYTES && PASSTHROUGH_MIMES.includes(f.type)) {
+      bitmap.close?.();
+      return { base64: await fileToBase64(f), mime: f.type };
+    }
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+    canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#ffffff"; // JPEG has no transparency
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close?.();
+    const blob = await new Promise((res) => canvas.toBlob(res, "image/jpeg", 0.85));
+    if (blob) return { base64: await fileToBase64(blob), mime: "image/jpeg" };
+  } catch {
+    /* format the browser can't decode — send as is */
+  }
+  return { base64: await fileToBase64(f), mime: f.type };
+}
+
 /* Icons */
 const I = {
   sidebar: () => (
@@ -1429,11 +1461,11 @@ export default function App() {
 
   const handleFile = async (f) => {
     if (!f || !f.type.startsWith("image/")) return;
-    const b64 = await fileToBase64(f);
+    const { base64, mime } = await prepareImageForUpload(f);
     setImage({
       file: f,
-      base64: b64,
-      mime: f.type,
+      base64,
+      mime,
       preview: URL.createObjectURL(f),
     });
   };

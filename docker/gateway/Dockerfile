@@ -27,6 +27,10 @@ ENV USE_MOCK=false
 
 WORKDIR /app/web
 
+# Run as an unprivileged user; the gateway never writes to disk.
+RUN useradd --create-home --uid 10001 app
+USER app
+
 EXPOSE 8000
 
 HEALTHCHECK --interval=10s --timeout=5s --retries=5 --start-period=20s \
