@@ -15,9 +15,9 @@
 terramind-llm.com {
     # Forward all traffic to the nginx frontend container.
     # nginx handles /api/* → gateway:8000 internally (see docker/frontend/nginx.conf).
-    reverse_proxy frontend:80
-
-    # Pass the real client IP to the backend so nginx rate-limiting works correctly.
-    header_up X-Real-IP {remote_host}
-    header_up X-Forwarded-For {remote_host}
+    # Pass the real client IP so nginx rate-limits per visitor, not per Caddy container.
+    # (X-Forwarded-For is set by reverse_proxy automatically.)
+    reverse_proxy frontend:80 {
+        header_up X-Real-IP {remote_host}
+    }
 }
