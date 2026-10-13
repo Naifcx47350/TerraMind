@@ -1,4 +1,4 @@
-from langchain_openai import ChatOpenAI
+from core.openai_keys import chat_model
 
 from core.rag.product.config import (
     CHAT_MODEL,
@@ -26,7 +26,7 @@ def rewrite_query(
     question: str,
 ) -> str:
 
-    llm = ChatOpenAI(
+    llm = chat_model(
         model=CHAT_MODEL,
         temperature=0,
     )

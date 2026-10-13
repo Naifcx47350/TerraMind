@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Iterator
 
 from langchain_core.messages import BaseMessage
-from langchain_openai import ChatOpenAI
+from core.openai_keys import chat_model
 
 
 def stream_chat_tokens(
@@ -14,7 +14,7 @@ def stream_chat_tokens(
     model: str,
     temperature: float = 0.3,
 ) -> Iterator[str]:
-    llm = ChatOpenAI(model=model, temperature=temperature, streaming=True)
+    llm = chat_model(model=model, temperature=temperature, streaming=True)
     for chunk in llm.stream(messages):
         part = chunk.content
         if part:

@@ -1,7 +1,7 @@
 """Mode 3 — base OpenAI chat without retrieval (comparison baseline)."""
 
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
-from langchain_openai import ChatOpenAI
+from core.openai_keys import chat_model
 
 from core.models.image_context import question_with_image_context
 
@@ -68,7 +68,7 @@ def answer(
     image_mime: str | None = None,
     **_,
 ) -> dict:
-    llm = ChatOpenAI(model=CHAT_MODEL, temperature=0.3)
+    llm = chat_model(model=CHAT_MODEL, temperature=0.3)
     messages = [SystemMessage(content=SYSTEM_PROMPT)]
 
     for msg in (history or [])[-10:]:

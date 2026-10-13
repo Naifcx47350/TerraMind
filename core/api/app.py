@@ -8,12 +8,11 @@ Run from repo root:
 
 import asyncio
 import logging
-import re
 import time
 from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field
@@ -29,20 +28,22 @@ from core.models import (
     run_advisory,
     run_model,
 )
+from core.openai_keys import keyed_iter, require_request_key, use_openai_key, validate_openai_key
 
 _log = logging.getLogger(__name__)
-_OPENAI_KEY_RE = re.compile(r"^sk-(?:proj-)?[A-Za-z0-9_-]{20,}$")
-_PLACEHOLDER_MARKERS = ("your", "here", "example", "placeholder", "***", "...")
+
+# Every query must carry the visitor's own key; never fall back to a server key.
+require_request_key()
 
 
-def _validate_openai_key(api_key: str) -> str:
-    key = (api_key or "").strip()
-    lower = key.lower()
-    if any(marker in lower for marker in _PLACEHOLDER_MARKERS):
-        raise ValueError("Paste the full OpenAI API key, not the placeholder or masked value.")
-    if not _OPENAI_KEY_RE.match(key):
-        raise ValueError("Invalid OpenAI API key format.")
-    return key
+def visitor_openai_key(x_openai_key: str | None = Header(default=None)) -> str:
+    """The visitor's OpenAI key, forwarded by the web gateway as X-OpenAI-Key."""
+    if not x_openai_key:
+        raise HTTPException(status_code=401, detail="An OpenAI API key is required.")
+    try:
+        return validate_openai_key(x_openai_key)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
 
 
 @asynccontextmanager
@@ -171,35 +172,36 @@ def health():
 
 
 @app.post("/query", response_model=QueryResponse)
-async def query(request: QueryRequest):
+async def query(request: QueryRequest, openai_key: str = Depends(visitor_openai_key)):
     if not request.question.strip():
         raise HTTPException(status_code=400, detail="question is required")
 
     question = request.question.strip()
     start = time.time()
     try:
-        analysis = None
-        if request.image_base64 and request.image_mime:
-            analysis = resolve_image_analysis(
+        with use_openai_key(openai_key):
+            analysis = None
+            if request.image_base64 and request.image_mime:
+                analysis = resolve_image_analysis(
+                    question,
+                    request.image_analysis,
+                    request.image_base64,
+                    request.image_mime,
+                    request.language,
+                )
+            elif request.image_analysis:
+                analysis = request.image_analysis.strip()
+
+            result = await asyncio.to_thread(
+                run_model,
+                request.model,
                 question,
-                request.image_analysis,
-                request.image_base64,
-                request.image_mime,
+                request.history,
+                analysis,
+                None,
+                None,
                 request.language,
             )
-        elif request.image_analysis:
-            analysis = request.image_analysis.strip()
-
-        result = await asyncio.to_thread(
-            run_model,
-            request.model,
-            question,
-            request.history,
-            analysis,
-            None,
-            None,
-            request.language,
-        )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
     except Exception as e:
@@ -222,7 +224,7 @@ async def query(request: QueryRequest):
 
 
 @app.post("/query/compare", response_model=CompareResponse)
-async def query_compare(request: QueryRequest):
+async def query_compare(request: QueryRequest, openai_key: str = Depends(visitor_openai_key)):
     if not request.question.strip():
         raise HTTPException(status_code=400, detail="question is required")
 
@@ -233,13 +235,14 @@ async def query_compare(request: QueryRequest):
     shared_analysis = None
     if request.image_base64 and request.image_mime:
         try:
-            shared_analysis = resolve_image_analysis(
-                question,
-                request.image_analysis,
-                request.image_base64,
-                request.image_mime,
-                request.language,
-            )
+            with use_openai_key(openai_key):
+                shared_analysis = resolve_image_analysis(
+                    question,
+                    request.image_analysis,
+                    request.image_base64,
+                    request.image_mime,
+                    request.language,
+                )
         except Exception as e:
             raise HTTPException(status_code=400, detail=f"Image analysis failed: {e}") from e
     elif request.image_analysis:
@@ -280,7 +283,9 @@ async def query_compare(request: QueryRequest):
                 error=str(e),
             )
 
-    results = await asyncio.gather(*[run_one(mid) for mid in all_model_ids()])
+    # gather() copies the current context into each task, so all three models see the key.
+    with use_openai_key(openai_key):
+        results = await asyncio.gather(*[run_one(mid) for mid in all_model_ids()])
     elapsed_ms = int((time.time() - start) * 1000)
     print(f"[core.api] compare answered in {elapsed_ms}ms")
 
@@ -288,7 +293,7 @@ async def query_compare(request: QueryRequest):
 
 
 @app.post("/query/advisory", response_model=AdvisoryResponse)
-async def query_advisory(request: QueryRequest):
+async def query_advisory(request: QueryRequest, openai_key: str = Depends(visitor_openai_key)):
     """General agriculture guidance + product catalog in one flow (single vision call)."""
     if not request.question.strip():
         raise HTTPException(status_code=400, detail="question is required")
@@ -296,27 +301,28 @@ async def query_advisory(request: QueryRequest):
     question = request.question.strip()
     start = time.time()
     try:
-        analysis = None
-        if request.image_base64 and request.image_mime:
-            analysis = resolve_image_analysis(
+        with use_openai_key(openai_key):
+            analysis = None
+            if request.image_base64 and request.image_mime:
+                analysis = resolve_image_analysis(
+                    question,
+                    request.image_analysis,
+                    request.image_base64,
+                    request.image_mime,
+                    request.language,
+                )
+            elif request.image_analysis:
+                analysis = request.image_analysis.strip()
+
+            result = await asyncio.to_thread(
+                run_advisory,
                 question,
-                request.image_analysis,
-                request.image_base64,
-                request.image_mime,
+                request.history,
+                analysis,
+                None,
+                None,
                 request.language,
             )
-        elif request.image_analysis:
-            analysis = request.image_analysis.strip()
-
-        result = await asyncio.to_thread(
-            run_advisory,
-            question,
-            request.history,
-            analysis,
-            None,
-            None,
-            request.language,
-        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Advisory failed: {e}") from e
 
@@ -349,7 +355,7 @@ async def query_advisory(request: QueryRequest):
     )
 
 
-def _stream_query(request: QueryRequest):
+def _stream_query(request: QueryRequest, openai_key: str):
     from core.models.streaming import stream_model_events
 
     def generate():
@@ -372,18 +378,18 @@ def _stream_query(request: QueryRequest):
 
             yield json.dumps({"event": "error", "message": f"Model failed: {e}"}) + "\n"
 
-    return StreamingResponse(generate(), media_type="application/x-ndjson")
+    return StreamingResponse(keyed_iter(generate(), openai_key), media_type="application/x-ndjson")
 
 
 @app.post("/query/stream")
-async def query_stream(request: QueryRequest):
+async def query_stream(request: QueryRequest, openai_key: str = Depends(visitor_openai_key)):
     if not request.question.strip():
         raise HTTPException(status_code=400, detail="question is required")
-    return _stream_query(request)
+    return _stream_query(request, openai_key)
 
 
 @app.post("/query/advisory/stream")
-async def query_advisory_stream(request: QueryRequest):
+async def query_advisory_stream(request: QueryRequest, openai_key: str = Depends(visitor_openai_key)):
     if not request.question.strip():
         raise HTTPException(status_code=400, detail="question is required")
 
@@ -404,33 +410,4 @@ async def query_advisory_stream(request: QueryRequest):
 
             yield json.dumps({"event": "error", "message": f"Advisory failed: {e}"}) + "\n"
 
-    return StreamingResponse(generate(), media_type="application/x-ndjson")
-
-
-class OpenAIKeyIn(BaseModel):
-    api_key: str = Field(..., min_length=20, max_length=512)
-
-
-@app.get("/config/openai-status")
-def openai_status():
-    import os
-
-    key = os.getenv("OPENAI_API_KEY", "").strip()
-    try:
-        _validate_openai_key(key)
-    except ValueError:
-        return {"openai_configured": False}
-    return {"openai_configured": True}
-
-
-@app.post("/internal/openai-key")
-def set_openai_key(body: OpenAIKeyIn):
-    """Local dev: apply key for this Model API process (called by web BFF)."""
-    import os
-
-    try:
-        key = _validate_openai_key(body.api_key)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e)) from e
-    os.environ["OPENAI_API_KEY"] = key
-    return {"ok": True, "openai_configured": True}
+    return StreamingResponse(keyed_iter(generate(), openai_key), media_type="application/x-ndjson")

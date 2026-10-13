@@ -1,9 +1,16 @@
-"""Detect and apply OpenAI API keys for local dev (web + Model API)."""
+"""OpenAI key checks for the bring-your-own-key flow.
+
+Visitors keep their key in their own browser tab and send it with each request
+(X-OpenAI-Key). Nothing here stores a key: verify_openai_key only asks OpenAI
+whether the key is accepted.
+
+The validation rules mirror core/openai_keys.py; the gateway image does not ship
+LangChain, so it cannot import that module.
+"""
 
 from __future__ import annotations
 
 import logging
-import os
 import re
 
 import httpx
@@ -14,10 +21,7 @@ logger = logging.getLogger(__name__)
 
 _OPENAI_KEY_RE = re.compile(r"^sk-(?:proj-)?[A-Za-z0-9_-]{20,}$")
 _PLACEHOLDER_MARKERS = ("your", "here", "example", "placeholder", "***", "...")
-
-
-def _local_openai_key() -> str:
-    return (settings.vision_api_key or os.getenv("OPENAI_API_KEY", "")).strip()
+_OPENAI_MODELS_URL = "https://api.openai.com/v1/models"
 
 
 def _model_api_base_url() -> str | None:
@@ -29,7 +33,7 @@ def _model_api_base_url() -> str | None:
     return url.rstrip("/")
 
 
-def validate_openai_key(api_key: str) -> str:
+def validate_openai_key(api_key: str | None) -> str:
     key = (api_key or "").strip()
     lower = key.lower()
     if any(marker in lower for marker in _PLACEHOLDER_MARKERS):
@@ -39,56 +43,27 @@ def validate_openai_key(api_key: str) -> str:
     return key
 
 
-def apply_openai_key_local(api_key: str) -> None:
+async def verify_openai_key(api_key: str) -> None:
+    """
+    Raise ValueError if OpenAI rejects the key, RuntimeError if OpenAI can't be reached.
+
+    Listing models is free, so checking a key costs the visitor nothing.
+    """
     key = validate_openai_key(api_key)
-    os.environ["OPENAI_API_KEY"] = key
-    settings.vision_api_key = key
-    if not settings.vision_provider:
-        settings.vision_provider = "openai"
     try:
-        from core.models.vision import warm_vision_model
+        async with httpx.AsyncClient(timeout=15) as client:
+            resp = await client.get(_OPENAI_MODELS_URL, headers={"Authorization": f"Bearer {key}"})
+    except httpx.HTTPError as e:
+        logger.warning("OpenAI key check could not reach OpenAI: %s", type(e).__name__)
+        raise RuntimeError("Could not reach OpenAI to check the key. Try again in a moment.") from e
 
-        warm_vision_model(key)
-    except Exception as e:
-        logger.debug("Vision warmup after key update skipped: %s", e)
-
-
-async def sync_openai_key_to_model_api(api_key: str) -> None:
-    base = _model_api_base_url()
-    if not base:
-        return
-    key = validate_openai_key(api_key)
-    url = f"{base}/internal/openai-key"
-    try:
-        async with httpx.AsyncClient(timeout=30) as client:
-            resp = await client.post(url, json={"api_key": key})
-            resp.raise_for_status()
-    except Exception as e:
-        logger.warning("Could not sync OpenAI key to Model API (%s): %s", url, e)
-        raise RuntimeError(
-            "Key saved for web but Model API did not respond in time. "
-            "Wait for model-api to finish starting, then try again."
-        ) from e
-
-
-async def apply_openai_key(api_key: str) -> None:
-    apply_openai_key_local(api_key)
-    await sync_openai_key_to_model_api(api_key)
-
-
-async def model_api_has_openai_key() -> bool:
-    base = _model_api_base_url()
-    if not base:
-        return True
-    url = f"{base}/config/openai-status"
-    try:
-        async with httpx.AsyncClient(timeout=5) as client:
-            resp = await client.get(url)
-            if resp.is_success:
-                return bool(resp.json().get("openai_configured"))
-    except Exception as e:
-        logger.debug("Model API key check failed (%s): %s", url, e)
-    return False
+    if resp.status_code in (401, 403):
+        raise ValueError(
+            "OpenAI did not accept this key. Check that you copied the whole key "
+            "and that it has not been revoked."
+        )
+    if not resp.is_success:
+        raise RuntimeError(f"OpenAI returned an unexpected response ({resp.status_code}). Try again in a moment.")
 
 
 async def model_api_ready() -> bool:
@@ -103,16 +78,3 @@ async def model_api_ready() -> bool:
     except Exception as e:
         logger.debug("Model API readiness check failed (%s): %s", url, e)
         return False
-
-
-def is_openai_ready() -> bool:
-    if settings.use_mock:
-        return True
-    try:
-        validate_openai_key(_local_openai_key())
-    except ValueError:
-        return False
-    # A valid local/root .env key is enough for the key gate. Model API startup
-    # can lag behind the gateway, and that should show as service readiness,
-    # not as a request for the user to paste a key again.
-    return True

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import json
 
-from langchain_openai import ChatOpenAI
+from core.openai_keys import chat_model
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
@@ -184,7 +184,7 @@ def run_catalog_tool(request: CatalogToolRequest) -> CatalogToolResult:
 def build_catalog_request(user_question: str) -> CatalogToolRequest:
     """Use an LLM to convert a natural language question into a catalog tool request."""
 
-    llm = ChatOpenAI(
+    llm = chat_model(
         model=CHAT_MODEL,
         temperature=0,
     )

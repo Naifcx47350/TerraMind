@@ -16,7 +16,7 @@
 #
 # The model must answer only from retrieved product information.
 
-from langchain_openai import ChatOpenAI
+from core.openai_keys import chat_model
 from langchain_chroma import Chroma
 
 from core.rag.product.config import (
@@ -120,7 +120,7 @@ def create_llm():
     Create Product RAG chat model.
     """
 
-    return ChatOpenAI(
+    return chat_model(
         model=CHAT_MODEL,
         temperature=0,
     )

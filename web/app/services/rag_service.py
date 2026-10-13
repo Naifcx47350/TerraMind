@@ -94,6 +94,48 @@ MOCK_DB = {
         "confidence": "high",
         "chunks": 3,
     },
+    "corn": {
+        "answer_en": (
+            "Corn needs the most water from tasseling through grain fill:\n"
+            "- Drip or furrow irrigation both work; drip uses less water in hot, dry areas\n"
+            "- Water deeply every few days instead of lightly every day\n"
+            "- Avoid any water stress during silking, when yield losses are highest\n"
+            "- Check soil moisture at root depth before each irrigation"
+        ),
+        "answer_ar": (
+            "تحتاج الذرة أكبر كمية من الماء من مرحلة التزهير حتى امتلاء الحبوب:\n"
+            "- الري بالتنقيط أو بالأخاديد مناسبان؛ التنقيط يوفر الماء في المناطق الحارة والجافة\n"
+            "- الري العميق كل بضعة أيام أفضل من الري الخفيف يومياً\n"
+            "- تجنب أي إجهاد مائي أثناء ظهور الحريرة لأن خسائر المحصول تكون أعلى\n"
+            "- افحص رطوبة التربة عند عمق الجذور قبل كل رية"
+        ),
+        "sources": [
+            SourceDoc(title="Irrigation Guide (sample)", source="Demo data", section="Corn"),
+        ],
+        "confidence": "medium",
+        "chunks": 3,
+    },
+    "aphid": {
+        "answer_en": (
+            "Aphids on cotton can usually be managed step by step:\n"
+            "- Scout weekly and check the undersides of young leaves\n"
+            "- Protect natural enemies such as ladybirds and lacewings\n"
+            "- If numbers keep rising, use a registered insecticide such as flonicamid, following the label\n"
+            "- Rotate insecticide groups to slow resistance"
+        ),
+        "answer_ar": (
+            "يمكن عادةً التحكم في حشرة المن على القطن على مراحل:\n"
+            "- افحص الحقل أسبوعياً وتفقد الجهة السفلية للأوراق الصغيرة\n"
+            "- حافظ على الأعداء الطبيعيين مثل الدعسوقة وأسد المن\n"
+            "- إذا استمرت الأعداد في الزيادة، استخدم مبيداً مسجلاً مثل فلونيكاميد حسب الملصق\n"
+            "- بدّل مجموعات المبيدات لإبطاء المقاومة"
+        ),
+        "sources": [
+            SourceDoc(title="Cotton Pest Guide (sample)", source="Demo data", section="Aphids"),
+        ],
+        "confidence": "medium",
+        "chunks": 3,
+    },
     "default": {
         "answer_en": (
             "Based on available knowledge base sources:\n"
@@ -133,10 +175,28 @@ def _detect_language(text: str) -> str:
     return "ar" if arabic_chars > len(text) * 0.15 else "en"
 
 
+# Demo sessions pick a sample answer by keyword (checked in this order).
+_MOCK_KEYWORDS = {
+    "tomato": ("tomato", "طماطم", "بندورة"),
+    "wheat": ("wheat", "rust", "قمح", "صدأ"),
+    "corn": ("corn", "maize", "irrigat", "ذرة", "الري"),
+    "aphid": ("aphid", "cotton", "قطن"),
+}
+
+
+def _mock_key(request: AskRequest) -> str:
+    if request.crop_type and request.crop_type in MOCK_DB:
+        return request.crop_type
+    q = request.question.lower()
+    for key, words in _MOCK_KEYWORDS.items():
+        if any(w in q for w in words):
+            return key
+    return "default"
+
+
 def _mock_response(request: AskRequest, latency_ms: int, image_analysis: str = None) -> AskResponse:
     lang = _detect_language(request.question)
-    key = request.crop_type if request.crop_type and request.crop_type != "all" else "default"
-    data = MOCK_DB.get(key, MOCK_DB["default"])
+    data = MOCK_DB[_mock_key(request)]
     answer = data.get("answer_" + lang, data["answer_en"])
 
     return AskResponse(
@@ -250,17 +310,18 @@ async def _answer_with_llm(question: str, lang: str, context: str = "", history:
     )
 
 
+def _model_api_headers(api_key: str | None) -> dict:
+    """Forward the visitor's own key to the model API (never stored)."""
+    return {"X-OpenAI-Key": api_key} if api_key else {}
+
+
 async def _analyze_image(image_base64: str, mime: str, question: str, lang: str) -> str:
-    if settings.vision_api_key:
-        try:
-            from core.models.vision import analyze_image
+    """
+    Gateway-side vision, only for an operator-configured VISION_PROVIDER/VISION_API_KEY.
 
-            return await asyncio.to_thread(
-                analyze_image, image_base64, mime, question, lang
-            )
-        except Exception as e:
-            logger.warning("LangChain vision failed, trying HTTP fallback: %s", e)
-
+    Otherwise this returns None and the model API analyzes the photo itself with
+    the visitor's key (it receives image_base64 in the payload).
+    """
     if not settings.vision_provider or not settings.vision_api_key:
         return None
 
@@ -312,7 +373,7 @@ async def _analyze_image(image_base64: str, mime: str, question: str, lang: str)
         return provider["response_path"](r.json())
 
 
-async def call_rag(request: AskRequest) -> AskResponse:
+async def call_rag(request: AskRequest, api_key: str | None = None) -> AskResponse:
     start = time.time()
     lang = _detect_language(request.question)
 
@@ -325,8 +386,7 @@ async def call_rag(request: AskRequest) -> AskResponse:
         except Exception:
             image_analysis = None
 
-    if settings.use_mock:
-        import asyncio
+    if settings.use_mock or request.demo:
         await asyncio.sleep(0.5)
         return _mock_response(request, int((time.time() - start) * 1000), image_analysis)
 
@@ -349,7 +409,11 @@ async def call_rag(request: AskRequest) -> AskResponse:
                 rag_payload["image_mime"] = request.image_mime
 
             async with httpx.AsyncClient(timeout=settings.request_timeout) as client:
-                resp = await client.post(settings.rag_service_url, json=rag_payload)
+                resp = await client.post(
+                    settings.rag_service_url,
+                    json=rag_payload,
+                    headers=_model_api_headers(api_key),
+                )
                 resp.raise_for_status()
                 rag_data = resp.json()
 
@@ -384,8 +448,7 @@ async def call_rag(request: AskRequest) -> AskResponse:
                 return AskResponse(
                     answer=(
                         "The product knowledge service is not reachable or is not configured.\n\n"
-                        "Check that the model API is running and that OPENAI_API_KEY is set "
-                        "for real RAG answers. Local command:\n"
+                        "Check that the model API is running. Local command:\n"
                         "  uvicorn core.api.app:app --reload --port 8001\n\n"
                         f"Details: {e}"
                     ),
@@ -524,7 +587,7 @@ async def _mock_stream_events(request: AskRequest, lang: str) -> AsyncIterator[b
     ).encode()
 
 
-async def stream_rag(request: AskRequest):
+async def stream_rag(request: AskRequest, api_key: str | None = None):
     """Proxy NDJSON stream from model API (or mock)."""
     lang = _detect_language(request.question)
     image_analysis = None
@@ -536,7 +599,7 @@ async def stream_rag(request: AskRequest):
         except Exception:
             image_analysis = None
 
-    if settings.use_mock:
+    if settings.use_mock or request.demo:
         async for chunk in _mock_stream_events(request, lang):
             yield chunk
         return
@@ -552,7 +615,9 @@ async def stream_rag(request: AskRequest):
     payload = _build_rag_payload(request, lang, image_analysis)
     try:
         async with httpx.AsyncClient(timeout=settings.request_timeout) as client:
-            async with client.stream("POST", stream_url, json=payload) as resp:
+            async with client.stream(
+                "POST", stream_url, json=payload, headers=_model_api_headers(api_key)
+            ) as resp:
                 resp.raise_for_status()
                 async for chunk in resp.aiter_bytes():
                     yield chunk
@@ -565,7 +630,7 @@ async def stream_rag(request: AskRequest):
         ).encode()
 
 
-async def stream_rag_advisory(request: AskRequest):
+async def stream_rag_advisory(request: AskRequest, api_key: str | None = None):
     """Proxy advisory NDJSON stream from model API."""
     lang = _detect_language(request.question)
     image_analysis = None
@@ -577,7 +642,7 @@ async def stream_rag_advisory(request: AskRequest):
         except Exception:
             image_analysis = None
 
-    if settings.use_mock:
+    if settings.use_mock or request.demo:
         req = request.model_copy(update={"model": "general_rag"})
         async for chunk in _mock_stream_events(req, lang):
             yield chunk
@@ -595,7 +660,9 @@ async def stream_rag_advisory(request: AskRequest):
     payload.pop("model", None)
     try:
         async with httpx.AsyncClient(timeout=settings.request_timeout * 2) as client:
-            async with client.stream("POST", stream_url, json=payload) as resp:
+            async with client.stream(
+                "POST", stream_url, json=payload, headers=_model_api_headers(api_key)
+            ) as resp:
                 resp.raise_for_status()
                 async for chunk in resp.aiter_bytes():
                     yield chunk
@@ -608,7 +675,7 @@ async def stream_rag_advisory(request: AskRequest):
         ).encode()
 
 
-async def call_rag_advisory(request: AskRequest) -> AskResponse:
+async def call_rag_advisory(request: AskRequest, api_key: str | None = None) -> AskResponse:
     """General + product RAG sequence (public guidance then catalog)."""
     start = time.time()
     lang = _detect_language(request.question)
@@ -621,6 +688,11 @@ async def call_rag_advisory(request: AskRequest) -> AskResponse:
             )
         except Exception:
             image_analysis = None
+
+    if settings.use_mock or request.demo:
+        await asyncio.sleep(0.5)
+        mock = _mock_response(request, int((time.time() - start) * 1000), image_analysis)
+        return mock.model_copy(update={"model": "advisory"})
 
     advisory_url = _advisory_url()
     if not advisory_url:
@@ -651,7 +723,7 @@ async def call_rag_advisory(request: AskRequest) -> AskResponse:
             payload["image_mime"] = request.image_mime
 
         async with httpx.AsyncClient(timeout=settings.request_timeout * 2) as client:
-            resp = await client.post(advisory_url, json=payload)
+            resp = await client.post(advisory_url, json=payload, headers=_model_api_headers(api_key))
             resp.raise_for_status()
             data = resp.json()
 
@@ -708,7 +780,7 @@ def _parse_retrieval_score(data: dict) -> float | None:
         return None
 
 
-async def call_rag_compare(request: AskRequest) -> AskCompareResponse:
+async def call_rag_compare(request: AskRequest, api_key: str | None = None) -> AskCompareResponse:
     start = time.time()
     lang = _detect_language(request.question)
 
@@ -726,7 +798,7 @@ async def call_rag_compare(request: AskRequest) -> AskCompareResponse:
         for m in (request.history or [])[-10:]
     ]
 
-    if settings.use_mock:
+    if settings.use_mock or request.demo:
         await asyncio.sleep(0.5)
         mock_results = []
         labels = {
@@ -773,7 +845,7 @@ async def call_rag_compare(request: AskRequest) -> AskCompareResponse:
                 payload["image_mime"] = request.image_mime
 
             async with httpx.AsyncClient(timeout=settings.request_timeout * 3) as client:
-                resp = await client.post(compare_url, json=payload)
+                resp = await client.post(compare_url, json=payload, headers=_model_api_headers(api_key))
                 resp.raise_for_status()
                 data = resp.json()
 
@@ -839,7 +911,7 @@ async def call_rag_compare(request: AskRequest) -> AskCompareResponse:
                 image_base64=request.image_base64,
                 image_mime=request.image_mime,
             )
-            res = await call_rag(sub)
+            res = await call_rag(sub, api_key)
             return ModelCompareResult(
                 model=mid,
                 model_name=names[mid],

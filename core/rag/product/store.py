@@ -18,8 +18,9 @@ from pathlib import Path
 import shutil
 
 from langchain_core.documents import Document
-from langchain_openai import OpenAIEmbeddings
 from langchain_chroma import Chroma
+
+from core.openai_keys import RequestKeyEmbeddings
 
 from core.rag.product.config import (
     CHROMA_PATH,
@@ -40,13 +41,13 @@ def chroma_exists() -> bool:
 
 # Create the embedding model used to transform text chunks
 # into vector representations for semantic search.
-def create_embedding_model() -> OpenAIEmbeddings:
+def create_embedding_model() -> RequestKeyEmbeddings:
     """
     Create the embedding model used
     by Product RAG.
     """
 
-    return OpenAIEmbeddings(
+    return RequestKeyEmbeddings(
         model=EMBEDDING_MODEL
     )
 

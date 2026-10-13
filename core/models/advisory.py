@@ -6,7 +6,7 @@ import re
 from collections.abc import Iterator
 
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_openai import ChatOpenAI
+from core.openai_keys import chat_model
 
 from core.models.conversation import build_prompt_question, build_retrieval_query
 from core.rag.general import get_general_db, sources_from_retrieved as general_sources
@@ -151,7 +151,7 @@ def answer_advisory(
     ) = _retrieve_advisory(question, history, image_analysis)
 
     messages = _prompt_messages(generation_q, general_retrieved, product_retrieved)
-    llm = ChatOpenAI(model=CHAT_MODEL, temperature=0.3)
+    llm = chat_model(model=CHAT_MODEL, temperature=0.3)
     answer = (llm.invoke(messages).content or "").strip()
 
     general_body, product_body = split_advisory_sections(answer)

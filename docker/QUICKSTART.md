@@ -113,15 +113,18 @@ Stop: `Ctrl+C` in the terminal, or Docker Desktop → Containers → stop **terr
 
 ### 5. API key behavior (what new users should expect)
 
-| Situation                            | What happens                                                            |
-| ------------------------------------ | ----------------------------------------------------------------------- |
-| `OPENAI_API_KEY` in repo-root `.env` | Key modal may be **skipped** on your machine (injected at runtime)      |
-| No key in `.env`, `USE_MOCK=false`   | **Key modal** in the browser (intended for shared / cloned setups)      |
-| `USE_MOCK=true`                      | No key modal; canned demo answers                                       |
-| Pulled images from Docker Hub        | **No key inside images** — each user uses their own `.env` or the modal |
+Every visitor brings their own OpenAI key. The running app never uses a key from `.env`.
 
-Keys typed in the browser apply to **running** containers only (not baked into images).  
-Sharing the three images does **not** share your API key.
+| Situation                       | What happens                                                                          |
+| ------------------------------- | ------------------------------------------------------------------------------------- |
+| First visit, `USE_MOCK=false`   | **Key modal**: paste an OpenAI key, or click **Try the demo instead**                 |
+| Key entered                     | Kept in that browser tab only and sent with each question (`X-OpenAI-Key` header)     |
+| Demo session                    | Canned sample answers; a **Demo** badge shows in the top bar                          |
+| `USE_MOCK=true`                 | No key modal; canned answers for everyone                                             |
+| Change / remove key later       | Profile menu (bottom-left) → **OpenAI access**                                        |
+
+`OPENAI_API_KEY` in repo-root `.env` is used only by `init-indexes` and the CLI/eval scripts.
+Keys are never stored on the server, shared between visitors, or baked into images.
 
 ---
 

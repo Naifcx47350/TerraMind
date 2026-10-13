@@ -332,8 +332,31 @@ function sanitize(str) {
 }
 
 const SESSIONS_STORAGE_KEY = "terramind_sessions_v1";
+// Both live in sessionStorage: cleared when the tab closes, never sent anywhere but our API.
 const OPENAI_KEY_SESSION = "terramind_openai_key_session_v1";
+const DEMO_SESSION = "terramind_demo_session_v1";
 const SIDEBAR_WIDTH = 280;
+
+function sessionGet(key) {
+  try {
+    return sessionStorage.getItem(key) || "";
+  } catch {
+    return "";
+  }
+}
+
+function sessionSet(key, value) {
+  try {
+    if (value) sessionStorage.setItem(key, value);
+    else sessionStorage.removeItem(key);
+  } catch {
+    /* private mode */
+  }
+}
+
+function maskKey(key) {
+  return key ? `sk-…${key.slice(-4)}` : "";
+}
 
 function formatClockTime(language = "en") {
   return new Date().toLocaleTimeString(language === "ar" ? "ar" : "en-US", {
@@ -677,6 +700,8 @@ function ApiKeyGate({
   onSubmit,
   submitting,
   error,
+  onDemo,
+  onCancel,
   logoFilter = "none",
   logoGlow,
   logoTint,
@@ -874,9 +899,10 @@ function ApiKeyGate({
                   lineHeight: 1.65,
                 }}
               >
-                Your API key is kept only in this browser tab while you use TerraMind. It is not
-                saved to our servers, shared with other users, or written to files on your computer.
-                Close this tab and it is cleared.
+                Your API key is kept only in this browser tab. TerraMind sends it with each
+                question so OpenAI can answer, and never saves it on our servers or shares it
+                with other users. Usage is billed to your own OpenAI account. Close this tab and
+                the key is cleared.
               </div>
             </div>
           </div>
@@ -941,35 +967,86 @@ function ApiKeyGate({
             opacity: submitting || !value.trim() ? 0.7 : 1,
           }}
         >
-          {submitting ? "Connecting" : isReauth ? "Update key and continue" : "Continue"}
+          {submitting ? "Checking key" : isReauth ? "Update key and continue" : "Continue"}
         </button>
+        {onDemo ? (
+          <div style={{ marginTop: 16, textAlign: "center" }}>
+            <div style={{ fontSize: 12, color: t.text3, marginBottom: 8 }}>
+              Just looking around? See the interface with sample answers. No key needed.
+            </div>
+            <button
+              type="button"
+              onClick={onDemo}
+              disabled={submitting}
+              style={{
+                width: "100%",
+                padding: "10px 16px",
+                borderRadius: 10,
+                border: `1px solid ${t.border1}`,
+                background: "transparent",
+                color: t.text1,
+                fontWeight: 600,
+                fontSize: 13,
+                fontFamily: "inherit",
+                cursor: submitting ? "not-allowed" : "pointer",
+              }}
+            >
+              Try the demo instead
+            </button>
+          </div>
+        ) : null}
+        {onCancel ? (
+          <button
+            type="button"
+            onClick={onCancel}
+            style={{
+              display: "block",
+              margin: "12px auto 0",
+              border: "none",
+              background: "transparent",
+              color: t.text3,
+              fontSize: 12,
+              fontFamily: "inherit",
+              cursor: "pointer",
+            }}
+          >
+            Cancel
+          </button>
+        ) : null}
         </div>
       </div>
     </div>
   );
 }
 
-async function applyOpenAIKeyToServer(apiKey) {
-  const r = await fetch(`${API}/config/openai-key`, {
+/** Error carrying the API's `detail` message and HTTP status. */
+async function errorFromResponse(r) {
+  const data = await r.json().catch(() => ({}));
+  const detail = data.detail;
+  const err = new Error(
+    typeof detail === "string"
+      ? detail
+      : Array.isArray(detail)
+        ? detail.map((x) => x.msg || x).join(", ")
+        : `Server error ${r.status}`,
+  );
+  err.status = r.status;
+  return err;
+}
+
+/** Ask OpenAI (via our API) whether the key works. The server does not keep it. */
+async function verifyOpenAIKey(apiKey) {
+  const r = await fetch(`${API}/config/verify-key`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ api_key: apiKey.trim() }),
   });
-  const data = await r.json().catch(() => ({}));
-  if (!r.ok) {
-    const detail = data.detail;
-    throw new Error(
-      typeof detail === "string"
-        ? detail
-        : Array.isArray(detail)
-          ? detail.map((x) => x.msg || x).join(", ")
-          : `Server error ${r.status}`,
-    );
-  }
-  return data;
+  if (!r.ok) throw await errorFromResponse(r);
+  return r.json();
 }
 
 function isOpenAIKeyError(error) {
+  if (error?.status === 401) return true;
   const msg = String(error?.message || error || "").toLowerCase();
   return (
     msg.includes("invalid_api_key") ||
@@ -1022,6 +1099,11 @@ export default function App() {
   const [apiKeySubmitting, setApiKeySubmitting] = useState(false);
   const [apiKeyGateReason, setApiKeyGateReason] = useState("initial");
   const [gateExiting, setGateExiting] = useState(false);
+  // Bring-your-own-key: the visitor's key (this tab only) or a demo session with sample answers.
+  const [openaiKey, setOpenaiKey] = useState("");
+  const [demoMode, setDemoMode] = useState(false);
+  const [serverMock, setServerMock] = useState(false);
+  const [gateCancelable, setGateCancelable] = useState(false);
   const bottomRef = useRef(null);
   const fileRef = useRef(null);
   const taRef = useRef(null);
@@ -1085,36 +1167,29 @@ export default function App() {
           const d = await fetchConfig();
           if (cancelled) return;
 
-          const modelApiReady = d.use_mock || d.model_api_ready !== false;
-
-          if (d.use_mock || d.openai_configured) {
-            setApiKeyReady(true);
-            setShowApiKeyGate(false);
-            if (modelApiReady) {
-              setApiConfigLoading(false);
-              return;
-            }
+          if (!d.use_mock && d.model_api_ready === false) {
             await sleep(2000);
             continue;
           }
-
           setApiConfigLoading(false);
-          const stored = sessionStorage.getItem(OPENAI_KEY_SESSION);
-          if (stored) {
-            try {
-              await applyOpenAIKeyToServer(stored);
-              if (!cancelled) {
-                setApiKeyReady(true);
-                setShowApiKeyGate(false);
-              }
-              return;
-            } catch {
-              sessionStorage.removeItem(OPENAI_KEY_SESSION);
-              if (!cancelled) setApiKeyGateReason("reauth");
-            }
-          }
 
-          if (!cancelled) {
+          // There is no server key: this tab either has its own key, is a demo
+          // session, or must ask. A stored key that has stopped working is
+          // caught on the first request and sends the visitor back here.
+          const storedKey = sessionGet(OPENAI_KEY_SESSION);
+          if (d.use_mock) {
+            setServerMock(true);
+            setApiKeyReady(true);
+            setShowApiKeyGate(false);
+          } else if (storedKey) {
+            setOpenaiKey(storedKey);
+            setApiKeyReady(true);
+            setShowApiKeyGate(false);
+          } else if (sessionGet(DEMO_SESSION)) {
+            setDemoMode(true);
+            setApiKeyReady(true);
+            setShowApiKeyGate(false);
+          } else {
             setApiKeyReady(false);
             setShowApiKeyGate(true);
           }
@@ -1600,6 +1675,19 @@ export default function App() {
       })
       .filter((m) => (m.content || "").trim());
 
+  /** OpenAI rejected the key (or none was sent): forget it and ask again. */
+  const requireNewKey = () => {
+    sessionSet(OPENAI_KEY_SESSION, "");
+    setOpenaiKey("");
+    setApiKeyReady(false);
+    setGateCancelable(false);
+    setApiKeyGateReason("reauth");
+    setApiKeyError(
+      "OpenAI rejected that key. Paste the full key from platform.openai.com, not a masked or placeholder value.",
+    );
+    setShowApiKeyGate(true);
+  };
+
   const handleSubmit = async () => {
     if ((!text.trim() && !image) || loading || !apiKeyReady) return;
     const requestSessionId = activeId;
@@ -1640,6 +1728,11 @@ export default function App() {
       crop_type: "all",
       question_type: "all",
       history,
+      demo: demoMode,
+    };
+    const requestHeaders = {
+      "Content-Type": "application/json",
+      ...(openaiKey && !demoMode ? { "X-OpenAI-Key": openaiKey } : {}),
     };
     if (img) {
       body.image_base64 = img.base64;
@@ -1679,11 +1772,13 @@ export default function App() {
         delete compareBody.model;
         const r = await fetch(`${API}/ask/compare`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: requestHeaders,
           body: JSON.stringify(compareBody),
         });
-        if (!r.ok) throw new Error(`Server error ${r.status}`);
+        if (!r.ok) throw await errorFromResponse(r);
         const d = await r.json();
+        const keyRejected = (d.results || []).find((row) => row.error && isOpenAIKeyError(row.error));
+        if (keyRejected) requireNewKey();
         const panels = (d.results || []).map((row) => ({
           modelId: row.model,
           modelName: row.model_name || row.model,
@@ -1713,6 +1808,7 @@ export default function App() {
           return { ...s, messages: msgs };
         });
       } catch (e) {
+        if (isOpenAIKeyError(e)) requireNewKey();
         patch(requestSessionId, (s) => {
           const msgs = [...s.messages];
           if (
@@ -1778,10 +1874,10 @@ export default function App() {
 
       const r = await fetch(askPath, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: requestHeaders,
         body: JSON.stringify(body),
       });
-      if (!r.ok) throw new Error(`Server error ${r.status}`);
+      if (!r.ok) throw await errorFromResponse(r);
 
       let streamError = null;
       await consumeNdjsonStream(r, (ev) => {
@@ -1847,15 +1943,7 @@ export default function App() {
         return { ...s, messages: msgs };
       });
     } catch (e) {
-      if (isOpenAIKeyError(e)) {
-        sessionStorage.removeItem(OPENAI_KEY_SESSION);
-        setApiKeyReady(false);
-        setApiKeyGateReason("reauth");
-        setApiKeyError(
-          "OpenAI rejected that key. Paste the full key from platform.openai.com, not a masked or placeholder value.",
-        );
-        setShowApiKeyGate(true);
-      }
+      if (isOpenAIKeyError(e)) requireNewKey();
       patch(requestSessionId, (s) => {
         const msgs = [...s.messages];
         if (
@@ -1905,26 +1993,72 @@ export default function App() {
       all.messages[all.messages.length - 1]?.panels?.[0]?.loading
     );
 
+  const closeGate = () => {
+    setGateExiting(true);
+    setTimeout(() => {
+      setApiKeyReady(true);
+      setShowApiKeyGate(false);
+      setGateExiting(false);
+      setGateCancelable(false);
+      setApiKeyInput("");
+      setApiKeyError("");
+    }, 320);
+  };
+
   const handleApiKeySubmit = async () => {
     setApiKeyError("");
     setApiKeySubmitting(true);
     try {
-      await applyOpenAIKeyToServer(apiKeyInput);
-      sessionStorage.setItem(OPENAI_KEY_SESSION, apiKeyInput.trim());
-      setGateExiting(true);
-      setTimeout(() => {
-        setApiKeyReady(true);
-        setShowApiKeyGate(false);
-        setGateExiting(false);
-        setApiKeyInput("");
-      }, 320);
+      await verifyOpenAIKey(apiKeyInput);
+      const key = apiKeyInput.trim();
+      sessionSet(OPENAI_KEY_SESSION, key);
+      sessionSet(DEMO_SESSION, "");
+      setOpenaiKey(key);
+      setDemoMode(false);
+      closeGate();
     } catch (e) {
-      sessionStorage.removeItem(OPENAI_KEY_SESSION);
-      setApiKeyError(e.message || "Could not save API key");
+      setApiKeyError(e.message || "Could not check the API key");
     } finally {
       setApiKeySubmitting(false);
     }
   };
+
+  const handleStartDemo = () => {
+    sessionSet(OPENAI_KEY_SESSION, "");
+    sessionSet(DEMO_SESSION, "1");
+    setOpenaiKey("");
+    setDemoMode(true);
+    if (showApiKeyGate) closeGate();
+    else setApiKeyReady(true);
+  };
+
+  /** Menu → "Enter API key" / "Change key": reopen the key screen; Cancel keeps the current access. */
+  const handleOpenKeyGate = () => {
+    setApiKeyError("");
+    setApiKeyInput("");
+    setApiKeyGateReason("initial");
+    setGateCancelable(apiKeyReady);
+    setShowApiKeyGate(true);
+  };
+
+  const handleSignOut = () => {
+    sessionSet(OPENAI_KEY_SESSION, "");
+    sessionSet(DEMO_SESSION, "");
+    setOpenaiKey("");
+    setDemoMode(false);
+    setApiKeyReady(false);
+    setApiKeyGateReason("initial");
+    setGateCancelable(false);
+    setShowApiKeyGate(true);
+  };
+
+  const accessInfo = serverMock
+    ? { mode: "server-mock", maskedKey: "" }
+    : demoMode
+      ? { mode: "demo", maskedKey: "" }
+      : openaiKey
+        ? { mode: "key", maskedKey: maskKey(openaiKey) }
+        : { mode: "none", maskedKey: "" };
 
   const rootClass = [
     "tm-root",
@@ -2261,6 +2395,10 @@ export default function App() {
               stylized={stylized}
               profileDecorUrl={profileDecorUrl}
               profileDecorStyle={profileDecorStyle}
+              access={accessInfo}
+              onEnterKey={handleOpenKeyGate}
+              onStartDemo={handleStartDemo}
+              onSignOut={handleSignOut}
             />
           </div>
         </div>
@@ -2328,6 +2466,29 @@ export default function App() {
           >
             TerraMind
           </span>
+          {demoMode ? (
+            <button
+              type="button"
+              className="tm-demo-badge"
+              onClick={handleOpenKeyGate}
+              title={copy("demoBadgeTitle")}
+              style={{
+                marginInlineStart: 8,
+                padding: "3px 10px",
+                borderRadius: 999,
+                border: `1px solid ${t.accent}`,
+                background: t.accentDim,
+                color: t.text1,
+                fontSize: 11,
+                fontWeight: 600,
+                fontFamily: "inherit",
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {copy("demoBadge")}
+            </button>
+          ) : null}
           </div>
 
           <div
@@ -3204,6 +3365,8 @@ export default function App() {
         onSubmit={handleApiKeySubmit}
         submitting={apiKeySubmitting}
         error={apiKeyError}
+        onDemo={serverMock ? undefined : handleStartDemo}
+        onCancel={gateCancelable ? closeGate : undefined}
         logoFilter={logoFilter}
         logoGlow={logoGlow}
         logoTint={logoTint}

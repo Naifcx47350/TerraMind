@@ -18,6 +18,8 @@ class AskRequest(BaseModel):
     image_base64: Optional[str] = None
     image_mime: Optional[str] = None
     history: List[ChatMessage] = []
+    # Demo session: sample answers, no OpenAI key needed.
+    demo: bool = False
 
 
 class SourceDoc(BaseModel):

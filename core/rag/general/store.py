@@ -4,8 +4,8 @@ import shutil
 
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
-from langchain_openai import OpenAIEmbeddings
 
+from core.openai_keys import RequestKeyEmbeddings
 from core.rag.general.config import CHROMA_PATH, EMBEDDING_MODEL
 
 
@@ -15,7 +15,7 @@ def _chroma_exists() -> bool:
 
 def build_chroma_db(chunk_docs: list[Document], reset: bool = False) -> Chroma:
     CHROMA_PATH.parent.mkdir(parents=True, exist_ok=True)
-    embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL)
+    embeddings = RequestKeyEmbeddings(model=EMBEDDING_MODEL)
 
     if reset and _chroma_exists():
         shutil.rmtree(CHROMA_PATH)

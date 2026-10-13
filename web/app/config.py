@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -33,6 +32,9 @@ class Settings(BaseSettings):
 
     rag_service_url: str = "http://localhost:8001/query"
 
+    # /api/history (recent visitors' questions) is off unless this is set; callers send it as X-Admin-Token.
+    history_admin_token: str = ""
+
     model_config = SettingsConfigDict(
         env_file=(str(_ROOT_ENV_FILE), str(_ENV_FILE)),
         env_file_encoding="utf-8",
@@ -41,10 +43,8 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def apply_openai_defaults(self):
-        if not self.vision_api_key:
-            key = os.getenv("OPENAI_API_KEY", "").strip()
-            if key:
-                self.vision_api_key = key
+        # Deliberately no fallback to OPENAI_API_KEY: visitors bring their own key,
+        # sent per request. VISION_API_KEY is only for an explicitly configured provider.
         if self.vision_api_key and not self.vision_provider:
             self.vision_provider = "openai"
         if not self.vision_model:

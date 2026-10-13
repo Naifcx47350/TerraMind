@@ -23,11 +23,8 @@ services:
       dockerfile: docker/model-api/Dockerfile
     expose:
       - "8001"
-    env_file:
-      - path: .env
-        required: false
-    environment:
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    # No OPENAI_API_KEY here on purpose: every query carries the visitor's own key
+    # (X-OpenAI-Key) and the model API refuses to fall back to a server key.
     volumes:
       - vectorstore:/app/vectorstore
       - ./data:/app/data:ro
@@ -45,7 +42,6 @@ services:
       - path: .env
         required: false
     environment:
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       RAG_SERVICE_URL: http://model-api:8001/query
       USE_MOCK: ${USE_MOCK:-false}
     depends_on:
@@ -87,6 +83,9 @@ services:
 
   # --- One-shot: build Chroma indexes (run once, or after data changes) ---
   # Same image as model-api — Compose builds once, init reuses cached layers.
+  # The only service that uses a server-side OPENAI_API_KEY (to embed the corpus).
+  # Pass it just for this run instead of keeping it in .env:
+  #   OPENAI_API_KEY=sk-... docker compose --profile init run --rm init-indexes
   #
   #   docker compose build model-api
   #   docker compose --profile init run --rm init-indexes
