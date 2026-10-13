@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from typing import List, Optional
 
 
@@ -44,6 +44,8 @@ class AskResponse(BaseModel):
 
 
 class ModelCompareResult(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
+
     model: str
     model_name: str
     answer: str

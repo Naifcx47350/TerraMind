@@ -16,7 +16,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 load_dotenv()
 
@@ -103,6 +103,8 @@ class QueryResponse(BaseModel):
 
 
 class ModelCompareResult(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
+
     model: str
     model_name: str
     answer: str
